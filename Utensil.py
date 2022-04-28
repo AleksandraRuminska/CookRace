@@ -1,8 +1,7 @@
-from abc import ABC
 from MoveableObject import MoveableObject
 
 
-class Utensil(MoveableObject, ABC):
+class Utensil(MoveableObject):
     def __init__(self, image_name, col, row_count):
         super().__init__(image_name, col, row_count)
 

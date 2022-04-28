@@ -49,7 +49,6 @@ class Kitchen:
             row_count += 1
 
     def tileRecogn(self, tile, col, row_count):
-
         if tile == 1:
             tile = Tile(counterLR, col, row_count)
             self.tile_list.append(tile)
