@@ -6,7 +6,7 @@ SPRITE_SIZE = 50
 class Tile(pygame.sprite.Sprite):
     def __init__(self, image_name, col, row_count):
         super().__init__()
-        image = pygame.image.load(os.path.join('resources', image_name))
+        image = image_name
 
         height = SPRITE_SIZE
         width = SPRITE_SIZE
