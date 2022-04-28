@@ -1,9 +1,12 @@
 import socket
-import math
-import os
+
 import pickle
 import pygame
-from pygame.time import delay
+
+import Utensil
+from Floor import Floor
+from Kitchen import Kitchen
+from Plate import Plate
 from ReadThread import ReadThread
 from WriteThread import WriteThread
 from Cook import Cook
@@ -77,6 +80,7 @@ outfile.close()
 world = Kitchen(world_data)
 
 plates = []
+
 
 for tile in world.tile_list:
     if type(tile) == Plate:

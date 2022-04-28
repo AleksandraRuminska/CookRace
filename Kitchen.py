@@ -31,24 +31,6 @@ floor = pygame.image.load(os.path.join(path, "resources", "Floor.png"))
 cupboard = pygame.image.load(os.path.join(path, "resources", "Cupboard.png"))
 
 
-# counterLR = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\kitchenCounterLR.png")
-# counterUD = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\kitchenCounterUD.png")
-# oven = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\Oven.png")
-# palnik = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\Palnik.png")
-# cutting = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\CuttingKnife.png")
-# waste = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\WasteBasket.png")
-# plate = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\Plate.png")
-# seasoning = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\Seasoning.png")
-# sink = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\Sink.png")
-# next_sink = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\NextSink.png")
-# drop_off = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\DropOff.png")
-# pick_up = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\PickUp.png")
-# dirty = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\DirtyDishes.png")
-# order = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\Order.png")
-# floor = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\Floor.png")
-# cupboard = pygame.image.load("C:\\Users\\AleksandraRumińska\\PycharmProjects\\GameOvercooked\\resources\\Cupboard.png")
-
-
 class Kitchen:
 
     def __init__(self, w_data):
@@ -67,7 +49,6 @@ class Kitchen:
             row_count += 1
 
     def tileRecogn(self, tile, col, row_count):
-
         if tile == 1:
             tile = Tile(counterLR, col, row_count)
             self.tile_list.append(tile)
