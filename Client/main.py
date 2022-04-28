@@ -1,5 +1,11 @@
 import socket
+import pickle
+import pygame
 
+import Utensil
+from Floor import Floor
+from Kitchen import Kitchen
+from Plate import Plate
 from ReadThread import ReadThread
 from WriteThread import WriteThread
 
@@ -11,19 +17,6 @@ SERVER = "25.41.143.165"
 PORT = 8080
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((SERVER, PORT))
-
-import math
-import os
-import pickle
-
-import pygame
-from pygame.time import delay
-
-from Cook import Cook
-from Floor import Floor
-from Kitchen import Kitchen
-from Messages.Move import Move
-from Plate import Plate
 
 pygame.init()
 vec = pygame.math.Vector2
@@ -79,6 +72,7 @@ outfile.close()
 world = Kitchen(world_data)
 
 plates = []
+
 
 for tile in world.tile_list:
     if type(tile) == Plate:
