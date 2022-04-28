@@ -4,12 +4,19 @@ SPRITE_SIZE = 50
 
 path = os.path.abspath(os.getcwd())
 
-image = pygame.image.load(os.path.join(path, "..", "resources", "Cook.png"))
-cook_left = pygame.image.load(os.path.join(path, "..", "resources", "CookLeft.png"))
+path_parent = os.path.dirname(os.getcwd())
+os.chdir(path_parent)
+
+path = os.getcwd()
+
+
+image = pygame.image.load(os.path.join(path, "resources", "Cook.png"))
+cook_left = pygame.image.load(os.path.join(path, "resources", "CookLeft.png"))
 
 
 class Cook(pygame.sprite.Sprite):
-    def __init__(self, x, y, controlling, id):
+    #No coords in constructor
+    def __init__(self, controlling, id):
         super().__init__()
 
         height = SPRITE_SIZE
@@ -22,8 +29,8 @@ class Cook(pygame.sprite.Sprite):
         self.right = image
         self.left = cook_left
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.x = -500
+        self.rect.y = -500
 
         self.carry = None
         self.controlling = controlling

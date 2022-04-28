@@ -1,4 +1,5 @@
 import socket
+
 import pickle
 import pygame
 
@@ -8,6 +9,13 @@ from Kitchen import Kitchen
 from Plate import Plate
 from ReadThread import ReadThread
 from WriteThread import WriteThread
+from Cook import Cook
+from Floor import Floor
+from Kitchen import Kitchen
+from Messages.Move import Move
+from Plate import Plate
+from threading import *
+
 
 #SERVER = "25.47.123.189"
 
@@ -93,13 +101,15 @@ cooks = []
 # cooks.append(Competitor)
 #
 # MyCook = cooks[id]
+semaphore = Semaphore(1)
 
-
-new_thread = ReadThread(client, cooks, plates[0])
+semaphore.acquire()
+new_thread = ReadThread(client, cooks, plates[0], semaphore)
 new_thread.start()
 
-while not ReadThread.loaded:
-    pass
+
+semaphore.acquire()
+semaphore.release()
 
 all_sprites_group.add(cooks[0])
 all_sprites_group.add(cooks[1])
