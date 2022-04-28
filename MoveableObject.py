@@ -1,9 +1,10 @@
-from Utensil import Utensil
+from Tile import Tile
 
 
-class Plate(Utensil):
+class MoveableObject(Tile):
     def __init__(self, image_name, col, row_count):
         super().__init__(image_name, col, row_count)
 
-        self.maxCapacity = 5
+        self.is_moved = False
+
 

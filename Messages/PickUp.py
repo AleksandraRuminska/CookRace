@@ -3,7 +3,7 @@ from Messages.MessageType import MessageType
 
 
 class PickUp(Message):
-    def __init__(self, id,pickingUp = 0):
+    def __init__(self, id, pickingUp = 0):
         self._messageType = MessageType.PICKUP
         self._id = id
         self._pickingUp = pickingUp
