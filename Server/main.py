@@ -39,8 +39,7 @@ class ClientThread(threading.Thread):
                 # pick up
 
 
-
-userMap = {}
+# userMap = {}
 # LOCALHOST = "127.0.0.1"
 LOCALHOST = "25.41.143.165"
 

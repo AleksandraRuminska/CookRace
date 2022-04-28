@@ -158,11 +158,6 @@ while running:
                     plate.is_moved = True
                     break
 
-    # if direction == "R":
-    #     MyCook.image = MyCook.right
-    # elif direction == "L":
-    #     MyCook.image = MyCook.left
-
     all_sprites_group.update()
     sprites_no_cook_floor.update()
     movable.update()
