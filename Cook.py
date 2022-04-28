@@ -4,11 +4,11 @@ SPRITE_SIZE = 50
 
 path = os.path.abspath(os.getcwd())
 
-path_parent = os.path.dirname(os.getcwd())
-os.chdir(path_parent)
-
-path = os.getcwd()
-
+# path_parent = os.path.dirname(os.getcwd())
+# os.chdir(path_parent)
+#
+# path = os.getcwd()
+#
 
 image = pygame.image.load(os.path.join(path, "resources", "Cook.png"))
 cook_left = pygame.image.load(os.path.join(path, "resources", "CookLeft.png"))

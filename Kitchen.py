@@ -9,9 +9,13 @@ WHITE = (255, 255, 255)
 GREEN = (26, 160, 90)
 SPRITE_SIZE = 50
 
-path = os.path.abspath(os.getcwd())
+path1 = os.path.abspath(os.getcwd())
+
+path_parent = os.path.dirname(os.getcwd())
+os.chdir(path_parent)
+
+path = os.getcwd()
 print(path)
-image = pygame.image.load(os.path.join(path, "resources", "Cook.png"))
 
 counterLR = pygame.image.load(os.path.join(path, "resources", "kitchenCounterLR.png"))
 counterUD = pygame.image.load(os.path.join(path, "resources", "kitchenCounterUD.png"))
