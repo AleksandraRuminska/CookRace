@@ -17,13 +17,13 @@ class ReadThread(threading.Thread):
             in_data = self.client.recv(5)
             if in_data[0] == MessageType.CREATE:
                 # absolute
+                self.cooks.append(Cook(True if in_data[2] == 1 else False, in_data[1]))
                 # self.cooks.append(Cook(in_data[2]*100, in_data[3], True if in_data[4] == 1 else False, in_data[1]))
                 # if in_data[4] == 1:
                 #     self.cook = self.cooks[-1]
-                # if len(self.cooks) == 2:
-                #     self.semaphore.release()
+                if len(self.cooks) == 2:
+                    self.semaphore.release()
 
-                self.cooks.append(Cook(True if in_data[2] == 1 else False, in_data[1]))
                 if in_data[2] == 1:
                     self.cook = self.cooks[-1]
                 if len(self.cooks) == 2:
@@ -47,8 +47,10 @@ class ReadThread(threading.Thread):
                 print("Moving by:", movement_x , "position x: ", self.cooks[1].rect.x)
                 print("Moving by:", movement_y, "position y: ", self.cooks[1].rect.y)
 
-
                 self.cooks[in_data[1]].move(movement_x, movement_y, True)
+
+                # self.cooks[in_data[1]].rect.x = movement_x
+                # self.cooks[in_data[1]].rect.y = movement_y
 
             elif in_data[0] == MessageType.PICKUP:
                 # pick up

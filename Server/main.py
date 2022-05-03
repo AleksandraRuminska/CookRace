@@ -54,8 +54,8 @@ class ClientThread(threading.Thread):
 
 
 # userMap = {}
-# LOCALHOST = "127.0.0.1"
-LOCALHOST = "25.41.143.165"
+LOCALHOST = "127.0.0.1"
+# LOCALHOST = "25.41.143.165"
 
 PORT = 8080
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

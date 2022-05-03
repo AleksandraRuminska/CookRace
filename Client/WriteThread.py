@@ -6,6 +6,7 @@ import pygame
 from Messages.MessageType import MessageType
 from Messages.Move import Move
 from Messages.PickUp import PickUp
+from Messages.Spawn import Spawn
 
 SPRITE_SIZE = 50
 
