@@ -18,12 +18,6 @@ class ReadThread(threading.Thread):
             if in_data[0] == MessageType.CREATE:
                 # absolute
                 self.cooks.append(Cook(True if in_data[2] == 1 else False, in_data[1]))
-                # self.cooks.append(Cook(in_data[2]*100, in_data[3], True if in_data[4] == 1 else False, in_data[1]))
-                # if in_data[4] == 1:
-                #     self.cook = self.cooks[-1]
-                if len(self.cooks) == 2:
-                    self.semaphore.release()
-
                 if in_data[2] == 1:
                     self.cook = self.cooks[-1]
                 if len(self.cooks) == 2:
