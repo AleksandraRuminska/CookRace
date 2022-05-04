@@ -41,7 +41,7 @@ def collD(sprite, sprite2):
 
 class WriteThread(threading.Thread):
 
-    def __init__(self, client, cook, sprites_no_cook_floor,sinks):
+    def __init__(self, client, cook, sprites_no_cook_floor, sinks):
         threading.Thread.__init__(self)
         self.client = client
         self.cook = cook
