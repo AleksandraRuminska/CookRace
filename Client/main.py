@@ -97,14 +97,14 @@ outfile.close()
 
 world = Kitchen(world_data)
 
-plates = []
+movables = []
 
 
 for tile in world.tile_list:
     if type(tile) == Plate:
         all_sprites_group.add(tile)
         movable.add(tile)
-        plates.append(tile)
+        movables.append(tile)
     elif type(tile) == Floor:
         all_sprites_group.add(tile)
     else:
@@ -122,7 +122,7 @@ cooks = []
 semaphore = Semaphore(1)
 
 semaphore.acquire()
-new_thread = ReadThread(client, cooks, plates[0], semaphore)
+new_thread = ReadThread(client, cooks, movables, semaphore)
 new_thread.start()
 
 

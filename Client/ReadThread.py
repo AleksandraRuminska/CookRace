@@ -5,11 +5,11 @@ from Messages.MessageType import MessageType
 SPRITE_SIZE = 50
 
 class ReadThread(threading.Thread):
-    def __init__(self, client, cooks, plate, semaphore):
+    def __init__(self, client, cooks, movables, semaphore):
         threading.Thread.__init__(self)
         self.client = client
         self.cooks = cooks
-        self.plate = plate
+        self.movables = movables
         self.semaphore = semaphore
 
     def run(self):
@@ -18,16 +18,12 @@ class ReadThread(threading.Thread):
             if in_data[0] == MessageType.CREATE:
                 # absolute
                 self.cooks.append(Cook(True if in_data[2] == 1 else False, in_data[1]))
-                # self.cooks.append(Cook(in_data[2]*100, in_data[3], True if in_data[4] == 1 else False, in_data[1]))
-                # if in_data[4] == 1:
-                #     self.cook = self.cooks[-1]
-                if len(self.cooks) == 2:
-                    self.semaphore.release()
 
                 if in_data[2] == 1:
                     self.cook = self.cooks[-1]
                 if len(self.cooks) == 2:
                     self.semaphore.release()
+
             elif in_data[0] == MessageType.SPAWN:
                 self.cooks[in_data[1]].rect.x = in_data[2]*100
                 print("Setting x as: ", in_data[2]*100)
@@ -54,7 +50,13 @@ class ReadThread(threading.Thread):
                 if self.cooks[in_data[1]].is_carrying():
                     self.cooks[in_data[1]].put_down()
                 else:
-                    self.cooks[in_data[1]].pick_up(self.plate)
+                    for obj in self.movables:
+                        if self.cooks[in_data[1]].rect.y - SPRITE_SIZE/2 <= obj.rect.y <= self.cooks[in_data[1]].rect.y + SPRITE_SIZE/2:
+                            if self.cooks[in_data[1]].rect.x - SPRITE_SIZE <= obj.rect.x \
+                                    <= self.cooks[in_data[1]].rect.x + SPRITE_SIZE:
+                                self.cooks[in_data[1]].pick_up(obj)
+
+                    # self.cooks[in_data[1]].pick_up(self.plate)
 
             elif in_data[0] == MessageType.PUTINPLACE:
                 self.cooks[in_data[1]].rect.x = in_data[2]*SPRITE_SIZE + in_data[3]
