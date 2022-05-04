@@ -35,6 +35,7 @@ class Cook(pygame.sprite.Sprite):
         self.carry = None
         self.controlling = controlling
         self.id = id
+        self.collision = False
 
     def move(self, x, y, relative):
         if relative:

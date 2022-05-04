@@ -2,7 +2,7 @@ import threading
 
 from Cook import Cook
 from Messages.MessageType import MessageType
-
+SPRITE_SIZE = 50
 
 class ReadThread(threading.Thread):
     def __init__(self, client, cooks, plate, semaphore):
@@ -14,7 +14,7 @@ class ReadThread(threading.Thread):
 
     def run(self):
         while True:
-            in_data = self.client.recv(5)
+            in_data = self.client.recv(6)
             if in_data[0] == MessageType.CREATE:
                 # absolute
                 self.cooks.append(Cook(True if in_data[2] == 1 else False, in_data[1]))
@@ -49,15 +49,18 @@ class ReadThread(threading.Thread):
 
                 self.cooks[in_data[1]].move(movement_x, movement_y, True)
 
-                # self.cooks[in_data[1]].rect.x = movement_x
-                # self.cooks[in_data[1]].rect.y = movement_y
-
             elif in_data[0] == MessageType.PICKUP:
                 # pick up
                 if self.cooks[in_data[1]].is_carrying():
                     self.cooks[in_data[1]].put_down()
                 else:
                     self.cooks[in_data[1]].pick_up(self.plate)
+
+            elif in_data[0] == MessageType.PUTINPLACE:
+                self.cooks[in_data[1]].rect.x = in_data[2]*SPRITE_SIZE + in_data[3]
+                self.cooks[in_data[1]].rect.y = in_data[4]*SPRITE_SIZE + in_data[5]
+                self.cook.collision = False
+
 
             print("From Server :", in_data.decode())
             if 'bye' == in_data.decode():

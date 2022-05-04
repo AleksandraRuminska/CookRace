@@ -35,7 +35,7 @@ class ClientThread(threading.Thread):
 
     def run(self):
         while True:
-            msg = self.csocket.recv(5)
+            msg = self.csocket.recv(6)
             print("WHAT??")
             if msg[0] == MessageType.SPAWN:
                 # abs
@@ -51,6 +51,9 @@ class ClientThread(threading.Thread):
                 # self.csocket.send(msg)
                 print("SUCCESS!!")
                 # pick up
+            elif msg[0] == MessageType.PUTINPLACE:
+                for x in self.sockets:
+                    x.send(msg)
 
 
 # userMap = {}

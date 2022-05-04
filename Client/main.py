@@ -1,5 +1,4 @@
 import socket
-
 import pickle
 import pygame
 
@@ -13,6 +12,7 @@ from Cook import Cook
 from Floor import Floor
 from Kitchen import Kitchen
 from Messages.Move import Move
+from Messages.PutInPlace import PutInPlace
 from Plate import Plate
 from threading import *
 from pathfinding.core.grid import Grid
@@ -85,7 +85,7 @@ world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1]
 #               [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
 #               [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
 #               [10, 9, 2, 2, 1, 2, 2, 6, 1, 1, 6, 2, 2, 1, 2, 2, 9, 10]]
-
+#
 
 # Write world condition for a specific level to a file
 filename = 'blueprint'
@@ -160,12 +160,16 @@ while running:
         if collision:
             if MyCook.direction == "R":
                 MyCook.rect.right = collision[0].rect.left
+                MyCook.collision = True
             elif MyCook.direction == "L":
                 MyCook.rect.left = collision[0].rect.right
+                MyCook.collision = True
             elif MyCook.direction == "U":
                 MyCook.rect.top = collision[0].rect.bottom
+                MyCook.collision = True
             elif MyCook.direction == "D":
                 MyCook.rect.bottom = collision[0].rect.top
+                MyCook.collision = True
 
         for plate in movable:
             if MyCook.direction == "D" or MyCook.direction == "U":
