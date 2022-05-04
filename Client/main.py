@@ -131,7 +131,9 @@ semaphore.release()
 all_sprites_group.add(cooks[0])
 all_sprites_group.add(cooks[1])
 
-new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sinks)
+
+new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,sinks)
+
 new_thread_write.start()
 
 clock = pygame.time.Clock()
@@ -146,20 +148,20 @@ while running:
             running = False
 
     for MyCook in cooks:
-        collision = pygame.sprite.spritecollide(MyCook, sprites_no_cook_floor, False)
-        if collision:
-            if MyCook.direction == "R":
-                MyCook.rect.right = collision[0].rect.left
-                MyCook.collision = True
-            elif MyCook.direction == "L":
-                MyCook.rect.left = collision[0].rect.right
-                MyCook.collision = True
-            elif MyCook.direction == "U":
-                MyCook.rect.top = collision[0].rect.bottom
-                MyCook.collision = True
-            elif MyCook.direction == "D":
-                MyCook.rect.bottom = collision[0].rect.top
-                MyCook.collision = True
+        # collision = pygame.sprite.spritecollide(MyCook, sprites_no_cook_floor, False)
+        # if collision:
+        #     if MyCook.direction == "R":
+        #         MyCook.rect.right = collision[0].rect.left
+        #         MyCook.collision = True
+        #     elif MyCook.direction == "L":
+        #         MyCook.rect.left = collision[0].rect.right
+        #         MyCook.collision = True
+        #     elif MyCook.direction == "U":
+        #         MyCook.rect.top = collision[0].rect.bottom
+        #         MyCook.collision = True
+        #     elif MyCook.direction == "D":
+        #         MyCook.rect.bottom = collision[0].rect.top
+        #         MyCook.collision = True
 
     for sink in sinks:
         plate_in_sink = False
