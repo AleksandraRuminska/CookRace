@@ -62,6 +62,9 @@ class ClientThread(threading.Thread):
             elif msg[0] == MessageType.PUTINPLACE:
                 for x in self.sockets:
                     x.send(msg)
+            elif msg[0] == MessageType.DOACTIVITY:
+                for x in self.sockets:
+                    x.send(msg)
 
 
 # userMap = {}

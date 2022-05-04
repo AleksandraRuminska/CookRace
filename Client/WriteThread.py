@@ -6,6 +6,7 @@ import copy
 
 from pygame import sprite
 
+from Messages.DoActivity import DoActivity
 from Messages.MessageType import MessageType
 from Messages.Move import Move
 from Messages.PutInPlace import PutInPlace
@@ -39,11 +40,14 @@ def collD(sprite, sprite2):
 
 
 class WriteThread(threading.Thread):
-    def __init__(self, client, cook, sprites_no_cook_floor):
+
+    def __init__(self, client, cook, sprites_no_cook_floor,sinks):
         threading.Thread.__init__(self)
         self.client = client
         self.cook = cook
         self.sprites_no_cook_floor = sprites_no_cook_floor
+        self.sinks = sinks
+
 
     def run(self):
         clock = pygame.time.Clock()
@@ -83,6 +87,13 @@ class WriteThread(threading.Thread):
 
             elif keys[pygame.K_SPACE]:
                 msg = PickUp(self.cook.id)
+
+            elif keys[pygame.K_0]:
+                i = 0
+                for sink in self.sinks:
+                    if sink.is_washed and not sink.is_finished:
+                        msg = DoActivity(i, 1)
+                    i += 1
 
             if self.cook.collision:
                 msg = None
