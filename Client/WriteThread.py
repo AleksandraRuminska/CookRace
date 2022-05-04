@@ -2,49 +2,86 @@ import threading
 from time import sleep
 
 import pygame
+import copy
+
+from pygame import sprite
 
 from Messages.MessageType import MessageType
 from Messages.Move import Move
 from Messages.PutInPlace import PutInPlace
 from Messages.PickUp import PickUp
 
-
 SPRITE_SIZE = 50
 
 
+def collR(sprite, sprite2):
+    rect = copy.deepcopy(sprite.rect)
+    rect.x += 5
+    return rect.colliderect(sprite2.rect)
+
+
+def collL(sprite, sprite2):
+    rect = copy.deepcopy(sprite.rect)
+    rect.x -= 5
+    return rect.colliderect(sprite2.rect)
+
+
+def collU(sprite, sprite2):
+    rect = copy.deepcopy(sprite.rect)
+    rect.y -= 5
+    return rect.colliderect(sprite2.rect)
+
+
+def collD(sprite, sprite2):
+    rect = copy.deepcopy(sprite.rect)
+    rect.y += 5
+    return rect.colliderect(sprite2.rect)
+
+
 class WriteThread(threading.Thread):
-    def __init__(self, client, cook):
+    def __init__(self, client, cook, sprites_no_cook_floor):
         threading.Thread.__init__(self)
         self.client = client
         self.cook = cook
+        self.sprites_no_cook_floor = sprites_no_cook_floor
 
     def run(self):
         clock = pygame.time.Clock()
         count_ms = 0
         FPS = 100
 
-
         while True:
 
             # Moving the players left and right
 
             msg = None
-
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_RIGHT]:
+                collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collR)
+                if collision != [] and self.cook.rect.right == collision[0].rect.left:
+                    continue
                 self.cook.direction = "R"
                 msg = Move(self.cook.id, 5, 0)
 
             elif keys[pygame.K_LEFT]:
+                collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collL)
+                if collision != [] and self.cook.rect.left == collision[0].rect.right:
+                    continue
                 self.cook.direction = "L"
                 msg = Move(self.cook.id, -5, 0)
 
             elif keys[pygame.K_UP]:
+                collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collU)
+                if collision != [] and self.cook.rect.top == collision[0].rect.bottom:
+                    continue
                 self.cook.direction = "U"
                 msg = Move(self.cook.id, 0, -5)
 
             elif keys[pygame.K_DOWN]:
+                collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collD)
+                if collision != [] and self.cook.rect.bottom == collision[0].rect.top:
+                    continue
                 self.cook.direction = "D"
                 msg = Move(self.cook.id, 0, 5)
 
@@ -63,7 +100,6 @@ class WriteThread(threading.Thread):
                 # print("Collision pos y: ", y_pos)
                 msg = PutInPlace(self.cook.id, int(x_pos / SPRITE_SIZE), x_pos % SPRITE_SIZE, int(y_pos / SPRITE_SIZE),
                                  y_pos % SPRITE_SIZE)
-
 
             passed_ms = clock.tick(FPS)
             count_ms += passed_ms
