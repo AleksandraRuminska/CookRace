@@ -23,21 +23,12 @@ class ReadThread(threading.Thread):
                     self.cook = self.cooks[-1]
                 if len(self.cooks) == 2:
                     self.semaphore.release()
-            elif in_data[0] == MessageType.SPAWN:
-                self.cooks[in_data[1]].rect.x = in_data[2]*100
-                print("Setting x as: ", in_data[2]*100)
-                self.cooks[in_data[1]].rect.y = in_data[3]
-                print("Setting y as: ", in_data[3])
 
             elif in_data[0] == MessageType.MOVE:
                 # relative
-                movement_x = in_data[2]
-                movement_y = in_data[3]
-                if movement_x == 50:
-                    movement_x = -5
+                movement_x = int.from_bytes(in_data[2:3], byteorder='big', signed=True)
+                movement_y = int.from_bytes(in_data[3:], byteorder='big', signed=True)
 
-                if movement_y == 50:
-                    movement_y = -5
 
                 print("Moving by:", movement_x , "position x: ", self.cooks[1].rect.x)
                 print("Moving by:", movement_y, "position y: ", self.cooks[1].rect.y)
@@ -59,10 +50,11 @@ class ReadThread(threading.Thread):
                     #self.cooks[in_data[1]].pick_up(self.plate)
 
             elif in_data[0] == MessageType.PUTINPLACE:
-                self.cooks[in_data[1]].rect.x = in_data[2]*SPRITE_SIZE + in_data[3]
-                self.cooks[in_data[1]].rect.y = in_data[4]*SPRITE_SIZE + in_data[5]
+                movement_x = in_data[2]*SPRITE_SIZE + in_data[3]
+                movement_y = in_data[4]*SPRITE_SIZE + in_data[5]
+                self.cooks[in_data[1]].move(movement_x, movement_y, False)
                 self.cook.collision = False
 
-            print("From Server :", in_data.decode())
-            if 'bye' == in_data.decode():
-                break
+            #print("From Server :", in_data.decode())
+            #if 'bye' == in_data.decode():
+                #break

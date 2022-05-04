@@ -7,7 +7,7 @@ from Messages.MessageType import MessageType
 from Messages.Move import Move
 from Messages.PutInPlace import PutInPlace
 from Messages.PickUp import PickUp
-from Messages.Spawn import Spawn
+
 
 SPRITE_SIZE = 50
 
@@ -38,11 +38,11 @@ class WriteThread(threading.Thread):
 
             elif keys[pygame.K_LEFT]:
                 self.cook.direction = "L"
-                msg = Move(self.cook.id, 50, 0)
+                msg = Move(self.cook.id, -5, 0)
 
             elif keys[pygame.K_UP]:
                 self.cook.direction = "U"
-                msg = Move(self.cook.id, 0, 50)
+                msg = Move(self.cook.id, 0, -5)
 
             elif keys[pygame.K_DOWN]:
                 self.cook.direction = "D"
@@ -52,6 +52,8 @@ class WriteThread(threading.Thread):
                 msg = PickUp(self.cook.id)
 
             if self.cook.collision:
+                msg = None
+                continue
                 x_pos = self.cook.rect.x
                 y_pos = self.cook.rect.y
                 # print("Collision pos x: ", x_pos)

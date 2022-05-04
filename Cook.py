@@ -43,8 +43,13 @@ class Cook(pygame.sprite.Sprite):
             self.rect.y += y
 
         else:
-            self.rect.x = x
-            self.rect.y = y
+            if x < self.rect.x:
+                x = -x
+            if y < self.rect.y:
+                y = -y
+            self.rect.x = abs(x)
+            self.rect.y = abs(y)
+
 
         if x < 0:
             self.direction = "L"
