@@ -54,20 +54,20 @@ class Cook(pygame.sprite.Sprite):
         if x < 0:
             self.direction = "L"
             self.image = self.left
-            if relative and self.carry is not None:
+            if self.carry is not None:
                 self.carry.rect.x = self.rect.x - SPRITE_SIZE/2
         elif x > 0:
             self.direction = "R"
             self.image = self.right
-            if relative and self.carry is not None:
+            if self.carry is not None:
                 self.carry.rect.x = self.rect.x + SPRITE_SIZE/2
-        elif y > 0:
+        if y > 0:
             self.direction = "D"
-            if relative and self.carry is not None:
+            if self.carry is not None:
                 self.carry.rect.y = self.rect.y + SPRITE_SIZE/2
         elif y < 0:
             self.direction = "U"
-            if relative and self.carry is not None:
+            if self.carry is not None:
                 self.carry.rect.y = self.rect.y - SPRITE_SIZE / 2
 
     def pick_up(self, item):

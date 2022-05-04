@@ -132,7 +132,7 @@ all_sprites_group.add(cooks[0])
 all_sprites_group.add(cooks[1])
 
 
-new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,sinks)
+new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor, sinks)
 
 new_thread_write.start()
 
@@ -147,7 +147,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    for MyCook in cooks:
+    #for MyCook in cooks:
         # collision = pygame.sprite.spritecollide(MyCook, sprites_no_cook_floor, False)
         # if collision:
         #     if MyCook.direction == "R":
