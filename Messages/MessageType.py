@@ -7,3 +7,4 @@ class MessageType(IntEnum):
     MOVE = 2
     PICKUP = 3
     PUTINPLACE = 4
+    DOACTIVITY = 5
