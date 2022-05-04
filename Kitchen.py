@@ -5,6 +5,7 @@ import os
 
 from Floor import Floor
 from Helper import Helper
+from Sink import Sink
 from Tile import Tile
 from Plate import Plate
 
@@ -83,7 +84,7 @@ class Kitchen:
             tile = Tile(seasoning, col, row_count)
             self.tile_list.append(tile)
         elif tile == 9:
-            tile = Tile(sink, col, row_count)
+            tile = Sink(sink, col, row_count)
             self.tile_list.append(tile)
         elif tile == 10:
             tile = Tile(next_sink, col, row_count)

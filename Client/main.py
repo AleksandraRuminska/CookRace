@@ -1,5 +1,7 @@
 import socket
 import pickle
+import time
+
 import pygame
 
 import Utensil
@@ -7,6 +9,7 @@ from Floor import Floor
 from Kitchen import Kitchen
 from Plate import Plate
 from ReadThread import ReadThread
+from Sink import Sink
 from WriteThread import WriteThread
 from Cook import Cook
 from Floor import Floor
@@ -17,7 +20,7 @@ from Plate import Plate
 from threading import *
 from pathfinding.core.grid import Grid
 
-#SERVER = "25.47.123.189"
+# SERVER = "25.47.123.189"
 
 SERVER = "127.0.0.1"
 # SERVER = "25.41.143.165"
@@ -52,8 +55,8 @@ running = True
 all_sprites_group = pygame.sprite.Group()
 sprites_no_cook_floor = pygame.sprite.Group()
 movable = pygame.sprite.Group()
-
-
+# sinks = pygame.sprite.Group()
+sinks = []
 # Matrix for creation of world conditions for a specific level
 
 world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1],
@@ -99,7 +102,6 @@ world = Kitchen(world_data)
 
 movables = []
 
-
 for tile in world.tile_list:
     if type(tile) == Plate:
         all_sprites_group.add(tile)
@@ -107,24 +109,22 @@ for tile in world.tile_list:
         movables.append(tile)
     elif type(tile) == Floor:
         all_sprites_group.add(tile)
+    elif type(tile) == Sink:
+        sinks.append(tile)
+        all_sprites_group.add(tile)
+        sprites_no_cook_floor.add(tile)
     else:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
 
 cooks = []
 
-# Competitor = Cook(800, 100)
-#
-# cooks.append(Cook)
-# cooks.append(Competitor)
-#
-# MyCook = cooks[id]
+
 semaphore = Semaphore(1)
 
 semaphore.acquire()
-new_thread = ReadThread(client, cooks, movables, semaphore)
+new_thread = ReadThread(client, cooks, movables, semaphore, screen, sinks)
 new_thread.start()
-
 
 semaphore.acquire()
 semaphore.release()
@@ -132,28 +132,19 @@ semaphore.release()
 all_sprites_group.add(cooks[0])
 all_sprites_group.add(cooks[1])
 
-new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1])
+new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sinks)
 new_thread_write.start()
 
-
 clock = pygame.time.Clock()
-
 # Game Loop
-lift = False
+
 
 while running:
-    # keys = pygame.key.get_pressed()
     direction = ""
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                if lift:
-                    lift = False
-                else:
-                    lift = True
 
     for MyCook in cooks:
         collision = pygame.sprite.spritecollide(MyCook, sprites_no_cook_floor, False)
@@ -171,24 +162,28 @@ while running:
                 MyCook.rect.bottom = collision[0].rect.top
                 MyCook.collision = True
 
-        for plate in movable:
-            if MyCook.direction == "D" or MyCook.direction == "U":
-                if plate.rect.x == MyCook.rect.x and (
-                        plate.rect.y == MyCook.rect.y + SPRITE_SIZE or plate.rect.y == MyCook.rect.y - SPRITE_SIZE):
-                    plate.is_moved = True
-                    break
-
+    for sink in sinks:
+        plate_in_sink = False
+        sink.is_washed = False
+        for plate in movables:
+            if sink.rect.colliderect(plate):
+                plate_in_sink = True
+                sink.is_washed = True
+                break
             else:
-                if plate.rect.y == MyCook.rect.y and (
-                        plate.rect.x == MyCook.rect.x + SPRITE_SIZE or plate.rect.x == MyCook.rect.x - SPRITE_SIZE):
-                    plate.is_moved = True
-                    break
+                sink.is_finished = False
+                # sink.time = 0
+
+        if not plate_in_sink:
+            sink.time = 0
+
 
     all_sprites_group.update()
     sprites_no_cook_floor.update()
     movable.update()
     all_sprites_group.draw(screen)
     movable.draw(screen)
+
     pygame.display.flip()
 
     clock.tick(60)
@@ -197,4 +192,3 @@ pygame.quit()
 new_thread.join()
 new_thread_write.join()
 client.close()
-
