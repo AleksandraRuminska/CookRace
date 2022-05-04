@@ -35,7 +35,7 @@ class ClientThread(threading.Thread):
 
     def run(self):
         while True:
-            msg = self.csocket.recv(5)
+            msg = self.csocket.recv(6)
             print("WHAT??")
             if msg[0] == MessageType.SPAWN:
                 # abs
@@ -51,11 +51,14 @@ class ClientThread(threading.Thread):
                 # self.csocket.send(msg)
                 print("SUCCESS!!")
                 # pick up
+            elif msg[0] == MessageType.PUTINPLACE:
+                for x in self.sockets:
+                    x.send(msg)
 
 
 # userMap = {}
-# LOCALHOST = "127.0.0.1"
-LOCALHOST = "25.41.143.165"
+LOCALHOST = "127.0.0.1"
+# LOCALHOST = "25.41.143.165"
 
 PORT = 8080
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

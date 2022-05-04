@@ -1,5 +1,4 @@
 import socket
-
 import pickle
 import pygame
 
@@ -13,14 +12,15 @@ from Cook import Cook
 from Floor import Floor
 from Kitchen import Kitchen
 from Messages.Move import Move
+from Messages.PutInPlace import PutInPlace
 from Plate import Plate
 from threading import *
-
+from pathfinding.core.grid import Grid
 
 #SERVER = "25.47.123.189"
 
-# SERVER = "127.0.0.1"
-SERVER = "25.41.143.165"
+SERVER = "127.0.0.1"
+# SERVER = "25.41.143.165"
 
 PORT = 8080
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,22 +60,40 @@ world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1]
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
               [[1, 7], 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
               [3, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 3],
-              [1, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 1],
+              [1, 0, [0, 16], 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 1],
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 4],
-              [1, 0, 0, 0, 5, 0, 0, 0, 13, 13, 0, 0, 0, 5, 0, 0, 0, 1],
+              [1, 0, [0, 16], 0, 5, 0, 0, 0, 13, 13, 0, 0, 0, 5, 0, 0, 0, 1],
               [1, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 1],
-              [4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
+              [4, 0, 0, 0, 1, [0, 16], 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, 1],
-              [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
+              [1, 0, 0, 0, 1, 0, 0, [0, 16], 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
               [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
               [10, 9, 2, 2, 1, 2, 2, 6, 1, 1, 6, 2, 2, 1, 2, 2, 9, 10]]
+#
+# world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1],
+#               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+#               [7, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 7],
+#               [3, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 3],
+#               [1, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 1],
+#               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+#               [4, 0, 16, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 4],
+#               [1, 0, 0, 0, 5, 16, 0, 0, 13, 13, 0, 0, 0, 5, 0, 0, 0, 1],
+#               [1, 0, 0, 0, 1, 0, 0, 16, 13, 13, 0, 0, 0, 1, 0, 0, 0, 1],
+#               [4, 16, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
+#               [1, 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, 1],
+#               [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
+#               [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
+#               [10, 9, 2, 2, 1, 2, 2, 6, 1, 1, 6, 2, 2, 1, 2, 2, 9, 10]]
+#
 
 # Write world condition for a specific level to a file
 filename = 'blueprint'
 outfile = open(filename, 'wb')
 pickle.dump(world_data, outfile)
 outfile.close()
+
+# grid = Grid(matrix=world_data)
 
 world = Kitchen(world_data)
 
@@ -142,12 +160,16 @@ while running:
         if collision:
             if MyCook.direction == "R":
                 MyCook.rect.right = collision[0].rect.left
+                MyCook.collision = True
             elif MyCook.direction == "L":
                 MyCook.rect.left = collision[0].rect.right
+                MyCook.collision = True
             elif MyCook.direction == "U":
                 MyCook.rect.top = collision[0].rect.bottom
+                MyCook.collision = True
             elif MyCook.direction == "D":
                 MyCook.rect.bottom = collision[0].rect.top
+                MyCook.collision = True
 
         for plate in movable:
             if MyCook.direction == "D" or MyCook.direction == "U":

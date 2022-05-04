@@ -1,7 +1,10 @@
+import random
+
 import pygame
 import os
 
 from Floor import Floor
+from Helper import Helper
 from Tile import Tile
 from Plate import Plate
 
@@ -33,6 +36,8 @@ dirty = pygame.image.load(os.path.join(path, "resources", "DirtyDishes.png"))
 order = pygame.image.load(os.path.join(path, "resources", "Order.png"))
 floor = pygame.image.load(os.path.join(path, "resources", "Floor.png"))
 cupboard = pygame.image.load(os.path.join(path, "resources", "Cupboard.png"))
+helper1 = pygame.image.load(os.path.join(path, "resources", "Helper1.png"))
+helper2 = pygame.image.load(os.path.join(path, "resources", "Helper2.png"))
 
 
 class Kitchen:
@@ -100,4 +105,14 @@ class Kitchen:
             self.tile_list.append(tile)
         elif tile == 0:
             tile = Floor(floor, col, row_count)
+            self.tile_list.append(tile)
+        elif tile == 16:
+            num = random.randint(0, 2)
+
+            if num == 0:
+                image = helper1
+            else:
+                image = helper2
+
+            tile = Helper(image, col, row_count)
             self.tile_list.append(tile)

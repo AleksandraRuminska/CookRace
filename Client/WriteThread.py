@@ -5,7 +5,9 @@ import pygame
 
 from Messages.MessageType import MessageType
 from Messages.Move import Move
+from Messages.PutInPlace import PutInPlace
 from Messages.PickUp import PickUp
+from Messages.Spawn import Spawn
 
 SPRITE_SIZE = 50
 
@@ -31,19 +33,35 @@ class WriteThread(threading.Thread):
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_RIGHT]:
+                self.cook.direction = "R"
                 msg = Move(self.cook.id, 5, 0)
 
             elif keys[pygame.K_LEFT]:
+                self.cook.direction = "L"
                 msg = Move(self.cook.id, 50, 0)
 
             elif keys[pygame.K_UP]:
+                self.cook.direction = "U"
                 msg = Move(self.cook.id, 0, 50)
 
             elif keys[pygame.K_DOWN]:
+                self.cook.direction = "D"
                 msg = Move(self.cook.id, 0, 5)
 
             elif keys[pygame.K_SPACE]:
                 msg = PickUp(self.cook.id)
+
+            if self.cook.collision:
+                x_pos = self.cook.rect.x
+                y_pos = self.cook.rect.y
+                # print("Collision pos x: ", x_pos)
+                # print("Collision pos y: ", y_pos)
+                #
+                # print("Collision pos x: ", x_pos)
+                # print("Collision pos y: ", y_pos)
+                msg = PutInPlace(self.cook.id, int(x_pos / SPRITE_SIZE), x_pos % SPRITE_SIZE, int(y_pos / SPRITE_SIZE),
+                                 y_pos % SPRITE_SIZE)
+
 
             passed_ms = clock.tick(FPS)
             count_ms += passed_ms
