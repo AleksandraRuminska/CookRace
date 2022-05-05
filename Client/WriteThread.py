@@ -49,6 +49,7 @@ class WriteThread(threading.Thread):
         self.sinks = sinks
         self.assistants = assistants
         self.command_queue = command_queue
+        self.clicked = 10
 
     def run(self):
         clock = pygame.time.Clock()
@@ -98,6 +99,7 @@ class WriteThread(threading.Thread):
 
             # TODO push command to assistant queue - DONE
             # TODO CREATE ASSISTANTTHREAD AND ASSISTANT QUEUE - DONE
+
             elif keys[pygame.K_j]:
                 msg = DoActivity(0, 10)
                 self.command_queue.put(msg)

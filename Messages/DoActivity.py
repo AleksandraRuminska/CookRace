@@ -1,4 +1,4 @@
-from Messages.Message import  Message
+from Messages.Message import Message
 from Messages.MessageType import MessageType
 
 
@@ -12,3 +12,9 @@ class DoActivity(Message):
         arr = [self._messageType, self._id, self._time]
         byteArr = [x.to_bytes(1, byteorder='big', signed=True) for x in arr]
         return byteArr
+
+    def get_time(self):
+        return self._time
+
+    def get_message_type(self):
+        return self._messageType

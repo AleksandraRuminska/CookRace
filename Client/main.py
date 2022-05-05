@@ -48,6 +48,7 @@ running = True
 all_sprites_group = pygame.sprite.Group()
 sprites_no_cook_floor = pygame.sprite.Group()
 movable = pygame.sprite.Group()
+helpers = pygame.sprite.Group()
 # sinks = pygame.sprite.Group()
 sinks = []
 # Matrix for creation of world conditions for a specific level
@@ -115,6 +116,7 @@ for tile in world.tile_list:
         all_sprites_group.add(tile)
         cooks.append(tile)
         assistants.append(tile)
+        helpers.add(tile)
     else:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
@@ -145,7 +147,6 @@ new_thread_write.start()
 
 clock = pygame.time.Clock()
 # Game Loop
-
 
 while running:
     direction = ""
@@ -187,8 +188,10 @@ while running:
 
     all_sprites_group.update()
     sprites_no_cook_floor.update()
+    helpers.update()
     movable.update()
     all_sprites_group.draw(screen)
+    helpers.draw(screen)
     movable.draw(screen)
 
     pygame.display.flip()

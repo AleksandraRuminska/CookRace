@@ -48,7 +48,7 @@ class Kitchen:
         self.tile_list = []
 
         row_count = 0
-        self.count = 0
+        self.count = 2
         for row in w_data:
             col = 0
             for tile in row:

@@ -8,6 +8,7 @@ from time import sleep
 
 from Messages.MessageType import MessageType
 from Messages.Move import Move
+from Messages.PutInPlace import PutInPlace
 
 SPRITE_SIZE = 50
 
@@ -22,13 +23,21 @@ class AssistantThread(threading.Thread):
     def run(self):
         # TODO Semaphore
         if self.command_queue is not None:
+            print("NOT NONE")
             msg = self.command_queue.get()
+            if msg.get_message_type() == MessageType.DOACTIVITY:
+                time = msg.get_time()
 
-            if msg == MessageType.DOACTIVITY:
-                time = msg.time
+                print("LEN: ", len(self.assistants))
+                num = random.randint(2, len(self.assistants)+1)
+                # message = Move(2, 0, 5)
+                num2 = random.randint(-10, 10)
+                print("Assistance ", self.assistants)
+                x = self.assistants[num-2].rect.x + num2
+                y = self.assistants[num-2].rect.y
 
-                num = random.randint(0, len(self.assistants))
-                message = Move(self.assistants[num], 0, 5)
+                message = PutInPlace(num, int(x/SPRITE_SIZE),  x % SPRITE_SIZE,
+                                     int(y / SPRITE_SIZE), y % SPRITE_SIZE)
 
                 if message is not None:
                     to_send = message.encode()
