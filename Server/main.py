@@ -48,8 +48,14 @@ class ClientThread(threading.Thread):
             if msg[0] == MessageType.MOVE:
                 dx = int.from_bytes(msg[2:3], byteorder='big', signed=True)
                 dy = int.from_bytes(msg[3:], byteorder='big', signed=True)
+                i = 0
+                for cook in self.cooks:
+                    print("i: ", i, " x: ", cook.x, " y: ", cook.y)
+                    i+=1
                 self.cooks[msg[1]].move(dx, dy)
-                msg = PutInPlace(msg[1], int(self.cooks[msg[1]].x / SPRITE_SIZE), self.cooks[msg[1]].x % SPRITE_SIZE, int(self.cooks[msg[1]].y / SPRITE_SIZE), self.cooks[msg[1]].y % SPRITE_SIZE)
+                print("Cook: ", self.cooks[msg[1]].x, " , ", self.cooks[msg[1]].y)
+                msg = PutInPlace(msg[1], int(self.cooks[msg[1]].x / SPRITE_SIZE), self.cooks[msg[1]].x % SPRITE_SIZE,
+                                 int(self.cooks[msg[1]].y / SPRITE_SIZE), self.cooks[msg[1]].y % SPRITE_SIZE)
                 for x in self.sockets:
                     x.send(b''.join(msg.encode()))
                 # self.csocket.send(msg)

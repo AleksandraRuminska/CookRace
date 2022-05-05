@@ -6,6 +6,8 @@ import threading
 import random
 from time import sleep
 
+from pygame.time import delay
+
 from Messages.MessageType import MessageType
 from Messages.Move import Move
 from Messages.PutInPlace import PutInPlace
@@ -28,16 +30,31 @@ class AssistantThread(threading.Thread):
             if msg.get_message_type() == MessageType.DOACTIVITY:
                 time = msg.get_time()
 
-                print("LEN: ", len(self.assistants))
+                # print("LEN: ", len(self.assistants))
                 num = random.randint(2, len(self.assistants)+1)
                 # message = Move(2, 0, 5)
-                num2 = random.randint(-10, 10)
-                print("Assistance ", self.assistants)
-                x = self.assistants[num-2].rect.x + num2
-                y = self.assistants[num-2].rect.y
+                num = 2
+                path, runs = self.assistants[num - 2].find_path(0, 100)
+                sleep(0.3)
+                print("Path: ", path)
+                print("Runs: ", runs)
 
-                message = PutInPlace(num, int(x/SPRITE_SIZE),  x % SPRITE_SIZE,
-                                     int(y / SPRITE_SIZE), y % SPRITE_SIZE)
+                message = None
+                # for i in range(0, len(path)):
+                #     # sleep(0.3)
+                #     delay(25)
+                # message = PutInPlace(num, path[i][0], 0,
+                #                      path[i][1], 0)
+
+                message = PutInPlace(num, 0, 0,
+                                    0, 0)
+
+                # num2 = random.randint(-10, 10)
+                # x = self.assistants[num-2].rect.x + num2
+                # y = self.assistants[num-2].rect.y
+                #
+                # message = PutInPlace(num, int(x/SPRITE_SIZE),  x % SPRITE_SIZE,
+                #                      int(y / SPRITE_SIZE), y % SPRITE_SIZE)
 
                 if message is not None:
                     to_send = message.encode()

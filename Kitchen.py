@@ -44,8 +44,9 @@ os.chdir(path1)
 
 class Kitchen:
 
-    def __init__(self, w_data):
+    def __init__(self, w_data, grid):
         self.tile_list = []
+        self.grid = grid
 
         row_count = 0
         self.count = 2
@@ -118,6 +119,6 @@ class Kitchen:
             else:
                 image = helper2
 
-            tile = Helper(image, col, row_count, count)
+            tile = Helper(image, col, row_count, count, self.grid)
             self.tile_list.append(tile)
             self.count += 1
