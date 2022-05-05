@@ -68,7 +68,7 @@ class ReadThread(threading.Thread):
                 if in_data[1] > 1:
                     if self.cooks[in_data[1]].path is not None:
                         for i in range(0, len(self.cooks[in_data[1]].path)):
-                            delay(3000)
+                            delay(200)
                             self.cooks[in_data[1]].move(self.cooks[in_data[1]].path[i][0] * SPRITE_SIZE,
                                                         self.cooks[in_data[1]].path[i][1] * SPRITE_SIZE, False)
 

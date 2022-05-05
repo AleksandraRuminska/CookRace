@@ -33,8 +33,15 @@ class AssistantThread(threading.Thread):
                 # print("LEN: ", len(self.assistants))
                 num = random.randint(2, len(self.assistants)+1)
                 # message = Move(2, 0, 5)
-                num = 2
-                path, runs = self.assistants[num - 2].find_path(0, 100)
+                # num = 2
+
+                # for assist in self.assistants:
+                x = random.randint(1, 7)
+                y = random.randint(1, 8)
+
+                x = x * SPRITE_SIZE
+                y = y * SPRITE_SIZE
+                path, runs = self.assistants[num-2].find_path(x, y)
                 sleep(0.3)
                 print("Path: ", path)
                 print("Runs: ", runs)
