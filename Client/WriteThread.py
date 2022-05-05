@@ -6,6 +6,7 @@ import copy
 
 from pygame import sprite
 
+from AssistantThread import AssistantThread
 from Messages.DoActivity import DoActivity
 from Messages.MessageType import MessageType
 from Messages.Move import Move
@@ -40,14 +41,14 @@ def collD(sprite, sprite2):
 
 
 class WriteThread(threading.Thread):
-
-    def __init__(self, client, cook, sprites_no_cook_floor, sinks):
+    def __init__(self, client, cook, sprites_no_cook_floor, sinks, assistants, command_queue):
         threading.Thread.__init__(self)
         self.client = client
         self.cook = cook
         self.sprites_no_cook_floor = sprites_no_cook_floor
         self.sinks = sinks
-
+        self.assistants = assistants
+        self.command_queue = command_queue
 
     def run(self):
         clock = pygame.time.Clock()
@@ -60,8 +61,7 @@ class WriteThread(threading.Thread):
 
             msg = None
             keys = pygame.key.get_pressed()
-            #TODO push command to assistant queue
-            #TODO CREATE ASSISTANTTHREAD AND ASSISTANT QUEUE
+
             if keys[pygame.K_RIGHT]:
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collR)
                 if collision == [] or self.cook.rect.right != collision[0].rect.left:
@@ -96,6 +96,16 @@ class WriteThread(threading.Thread):
                         msg = DoActivity(i, 1)
                     i += 1
 
+            # TODO push command to assistant queue - DONE
+            # TODO CREATE ASSISTANTTHREAD AND ASSISTANT QUEUE - DONE
+            elif keys[pygame.K_j]:
+                msg = DoActivity(0, 10)
+                self.command_queue.put(msg)
+
+                new_assistant_thread = AssistantThread(self.client, self.assistants, self.command_queue)
+                new_assistant_thread.start()
+                continue
+
             if self.cook.collision:
                 msg = None
                 # continue
@@ -121,3 +131,4 @@ class WriteThread(threading.Thread):
 
             # if out_data == 'bye':
             #     break
+        new_assistant_thread.join()

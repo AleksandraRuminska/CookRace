@@ -1,23 +1,17 @@
-import socket
 import pickle
+import socket
+from queue import Queue
+from threading import *
 
 import pygame
 
-import Utensil
 from Floor import Floor
+from Helper import Helper
 from Kitchen import Kitchen
 from Plate import Plate
 from ReadThread import ReadThread
 from Sink import Sink
 from WriteThread import WriteThread
-from Cook import Cook
-from Floor import Floor
-from Kitchen import Kitchen
-from Messages.Move import Move
-from Messages.PutInPlace import PutInPlace
-from Plate import Plate
-from threading import *
-from pathfinding.core.grid import Grid
 
 # SERVER = "25.47.123.189"
 
@@ -100,6 +94,10 @@ outfile.close()
 world = Kitchen(world_data)
 
 movables = []
+cooks = []
+assistants = []
+command_queue = Queue()
+
 
 for tile in world.tile_list:
     if type(tile) == Plate:
@@ -112,12 +110,15 @@ for tile in world.tile_list:
         sinks.append(tile)
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
+    # TODO add list of helpers to cooks list - DONE
+    elif type(tile) == Helper:
+        all_sprites_group.add(tile)
+        cooks.append(tile)
+        assistants.append(tile)
     else:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
 
-cooks = []
-#TODO add list of helpers to cooks list
 
 semaphore = Semaphore(1)
 
@@ -130,11 +131,17 @@ semaphore.release()
 
 all_sprites_group.add(cooks[0])
 all_sprites_group.add(cooks[1])
+for i in range(2, len(cooks)):
+    all_sprites_group.add(cooks[i])
 
-
-new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor, sinks)
-
+# TODO przekazac parametr asystentow, assqueue - DONE
+new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
+                               sinks, assistants, command_queue)
 new_thread_write.start()
+
+
+# new_assistant_thread = AssistantThread(client, cooks, assistants, command_queue)
+# new_assistant_thread.start()
 
 clock = pygame.time.Clock()
 # Game Loop
@@ -147,21 +154,21 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    #for MyCook in cooks:
-        # collision = pygame.sprite.spritecollide(MyCook, sprites_no_cook_floor, False)
-        # if collision:
-        #     if MyCook.direction == "R":
-        #         MyCook.rect.right = collision[0].rect.left
-        #         MyCook.collision = True
-        #     elif MyCook.direction == "L":
-        #         MyCook.rect.left = collision[0].rect.right
-        #         MyCook.collision = True
-        #     elif MyCook.direction == "U":
-        #         MyCook.rect.top = collision[0].rect.bottom
-        #         MyCook.collision = True
-        #     elif MyCook.direction == "D":
-        #         MyCook.rect.bottom = collision[0].rect.top
-        #         MyCook.collision = True
+    # for MyCook in cooks:
+    # collision = pygame.sprite.spritecollide(MyCook, sprites_no_cook_floor, False)
+    # if collision:
+    #     if MyCook.direction == "R":
+    #         MyCook.rect.right = collision[0].rect.left
+    #         MyCook.collision = True
+    #     elif MyCook.direction == "L":
+    #         MyCook.rect.left = collision[0].rect.right
+    #         MyCook.collision = True
+    #     elif MyCook.direction == "U":
+    #         MyCook.rect.top = collision[0].rect.bottom
+    #         MyCook.collision = True
+    #     elif MyCook.direction == "D":
+    #         MyCook.rect.bottom = collision[0].rect.top
+    #         MyCook.collision = True
 
     for sink in sinks:
         plate_in_sink = False
@@ -178,7 +185,6 @@ while running:
         if not plate_in_sink:
             sink.time = 0
 
-
     all_sprites_group.update()
     sprites_no_cook_floor.update()
     movable.update()
@@ -192,4 +198,5 @@ pygame.quit()
 
 new_thread.join()
 new_thread_write.join()
+
 client.close()

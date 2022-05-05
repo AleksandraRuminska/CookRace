@@ -1,21 +1,23 @@
 import pygame
 import os
+
 SPRITE_SIZE = 50
 
-path = os.path.abspath(os.getcwd())
+path1 = os.path.abspath(os.getcwd())
 
-# path_parent = os.path.dirname(os.getcwd())
-# os.chdir(path_parent)
-#
-# path = os.getcwd()
-#
+path_parent = os.path.dirname(os.getcwd())
+os.chdir(path_parent)
+
+path = os.getcwd()
 
 image = pygame.image.load(os.path.join(path, "resources", "Cook.png"))
 cook_left = pygame.image.load(os.path.join(path, "resources", "CookLeft.png"))
 
+os.chdir(path1)
+
 
 class Cook(pygame.sprite.Sprite):
-    #No coords in constructor
+    # No coords in constructor
     def __init__(self, controlling, id):
         super().__init__()
 
@@ -50,21 +52,20 @@ class Cook(pygame.sprite.Sprite):
             self.rect.x = abs(x)
             self.rect.y = abs(y)
 
-
         if x < 0:
             self.direction = "L"
             self.image = self.left
             if self.carry is not None:
-                self.carry.rect.x = self.rect.x - SPRITE_SIZE/2
+                self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
         elif x > 0:
             self.direction = "R"
             self.image = self.right
             if self.carry is not None:
-                self.carry.rect.x = self.rect.x + SPRITE_SIZE/2
+                self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
         if y > 0:
             self.direction = "D"
             if self.carry is not None:
-                self.carry.rect.y = self.rect.y + SPRITE_SIZE/2
+                self.carry.rect.y = self.rect.y + SPRITE_SIZE / 2
         elif y < 0:
             self.direction = "U"
             if self.carry is not None:
