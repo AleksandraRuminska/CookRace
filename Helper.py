@@ -2,7 +2,7 @@ from Tile import Tile
 from pathfinding.finder.a_star import AStarFinder
 SPRITE_SIZE = 50
 
-
+#TODO inherit from cook, not tile
 class Helper(Tile):
     def __init__(self, image_name, col, row_count):
         super().__init__(image_name, col, row_count)

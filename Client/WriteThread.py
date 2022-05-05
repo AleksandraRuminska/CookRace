@@ -60,7 +60,8 @@ class WriteThread(threading.Thread):
 
             msg = None
             keys = pygame.key.get_pressed()
-
+            #TODO push command to assistant queue
+            #TODO CREATE ASSISTANTTHREAD AND ASSISTANT QUEUE
             if keys[pygame.K_RIGHT]:
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collR)
                 if collision == [] or self.cook.rect.right != collision[0].rect.left:

@@ -22,10 +22,9 @@ class ReadThread(threading.Thread):
             in_data = self.client.recv(6)
             if in_data[0] == MessageType.CREATE:
                 # absolute
+                #TODO add cooks to start of list, not append to end; first one at index 0, second at index 1
                 self.cooks.append(Cook(True if in_data[2] == 1 else False, in_data[1]))
-
-                if in_data[2] == 1:
-                    self.cook = self.cooks[-1]
+                #TODO ADD LENGTH OF ASSISTANTS TO 2
                 if len(self.cooks) == 2:
                     self.semaphore.release()
 
@@ -59,7 +58,6 @@ class ReadThread(threading.Thread):
                 movement_x = in_data[2]*SPRITE_SIZE + in_data[3]
                 movement_y = in_data[4]*SPRITE_SIZE + in_data[5]
                 self.cooks[in_data[1]].move(movement_x, movement_y, False)
-                self.cook.collision = False
 
             elif in_data[0] == MessageType.DOACTIVITY:
                 self.sinks[in_data[1]].time += in_data[2]

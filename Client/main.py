@@ -117,7 +117,7 @@ for tile in world.tile_list:
         sprites_no_cook_floor.add(tile)
 
 cooks = []
-
+#TODO add list of helpers to cooks list
 
 semaphore = Semaphore(1)
 
