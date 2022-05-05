@@ -6,6 +6,7 @@ from threading import *
 import pygame
 from pathfinding.core.grid import Grid
 
+from Client.AssistantThread import AssistantThread
 from Floor import Floor
 from Helper import Helper
 from Kitchen import Kitchen
@@ -99,6 +100,7 @@ world = Kitchen(world_data, matrix)
 movables = []
 cooks = []
 assistants = []
+new_assistant_thread = []
 command_queue = Queue()
 
 
@@ -144,11 +146,16 @@ new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True 
                                sinks, assistants, command_queue)
 new_thread_write.start()
 
+a_semaphore = Semaphore(1)
 
-# new_assistant_thread = AssistantThread(client, cooks, assistants, command_queue)
-# new_assistant_thread.start()
+index = 0
+for assistant in assistants:
+    new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore))
+    new_assistant_thread[index].start()
+    index += 1
 
 clock = pygame.time.Clock()
+
 # Game Loop
 
 while running:
@@ -204,5 +211,8 @@ pygame.quit()
 
 new_thread.join()
 new_thread_write.join()
+
+for thread in new_assistant_thread:
+    thread.join()
 
 client.close()

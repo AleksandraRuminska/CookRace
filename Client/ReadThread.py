@@ -64,17 +64,17 @@ class ReadThread(threading.Thread):
             elif in_data[0] == MessageType.PUTINPLACE:
                 movement_x = in_data[2] * SPRITE_SIZE + in_data[3]
                 movement_y = in_data[4] * SPRITE_SIZE + in_data[5]
-
-                if in_data[1] > 1:
-                    if self.cooks[in_data[1]].path is not None:
-                        for i in range(0, len(self.cooks[in_data[1]].path)):
-                            delay(200)
-                            self.cooks[in_data[1]].move(self.cooks[in_data[1]].path[i][0] * SPRITE_SIZE,
-                                                        self.cooks[in_data[1]].path[i][1] * SPRITE_SIZE, False)
-
-                        self.cooks[in_data[1]].path = None
-                else:
-                    self.cooks[in_data[1]].move(movement_x, movement_y, False)
+                #
+                # if in_data[1] > 1:
+                #     if self.cooks[in_data[1]].path is not None:
+                #         for i in range(0, len(self.cooks[in_data[1]].path)):
+                #             # delay(200)
+                #             self.cooks[in_data[1]].move(self.cooks[in_data[1]].path[i][0] * SPRITE_SIZE,
+                #                                         self.cooks[in_data[1]].path[i][1] * SPRITE_SIZE, False)
+                #
+                #         self.cooks[in_data[1]].path = None
+                # else:
+                self.cooks[in_data[1]].move(movement_x, movement_y, False)
 
             elif in_data[0] == MessageType.DOACTIVITY:
                 self.sinks[in_data[1]].time += in_data[2]

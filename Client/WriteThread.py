@@ -67,12 +67,14 @@ class WriteThread(threading.Thread):
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collR)
                 if collision == [] or self.cook.rect.right != collision[0].rect.left:
                     self.cook.direction = "R"
+                    self.cook.image = self.cook.right
                     msg = Move(self.cook.id, 5, 0)
 
             elif keys[pygame.K_LEFT]:
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collL)
                 if collision == [] or self.cook.rect.left != collision[0].rect.right:
                     self.cook.direction = "L"
+                    self.cook.image = self.cook.left
                     msg = Move(self.cook.id, -5, 0)
 
             elif keys[pygame.K_UP]:
@@ -103,9 +105,11 @@ class WriteThread(threading.Thread):
             elif keys[pygame.K_j]:
                 msg = DoActivity(0, 10)
                 self.command_queue.put(msg)
+                if self.command_queue is None:
+                    print("AHOJ")
 
-                new_assistant_thread = AssistantThread(self.client, self.assistants, self.command_queue)
-                new_assistant_thread.start()
+                # new_assistant_thread = AssistantThread(self.client, self.assistants, self.command_queue)
+                # new_assistant_thread.start()
                 continue
 
             if self.cook.collision:
@@ -133,4 +137,4 @@ class WriteThread(threading.Thread):
 
             # if out_data == 'bye':
             #     break
-        new_assistant_thread.join()
+        # new_assistant_thread.join()
