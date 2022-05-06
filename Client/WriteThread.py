@@ -41,13 +41,12 @@ def collD(sprite, sprite2):
 
 
 class WriteThread(threading.Thread):
-    def __init__(self, client, cook, sprites_no_cook_floor, sinks, assistants, command_queue):
+    def __init__(self, client, cook, sprites_no_cook_floor, sinks, command_queue):
         threading.Thread.__init__(self)
         self.client = client
         self.cook = cook
         self.sprites_no_cook_floor = sprites_no_cook_floor
         self.sinks = sinks
-        self.assistants = assistants
         self.command_queue = command_queue
         self.clicked = 10
 

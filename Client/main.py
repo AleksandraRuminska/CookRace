@@ -17,7 +17,7 @@ from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
 
-SERVER = "127.0.0.1"
+SERVER = "192.168.0.108"
 # SERVER = "25.41.143.165"
 
 PORT = 8080
@@ -134,7 +134,7 @@ new_thread = ReadThread(client, cooks, movables, semaphore, screen, sinks)
 new_thread.start()
 
 semaphore.acquire()
-semaphore.release()
+
 
 all_sprites_group.add(cooks[0])
 all_sprites_group.add(cooks[1])
@@ -143,7 +143,7 @@ for i in range(2, len(cooks)):
 
 # TODO przekazac parametr asystentow, assqueue - DONE
 new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
-                               sinks, assistants, command_queue)
+                               sinks, command_queue)
 new_thread_write.start()
 
 my_assistants = []
@@ -165,7 +165,7 @@ for assistant in my_assistants:
     new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore))
     new_assistant_thread[index].start()
     index += 1
-
+semaphore.release()
 clock = pygame.time.Clock()
 
 # Game Loop

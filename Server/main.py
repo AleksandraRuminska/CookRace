@@ -1,5 +1,7 @@
-import socket, threading
+import socket
+import threading
 from copy import deepcopy
+from queue import Queue
 from time import sleep
 
 from Messages.Create import Create
@@ -18,12 +20,7 @@ class ClientThread(threading.Thread):
         self.caddress = deepcopy(clientAddress)
         print("New connection added: ", self.caddress)
         self.sockets = sockets
-        self.cooks = []
         msg = Create(0, 1 if counter == 0 else 0)
-        self.cooks.append(CookServerData())
-        self.cooks[0].move(100, 100)
-        self.cooks.append(CookServerData())
-        self.cooks[1].move(800, 100)
         self.csocket.send((b''.join(msg.encode())))
         sleep(1)
         msg2 = Create(1, 1 if counter == 1 else 0)
@@ -49,11 +46,11 @@ class ClientThread(threading.Thread):
                 dx = int.from_bytes(msg[2:3], byteorder='big', signed=True)
                 dy = int.from_bytes(msg[3:], byteorder='big', signed=True)
                 i = 0
-                for cook in self.cooks:
-                    print("i: ", i, " x: ", cook.x, " y: ", cook.y)
-                    i+=1
+                #for cook in self.cooks:
+                    #print("i: ", i, " x: ", cook.x, " y: ", cook.y)
+                    #i+=1
                 self.cooks[msg[1]].move(dx, dy)
-                print("Cook: ", self.cooks[msg[1]].x, " , ", self.cooks[msg[1]].y)
+                #print("Cook: ", self.cooks[msg[1]].x, " , ", self.cooks[msg[1]].y)
                 msg = PutInPlace(msg[1], int(self.cooks[msg[1]].x / SPRITE_SIZE), self.cooks[msg[1]].x % SPRITE_SIZE,
                                  int(self.cooks[msg[1]].y / SPRITE_SIZE), self.cooks[msg[1]].y % SPRITE_SIZE)
                 for x in self.sockets:
@@ -74,7 +71,7 @@ class ClientThread(threading.Thread):
 
 
 # userMap = {}
-LOCALHOST = "127.0.0.1"
+LOCALHOST = "192.168.0.108"
 # LOCALHOST = "25.41.143.165"
 
 PORT = 8080
@@ -85,6 +82,13 @@ print("Server started")
 print("Waiting for client request..")
 counter = 0
 sockets = []
+updateQueue = Queue()
+cooks = []
+cooks.append(CookServerData())
+cooks[0].move(100, 100)
+cooks.append(CookServerData())
+cooks[1].move(800, 100)
+
 while True:
     server.listen(1)
     clientsock, clientAddress = server.accept()
