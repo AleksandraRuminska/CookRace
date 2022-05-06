@@ -36,25 +36,30 @@ class AssistantThread(threading.Thread):
                     #
                     # num = random.randint(2, len(self.assistants)+1)
 
-                    x = random.randint(1, 7)
-                    y = random.randint(1, 8)
+                    x = random.randint(1, 17)
+                    y = random.randint(1, 15)
 
                     x = x * SPRITE_SIZE
                     y = y * SPRITE_SIZE
 
                     # path, runs = self.assistants[num-2].find_path(x, y)
                     path, runs = self.assistant.find_path(x, y)
+                    # sleep(0.4)
                     print("Path: ", path)
                     print("Runs: ", runs)
 
                     message = None
-                    sleep(0.2)
                     print("LEN: ", len(path))
                     for i in range(0, len(path)):
-                        # delay(500)
+                        print("path x: ", path[i][0], " ,y: ", path[i][1])
                         message = PutInPlace(self.assistant.id, path[i][0], 0,
                                              path[i][1], 0)
-                        print("X: ", self.assistant.rect.x, " Y: ", self.assistant.rect.y)
+                        if message is not None:
+                            to_send = message.encode()
+                            self.client.send((b''.join(to_send)))
+                            sleep(0.6)
+
+                        # print("X: ", self.assistant.rect.x, " Y: ", self.assistant.rect.y)
 
                         # sleep(0.3)
                         # delay(200)
@@ -69,13 +74,9 @@ class AssistantThread(threading.Thread):
                     #                     0, 0)
 
 
-                    if message is not None:
-                        to_send = message.encode()
-                        self.client.send((b''.join(to_send)))
-                        if message._messageType is MessageType.MOVE:
-                            sleep(0.01)
+
 
             else:
                 print("NONE")
-                # break
+                sleep(0.3)
 

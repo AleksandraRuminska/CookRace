@@ -64,6 +64,9 @@ class ReadThread(threading.Thread):
             elif in_data[0] == MessageType.PUTINPLACE:
                 movement_x = in_data[2] * SPRITE_SIZE + in_data[3]
                 movement_y = in_data[4] * SPRITE_SIZE + in_data[5]
+
+                print("Position of index: ", in_data[1], " movement x: ",  movement_x, " , movement y: ",   movement_y)
+
                 #
                 # if in_data[1] > 1:
                 #     if self.cooks[in_data[1]].path is not None:

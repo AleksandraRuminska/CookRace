@@ -114,10 +114,10 @@ class Kitchen:
         # Helper
         elif tile == 16:
             num = random.randint(0, 2)
-            if num == 0:
-                image = helper1
-            else:
-                image = helper2
+            # if num == 0:
+            #     image = helper1
+            # else:
+            image = helper2
 
             tile = Helper(image, col, row_count, count, self.grid)
             self.tile_list.append(tile)
