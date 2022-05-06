@@ -62,12 +62,12 @@ world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1]
               [1, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 1],
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 4],
-              [1, 0, [0, 16], 0, 5, 0, [0, 16], 0, 13, 13, 0, [0, 16], 0, 5, 0, [0, 16], 0, 1],
+              [1, 0, [0, 16], 0, 5, 0, [0, 16], 0, 13, 13, 0, [0, 16], 0, 5, 0, 0, 0, 1],
               [1, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, 1],
-              [1, [0, 16], 0, 0, 1, 0, [0, 16], 0, 15, 15, 0, [0, 16], 0, 1, 0, 0, [0, 16], 1],
-              [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
+              [1, [0, 16], 0, 0, 1, 0, [0, 16], 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
+              [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, [0, 16], 0, 1],
               [10, 9, 2, 2, 1, 2, 2, 6, 1, 1, 6, 2, 2, 1, 2, 2, 9, 10]]
 
 matrix = [
@@ -146,10 +146,22 @@ new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True 
                                sinks, assistants, command_queue)
 new_thread_write.start()
 
+my_assistants = []
+
+if cooks[0].controlling:
+    for assistant in assistants:
+        if assistant.rect.x < 450:
+            my_assistants.append(assistant)
+else:
+    for assistant in assistants:
+        if assistant.rect.x > 450:
+            my_assistants.append(assistant)
+
+
 a_semaphore = Semaphore(1)
 
 index = 0
-for assistant in assistants:
+for assistant in my_assistants:
     new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore))
     new_assistant_thread[index].start()
     index += 1

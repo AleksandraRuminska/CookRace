@@ -36,8 +36,12 @@ class AssistantThread(threading.Thread):
                     #
                     # num = random.randint(2, len(self.assistants)+1)
 
-                    x = random.randint(1, 17)
-                    y = random.randint(1, 15)
+                    if self.assistant.rect.x < 450:
+                        x = random.randint(1, 7)
+                        y = random.randint(1, 12)
+                    else:
+                        x = random.randint(10, 16)
+                        y = random.randint(1, 12)
 
                     x = x * SPRITE_SIZE
                     y = y * SPRITE_SIZE
