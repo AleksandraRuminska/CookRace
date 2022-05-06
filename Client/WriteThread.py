@@ -53,9 +53,9 @@ class WriteThread(threading.Thread):
 
     def run(self):
         clock = pygame.time.Clock()
-        count_ms = 0
+        clicked = True
         FPS = 100
-
+        passed_ms_j =0
         while True:
 
             # Moving the players left and right
@@ -99,17 +99,12 @@ class WriteThread(threading.Thread):
                         msg = DoActivity(i, 1)
                     i += 1
 
-            # TODO push command to assistant queue - DONE
-            # TODO CREATE ASSISTANTTHREAD AND ASSISTANT QUEUE - DONE
-
             elif keys[pygame.K_j]:
-                msg = DoActivity(0, 10)
-                self.command_queue.put(msg)
-                if self.command_queue is None:
-                    print("AHOJ")
-
-                # new_assistant_thread = AssistantThread(self.client, self.assistants, self.command_queue)
-                # new_assistant_thread.start()
+                if clicked:
+                    msg = DoActivity(0, 10)
+                    self.command_queue.put(msg)
+                    clicked = False
+                    passed_ms_j = clock.tick(FPS)
                 continue
 
             if self.cook.collision:
@@ -125,8 +120,14 @@ class WriteThread(threading.Thread):
                 # msg = PutInPlace(self.cook.id, int(x_pos / SPRITE_SIZE), x_pos % SPRITE_SIZE, int(y_pos / SPRITE_SIZE),
                 #                  y_pos % SPRITE_SIZE)
 
-            passed_ms = clock.tick(FPS)
-            count_ms += passed_ms
+            time = clock.tick(FPS)
+            passed_ms = time - passed_ms_j
+
+            if not clicked and passed_ms > 1000:
+                clicked = True
+
+
+
             # if count_ms >= 500:
             #     count_ms = count_ms % 500
             if msg is not None:
