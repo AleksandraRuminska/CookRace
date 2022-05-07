@@ -141,25 +141,25 @@ class WriteThread(threading.Thread):
             time = pygame.time.get_ticks()
             passed_ms = time - passed_ms_j
 
-            if not clicked_j and passed_ms > 400:
+            if not clicked_j and passed_ms > 300:
                 clicked_j = True
 
             time = pygame.time.get_ticks()
             passed_ms = time - passed_ms_u
 
-            if not clicked_u and passed_ms > 400:
+            if not clicked_u and passed_ms > 300:
                 clicked_u = True
 
             time = pygame.time.get_ticks()
             passed_ms = time - passed_ms_d
 
-            if not clicked_d and passed_ms > 400:
+            if not clicked_d and passed_ms > 300:
                 clicked_d = True
 
             time = pygame.time.get_ticks()
             passed_ms = time - passed_ms_l
 
-            if not clicked_l and passed_ms > 400:
+            if not clicked_l and passed_ms > 300:
                 clicked_l = True
 
             time = pygame.time.get_ticks()
