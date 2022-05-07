@@ -45,10 +45,14 @@ class ClientThread(threading.Thread):
     def run(self):
         while True:
             msg = self.csocket.recv(6)
-            print("WHAT??")
+            #print("WHAT??")
             if msg[0] == MessageType.MOVE:
                 dx = int.from_bytes(msg[2:3], byteorder='big', signed=True)
                 dy = int.from_bytes(msg[3:], byteorder='big', signed=True)
+                print("____________________________________________________")
+                print(dx)
+                print(dy)
+                print("____________________________________________________")
                 self.queue.put(Move(msg[1], dx, dy))
             #     i = 0
             #     #for cook in self.cooks:
@@ -79,7 +83,7 @@ class ClientThread(threading.Thread):
 
 
 # userMap = {}
-LOCALHOST = "127.0.0.1"
+LOCALHOST = "192.168.0.108"
 # LOCALHOST = "25.41.143.165"
 
 PORT = 8080
@@ -126,6 +130,13 @@ while True:
                 cooks[msg._id].move(msg._dx, msg._dy)
                 msg = PutInPlace(msg._id, int(cooks[msg._id].x / SPRITE_SIZE), cooks[msg._id].x % SPRITE_SIZE,
                                  int(cooks[msg._id].y / SPRITE_SIZE), cooks[msg._id].y % SPRITE_SIZE)
+                print("____________________________________________________")
+                print(msg._id)
+                print(int(cooks[msg._id].x / SPRITE_SIZE))
+                print(cooks[msg._id].x % SPRITE_SIZE)
+                print(int(cooks[msg._id].y / SPRITE_SIZE))
+                print(cooks[msg._id].y % SPRITE_SIZE)
+                print("____________________________________________________")
                 for x in sockets:
                     x.send(b''.join(msg.encode()))
             elif msg._messageType == MessageType.DOACTIVITY:

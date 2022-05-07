@@ -17,7 +17,7 @@ from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
 
-SERVER = "127.0.0.1"
+SERVER = "192.168.0.108"
 # SERVER = "25.41.143.165"
 
 PORT = 8080
