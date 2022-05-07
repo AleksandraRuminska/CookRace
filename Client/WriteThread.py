@@ -75,7 +75,7 @@ class WriteThread(threading.Thread):
                     if clicked_r:
                         self.cook.direction = "R"
                         self.cook.image = self.cook.right
-                        msg = Move(self.cook.id, 25, 0)
+                        msg = Move(self.cook.id, 50, 0)
                         clicked_r = False
                         passed_ms_r = pygame.time.get_ticks()
 
@@ -85,7 +85,7 @@ class WriteThread(threading.Thread):
                     if clicked_l:
                         self.cook.direction = "L"
                         self.cook.image = self.cook.left
-                        msg = Move(self.cook.id, -25, 0)
+                        msg = Move(self.cook.id, -50, 0)
                         clicked_l = False
                         passed_ms_l = pygame.time.get_ticks()
 
@@ -94,7 +94,7 @@ class WriteThread(threading.Thread):
                 if collision == [] or self.cook.rect.top != collision[0].rect.bottom:
                     if clicked_u:
                         self.cook.direction = "U"
-                        msg = Move(self.cook.id, 0, -25)
+                        msg = Move(self.cook.id, 0, -50)
                         clicked_u = False
                         passed_ms_u = pygame.time.get_ticks()
 
@@ -103,7 +103,7 @@ class WriteThread(threading.Thread):
                 if collision == [] or self.cook.rect.bottom != collision[0].rect.top:
                     if clicked_d:
                         self.cook.direction = "D"
-                        msg = Move(self.cook.id, 0, 25)
+                        msg = Move(self.cook.id, 0, 50)
                         clicked_d = False
                         passed_ms_d = pygame.time.get_ticks()
 
