@@ -51,10 +51,17 @@ class WriteThread(threading.Thread):
         self.clicked = 10
 
     def run(self):
-        clock = pygame.time.Clock()
-        clicked = True
-        FPS = 100
+
+        clicked_j = True
+        clicked_u = True
+        clicked_d = True
+        clicked_l = True
+        clicked_r = True
         passed_ms_j =0
+        passed_ms_u = 0
+        passed_ms_d = 0
+        passed_ms_l = 0
+        passed_ms_r = 0
         while True:
 
             # Moving the players left and right
@@ -65,28 +72,40 @@ class WriteThread(threading.Thread):
             if keys[pygame.K_RIGHT]:
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collR)
                 if collision == [] or self.cook.rect.right != collision[0].rect.left:
-                    self.cook.direction = "R"
-                    self.cook.image = self.cook.right
-                    msg = Move(self.cook.id, 5, 0)
+                    if clicked_r:
+                        self.cook.direction = "R"
+                        self.cook.image = self.cook.right
+                        msg = Move(self.cook.id, 5, 0)
+                        clicked_r = False
+                        passed_ms_r = pygame.time.get_ticks()
 
             elif keys[pygame.K_LEFT]:
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collL)
                 if collision == [] or self.cook.rect.left != collision[0].rect.right:
-                    self.cook.direction = "L"
-                    self.cook.image = self.cook.left
-                    msg = Move(self.cook.id, -5, 0)
+                    if clicked_l:
+                        self.cook.direction = "L"
+                        self.cook.image = self.cook.left
+                        msg = Move(self.cook.id, -5, 0)
+                        clicked_l = False
+                        passed_ms_l = pygame.time.get_ticks()
 
             elif keys[pygame.K_UP]:
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collU)
                 if collision == [] or self.cook.rect.top != collision[0].rect.bottom:
-                    self.cook.direction = "U"
-                    msg = Move(self.cook.id, 0, -5)
+                    if clicked_u:
+                        self.cook.direction = "U"
+                        msg = Move(self.cook.id, 0, -5)
+                        clicked_u = False
+                        passed_ms_u = pygame.time.get_ticks()
 
             elif keys[pygame.K_DOWN]:
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collD)
                 if collision == [] or self.cook.rect.bottom != collision[0].rect.top:
-                    self.cook.direction = "D"
-                    msg = Move(self.cook.id, 0, 5)
+                    if clicked_d:
+                        self.cook.direction = "D"
+                        msg = Move(self.cook.id, 0, 5)
+                        clicked_d = False
+                        passed_ms_d = pygame.time.get_ticks()
 
             elif keys[pygame.K_SPACE]:
                 msg = PickUp(self.cook.id)
@@ -99,15 +118,11 @@ class WriteThread(threading.Thread):
                     i += 1
 
             elif keys[pygame.K_j]:
-                if clicked:
+                if clicked_j:
                     msg = DoActivity(0, 10)
                     self.command_queue.put(msg)
-                    clicked = False
+                    clicked_j = False
                     passed_ms_j = pygame.time.get_ticks()
-                    print(passed_ms_j)
-                else:
-
-                    print("Nae!")
 
 
             if self.cook.collision:
@@ -126,8 +141,32 @@ class WriteThread(threading.Thread):
             time = pygame.time.get_ticks()
             passed_ms = time - passed_ms_j
 
-            if not clicked and passed_ms > 500:
-                clicked = True
+            if not clicked_j and passed_ms > 500:
+                clicked_j = True
+
+            time = pygame.time.get_ticks()
+            passed_ms = time - passed_ms_j
+
+            if not clicked_u and passed_ms > 500:
+                clicked_u = True
+
+            time = pygame.time.get_ticks()
+            passed_ms = time - passed_ms_j
+
+            if not clicked_d and passed_ms > 500:
+                clicked_d = True
+
+            time = pygame.time.get_ticks()
+            passed_ms = time - passed_ms_j
+
+            if not clicked_l and passed_ms > 500:
+                clicked_l = True
+
+            time = pygame.time.get_ticks()
+            passed_ms = time - passed_ms_j
+
+            if not clicked_r and passed_ms > 500:
+                clicked_r = True
 
 
 
@@ -136,10 +175,7 @@ class WriteThread(threading.Thread):
             if msg is not None:
                 to_send = msg.encode()
                 self.client.send(((to_send)))
-                if msg._messageType is MessageType.MOVE:
-                    if abs(msg._dx) > 5 or abs(msg._dy) > 5:
-                        print("Gay")
-                    sleep(0.01)
+                    #sleep(0.1)
 
             # if out_data == 'bye':
             #     break
