@@ -28,7 +28,7 @@ class AssistantThread(threading.Thread):
         while True:
             self.semaphore.acquire()
             if not self.command_queue.empty():
-                print("NOT NONE")
+                #print("NOT NONE")
                 msg = self.command_queue.get()
                 self.semaphore.release()
                 if msg.get_message_type() == MessageType.DOACTIVITY:
@@ -82,6 +82,6 @@ class AssistantThread(threading.Thread):
 
             else:
                 self.semaphore.release()
-                print("NONE")
+                #print("NONE")
                 sleep(0.3)
 

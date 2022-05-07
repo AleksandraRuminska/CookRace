@@ -6,10 +6,11 @@ from time import sleep
 
 from Messages import PickUp
 from Messages.Create import Create
+from Messages.DoActivity import DoActivity
 from Messages.MessageType import MessageType
 from Messages.Move import Move
 from Messages.PutInPlace import PutInPlace
-from Messages.PickUp import  PickUp
+from Messages.PickUp import PickUp
 from Server.CookServerData import CookServerData
 
 SPRITE_SIZE = 50
@@ -22,7 +23,7 @@ class ClientThread(threading.Thread):
         self.csocket = clientsocket
         self.caddress = deepcopy(clientAddress)
         print("New connection added: ", self.caddress)
-        #self.sockets = sockets
+        self.queue = queue
         msg = Create(0, 1 if counter == 0 else 0)
         self.csocket.send((b''.join(msg.encode())))
         sleep(1)
@@ -39,16 +40,16 @@ class ClientThread(threading.Thread):
         #     for x in self.sockets:
         #         x.send((b''.join(msg4.encode())))
 
-            # self.csocket.send((b''.join(msg4.encode())))
+        # self.csocket.send((b''.join(msg4.encode())))
 
     def run(self):
         while True:
             msg = self.csocket.recv(6)
             print("WHAT??")
             if msg[0] == MessageType.MOVE:
-                 dx = int.from_bytes(msg[2:3], byteorder='big', signed=True)
-                 dy = int.from_bytes(msg[3:], byteorder='big', signed=True)
-                 self.queue.put(Move(msg[1],dx,dy))
+                dx = int.from_bytes(msg[2:3], byteorder='big', signed=True)
+                dy = int.from_bytes(msg[3:], byteorder='big', signed=True)
+                self.queue.put(Move(msg[1], dx, dy))
             #     i = 0
             #     #for cook in self.cooks:
             #         #print("i: ", i, " x: ", cook.x, " y: ", cook.y)
@@ -61,18 +62,18 @@ class ClientThread(threading.Thread):
             #         x.send(b''.join(msg.encode()))
             #     # self.csocket.send(msg)
             elif msg[0] == MessageType.PICKUP:
-                  self.queue.put(PickUp(msg[1], msg[2]))
+                self.queue.put(PickUp(msg[1], msg[2]))
             #     for x in self.sockets:
             #         x.send(msg)
             #     # self.csocket.send(msg)
             #     print("SUCCESS!!")
             #     # pick up
             elif msg[0] == MessageType.PUTINPLACE:
-
+                self.queue.put(PutInPlace(msg[1], msg[2], msg[3], msg[4], msg[5]))
             #     for x in self.sockets:
             #         x.send(msg)
             elif msg[0] == MessageType.DOACTIVITY:
-
+                self.queue.put(DoActivity(msg[1], msg[2]))
             #     for x in self.sockets:
             #         x.send(msg)
 
@@ -94,7 +95,6 @@ cooks = []
 for i in range(8):
     cooks.append(CookServerData())
 
-
 cooks[0].move(100, 100)
 cooks[1].move(800, 100)
 cooks[2].move(100, 350)
@@ -110,21 +110,21 @@ while True:
     newthread = ClientThread(clientAddress, clientsock, counter, updateQueue)
     newthread.start()
     counter += 1
-    if counter == 1:
-        msg = PutInPlace(0, cooks[0].x / SPRITE_SIZE, cooks[0].x % SPRITE_SIZE,
-                         cooks[0].y / SPRITE_SIZE, cooks[0].y % SPRITE_SIZE)
+    if counter == 2:
+        msg = PutInPlace(0, int(cooks[0].x / SPRITE_SIZE), cooks[0].x % SPRITE_SIZE,
+                         int(cooks[0].y / SPRITE_SIZE), cooks[0].y % SPRITE_SIZE)
         for x in sockets:
             x.send((b''.join(msg.encode())))
         sleep(1)
-        msg = PutInPlace(1, cooks[1].x / SPRITE_SIZE, cooks[1].x % SPRITE_SIZE,
-                         cooks[1].y / SPRITE_SIZE, cooks[1].y % SPRITE_SIZE)
+        msg = PutInPlace(1, int(cooks[1].x / SPRITE_SIZE), cooks[1].x % SPRITE_SIZE,
+                         int(cooks[1].y / SPRITE_SIZE), cooks[1].y % SPRITE_SIZE)
         for x in sockets:
             x.send((b''.join(msg.encode())))
         while True:
             msg = updateQueue.get(block=True)
             if msg._messageType == MessageType.MOVE:
                 cooks[msg._id].move(msg._dx, msg._dy)
-                msg = PutInPlace(msg[1], int(cooks[msg._id].x / SPRITE_SIZE), cooks[msg._id].x % SPRITE_SIZE,
+                msg = PutInPlace(msg._id, int(cooks[msg._id].x / SPRITE_SIZE), cooks[msg._id].x % SPRITE_SIZE,
                                  int(cooks[msg._id].y / SPRITE_SIZE), cooks[msg._id].y % SPRITE_SIZE)
                 for x in sockets:
                     x.send(b''.join(msg.encode()))
@@ -132,8 +132,9 @@ while True:
                 for x in sockets:
                     x.send(b''.join(msg.encode()))
             elif msg._messageType == MessageType.PUTINPLACE:
+                cooks[msg._id].move(msg._x_s * SPRITE_SIZE + msg._x_r,msg._y_s * SPRITE_SIZE + msg._y_r)
                 for x in sockets:
-                    x.send(msg)
+                    x.send(b''.join(msg.encode()))
             elif msg._messageType == MessageType.PICKUP:
                 for x in sockets:
-                    x.send(msg)
+                    x.send(b''.join(msg.encode()))

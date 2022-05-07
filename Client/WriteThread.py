@@ -103,8 +103,12 @@ class WriteThread(threading.Thread):
                     msg = DoActivity(0, 10)
                     self.command_queue.put(msg)
                     clicked = False
-                    passed_ms_j = clock.tick(FPS)
-                continue
+                    passed_ms_j = pygame.time.get_ticks()
+                    print(passed_ms_j)
+                else:
+
+                    print("Nae!")
+
 
             if self.cook.collision:
                 msg = None
@@ -119,10 +123,10 @@ class WriteThread(threading.Thread):
                 # msg = PutInPlace(self.cook.id, int(x_pos / SPRITE_SIZE), x_pos % SPRITE_SIZE, int(y_pos / SPRITE_SIZE),
                 #                  y_pos % SPRITE_SIZE)
 
-            time = clock.tick(FPS)
+            time = pygame.time.get_ticks()
             passed_ms = time - passed_ms_j
 
-            if not clicked and passed_ms > 1000:
+            if not clicked and passed_ms > 500:
                 clicked = True
 
 
