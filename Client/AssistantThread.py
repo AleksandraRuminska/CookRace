@@ -60,7 +60,7 @@ class AssistantThread(threading.Thread):
                                              path[i][1], 0)
                         if message is not None:
                             to_send = message.encode()
-                            self.client.send((b''.join(to_send)))
+                            self.client.send(((to_send)))
                             sleep(0.6)
 
                         # print("X: ", self.assistant.rect.x, " Y: ", self.assistant.rect.y)

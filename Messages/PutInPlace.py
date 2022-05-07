@@ -17,6 +17,5 @@ class PutInPlace(Message):
         arr = [self._messageType, self._id, self._x_s, self._x_r, self._y_s, self._y_r]
         # print("X: ", self._x_s, " ", self._x_r)
         # print("Y: ", self._y_s, " ", self._y_r)
-        byteArr = [x.to_bytes(1, byteorder='big', signed=True) for x in arr]
-        return byteArr
+        return self.convertArr(arr)
 

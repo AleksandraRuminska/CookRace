@@ -135,7 +135,7 @@ class WriteThread(threading.Thread):
             #     count_ms = count_ms % 500
             if msg is not None:
                 to_send = msg.encode()
-                self.client.send((b''.join(to_send)))
+                self.client.send(((to_send)))
                 if msg._messageType is MessageType.MOVE:
                     if abs(msg._dx) > 5 or abs(msg._dy) > 5:
                         print("Gay")

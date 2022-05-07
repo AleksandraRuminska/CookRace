@@ -10,5 +10,4 @@ class PickUp(Message):
 
     def encode(self):
         arr = [self._messageType, self._id, self._pickingUp]
-        byteArr = [x.to_bytes(1, byteorder='big', signed=True) for x in arr]
-        return byteArr
+        return self.convertArr(arr)

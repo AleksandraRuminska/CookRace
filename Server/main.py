@@ -25,22 +25,22 @@ class ClientThread(threading.Thread):
         print("New connection added: ", self.caddress)
         self.queue = queue
         msg = Create(0, 1 if counter == 0 else 0)
-        self.csocket.send((b''.join(msg.encode())))
+        self.csocket.send(((msg.encode())))
         sleep(1)
         msg2 = Create(1, 1 if counter == 1 else 0)
-        self.csocket.send((b''.join(msg2.encode())))
+        self.csocket.send(((msg2.encode())))
 
         # if len(sockets) == 2:
         #     msg3 = PutInPlace(0, 2, 0, 2, 0)
         #     for x in self.sockets:
-        #         x.send((b''.join(msg3.encode())))
-        #     # self.csocket.send((b''.join(msg3.encode())))
+        #         x.send(((msg3.encode())))
+        #     # self.csocket.send(((msg3.encode())))
         #     sleep(1)
         #     msg4 = PutInPlace(1, 16, 0, 2, 0)
         #     for x in self.sockets:
-        #         x.send((b''.join(msg4.encode())))
+        #         x.send(((msg4.encode())))
 
-        # self.csocket.send((b''.join(msg4.encode())))
+        # self.csocket.send(((msg4.encode())))
 
     def run(self):
         while True:
@@ -48,7 +48,7 @@ class ClientThread(threading.Thread):
             #print("WHAT??")
             if msg[0] == MessageType.MOVE:
                 dx = int.from_bytes(msg[2:3], byteorder='big', signed=True)
-                dy = int.from_bytes(msg[3:], byteorder='big', signed=True)
+                dy = int.from_bytes(msg[3:4], byteorder='big', signed=True)
                 print("____________________________________________________")
                 print(dx)
                 print(dy)
@@ -63,7 +63,7 @@ class ClientThread(threading.Thread):
             #     msg = PutInPlace(msg[1], int(self.cooks[msg[1]].x / SPRITE_SIZE), self.cooks[msg[1]].x % SPRITE_SIZE,
             #                      int(self.cooks[msg[1]].y / SPRITE_SIZE), self.cooks[msg[1]].y % SPRITE_SIZE)
             #     for x in self.sockets:
-            #         x.send(b''.join(msg.encode()))
+            #         x.send((msg.encode()))
             #     # self.csocket.send(msg)
             elif msg[0] == MessageType.PICKUP:
                 self.queue.put(PickUp(msg[1], msg[2]))
@@ -118,12 +118,12 @@ while True:
         msg = PutInPlace(0, int(cooks[0].x / SPRITE_SIZE), cooks[0].x % SPRITE_SIZE,
                          int(cooks[0].y / SPRITE_SIZE), cooks[0].y % SPRITE_SIZE)
         for x in sockets:
-            x.send((b''.join(msg.encode())))
+            x.send(((msg.encode())))
         sleep(1)
         msg = PutInPlace(1, int(cooks[1].x / SPRITE_SIZE), cooks[1].x % SPRITE_SIZE,
                          int(cooks[1].y / SPRITE_SIZE), cooks[1].y % SPRITE_SIZE)
         for x in sockets:
-            x.send((b''.join(msg.encode())))
+            x.send(((msg.encode())))
         while True:
             msg = updateQueue.get(block=True)
             if msg._messageType == MessageType.MOVE:
@@ -138,14 +138,14 @@ while True:
                 print(cooks[msg._id].y % SPRITE_SIZE)
                 print("____________________________________________________")
                 for x in sockets:
-                    x.send(b''.join(msg.encode()))
+                    x.send((msg.encode()))
             elif msg._messageType == MessageType.DOACTIVITY:
                 for x in sockets:
-                    x.send(b''.join(msg.encode()))
+                    x.send((msg.encode()))
             elif msg._messageType == MessageType.PUTINPLACE:
                 cooks[msg._id].move(msg._x_s * SPRITE_SIZE + msg._x_r,msg._y_s * SPRITE_SIZE + msg._y_r)
                 for x in sockets:
-                    x.send(b''.join(msg.encode()))
+                    x.send((msg.encode()))
             elif msg._messageType == MessageType.PICKUP:
                 for x in sockets:
-                    x.send(b''.join(msg.encode()))
+                    x.send((msg.encode()))
