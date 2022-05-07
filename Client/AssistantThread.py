@@ -27,7 +27,7 @@ class AssistantThread(threading.Thread):
         # TODO Semaphore
         while True:
             self.semaphore.acquire()
-            if len(self.command_queue) != 0:
+            if not self.command_queue.empty():
                 print("NOT NONE")
                 msg = self.command_queue.get()
                 self.semaphore.release()
