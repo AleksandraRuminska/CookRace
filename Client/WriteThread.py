@@ -51,7 +51,7 @@ class WriteThread(threading.Thread):
         self.clicked = 10
 
     def run(self):
-
+        clock = pygame.time.Clock()
         clicked_j = True
         clicked_u = True
         clicked_d = True
@@ -68,14 +68,14 @@ class WriteThread(threading.Thread):
 
             msg = None
             keys = pygame.key.get_pressed()
-
+            clock.tick(75)
             if keys[pygame.K_RIGHT]:
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collR)
                 if collision == [] or self.cook.rect.right != collision[0].rect.left:
                     if clicked_r:
                         self.cook.direction = "R"
                         self.cook.image = self.cook.right
-                        msg = Move(self.cook.id, 50, 0)
+                        msg = Move(self.cook.id, 5, 0)
                         clicked_r = False
                         passed_ms_r = pygame.time.get_ticks()
 
@@ -85,7 +85,7 @@ class WriteThread(threading.Thread):
                     if clicked_l:
                         self.cook.direction = "L"
                         self.cook.image = self.cook.left
-                        msg = Move(self.cook.id, -50, 0)
+                        msg = Move(self.cook.id, -5, 0)
                         clicked_l = False
                         passed_ms_l = pygame.time.get_ticks()
 
@@ -94,7 +94,7 @@ class WriteThread(threading.Thread):
                 if collision == [] or self.cook.rect.top != collision[0].rect.bottom:
                     if clicked_u:
                         self.cook.direction = "U"
-                        msg = Move(self.cook.id, 0, -50)
+                        msg = Move(self.cook.id, 0, -5)
                         clicked_u = False
                         passed_ms_u = pygame.time.get_ticks()
 
@@ -103,7 +103,7 @@ class WriteThread(threading.Thread):
                 if collision == [] or self.cook.rect.bottom != collision[0].rect.top:
                     if clicked_d:
                         self.cook.direction = "D"
-                        msg = Move(self.cook.id, 0, 50)
+                        msg = Move(self.cook.id, 0, 5)
                         clicked_d = False
                         passed_ms_d = pygame.time.get_ticks()
 
@@ -137,7 +137,7 @@ class WriteThread(threading.Thread):
                 # # print("Collision pos y: ", y_pos)
                 # msg = PutInPlace(self.cook.id, int(x_pos / SPRITE_SIZE), x_pos % SPRITE_SIZE, int(y_pos / SPRITE_SIZE),
                 #                  y_pos % SPRITE_SIZE)
-            CAP = 400
+            CAP = 00
             time = pygame.time.get_ticks()
             passed_ms = time - passed_ms_j
 
