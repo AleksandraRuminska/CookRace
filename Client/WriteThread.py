@@ -129,8 +129,8 @@ class WriteThread(threading.Thread):
                     passed_ms_j = pygame.time.get_ticks()
 
 
-            if self.cook.collision:
-                msg = None
+            #if self.cook.collision:
+                #msg = None
                 # continue
                 # x_pos = self.cook.rect.x
                 # y_pos = self.cook.rect.y
@@ -177,6 +177,8 @@ class WriteThread(threading.Thread):
             # if count_ms >= 500:
             #     count_ms = count_ms % 500
             if msg is not None:
+                if type(msg) == Move:
+                    print("" + msg._dx+" " +msg._dy+" " +self.cook.rect.x+" "+self.cook.rect.y)
                 to_send = msg.encode()
                 self.client.send(((to_send)))
                     #sleep(0.1)
