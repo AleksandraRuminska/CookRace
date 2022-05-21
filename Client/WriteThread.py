@@ -178,7 +178,7 @@ class WriteThread(threading.Thread):
             #     count_ms = count_ms % 500
             if msg is not None:
                 if type(msg) == Move:
-                    print("" + msg._dx+" " +msg._dy+" " +self.cook.rect.x+" "+self.cook.rect.y)
+                    print("" + str(msg._dx)+" " +str(msg._dy)+" " +str(self.cook.rect.x)+" "+str(self.cook.rect.y))
                 to_send = msg.encode()
                 self.client.send(((to_send)))
                     #sleep(0.1)
