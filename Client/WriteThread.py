@@ -73,6 +73,7 @@ class WriteThread(threading.Thread):
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collR)
                 if collision == [] or self.cook.rect.right != collision[0].rect.left:
                     if clicked_r:
+                        self.cook.move(5, 0, True)
                         self.cook.direction = "R"
                         self.cook.image = self.cook.right
                         msg = Move(self.cook.id, 5, 0)
@@ -83,6 +84,7 @@ class WriteThread(threading.Thread):
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collL)
                 if collision == [] or self.cook.rect.left != collision[0].rect.right:
                     if clicked_l:
+                        self.cook.move(-5, 0, True)
                         self.cook.direction = "L"
                         self.cook.image = self.cook.left
                         msg = Move(self.cook.id, -5, 0)
@@ -93,6 +95,7 @@ class WriteThread(threading.Thread):
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collU)
                 if collision == [] or self.cook.rect.top != collision[0].rect.bottom:
                     if clicked_u:
+                        self.cook.move(0, -5, True)
                         self.cook.direction = "U"
                         msg = Move(self.cook.id, 0, -5)
                         clicked_u = False
@@ -102,6 +105,7 @@ class WriteThread(threading.Thread):
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collD)
                 if collision == [] or self.cook.rect.bottom != collision[0].rect.top:
                     if clicked_d:
+                        self.cook.move(0, 5, True)
                         self.cook.direction = "D"
                         msg = Move(self.cook.id, 0, 5)
                         clicked_d = False
