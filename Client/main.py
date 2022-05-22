@@ -4,7 +4,9 @@ from queue import Queue
 from threading import *
 
 import pygame
+from pathfinding.core.grid import Grid
 
+from Client.AssistantThread import AssistantThread
 from Floor import Floor
 from Helper import Helper
 from Kitchen import Kitchen
@@ -15,7 +17,7 @@ from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
 
-SERVER = "127.0.0.1"
+SERVER = "192.168.0.108"
 # SERVER = "25.41.143.165"
 
 PORT = 8080
@@ -57,32 +59,33 @@ world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1]
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
               [[1, 7], 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
               [3, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 3],
-              [1, 0, [0, 16], 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 1],
+              [1, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 1],
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 4],
-              [1, 0, [0, 16], 0, 5, 0, 0, 0, 13, 13, 0, 0, 0, 5, 0, 0, 0, 1],
+              [1, 0, [0, 16], 0, 5, 0, [0, 16], 0, 13, 13, 0, [0, 16], 0, 5, 0, 0, 0, 1],
               [1, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 1],
-              [4, 0, 0, 0, 1, [0, 16], 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
+              [4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, 1],
-              [1, 0, 0, 0, 1, 0, 0, [0, 16], 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
-              [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
+              [1, [0, 16], 0, 0, 1, 0, [0, 16], 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
+              [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, [0, 16], 0, 1],
               [10, 9, 2, 2, 1, 2, 2, 6, 1, 1, 6, 2, 2, 1, 2, 2, 9, 10]]
-#
-# world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1],
-#               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-#               [7, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 7],
-#               [3, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 3],
-#               [1, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 1],
-#               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-#               [4, 0, 16, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 4],
-#               [1, 0, 0, 0, 5, 16, 0, 0, 13, 13, 0, 0, 0, 5, 0, 0, 0, 1],
-#               [1, 0, 0, 0, 1, 0, 0, 16, 13, 13, 0, 0, 0, 1, 0, 0, 0, 1],
-#               [4, 16, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
-#               [1, 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, 1],
-#               [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
-#               [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
-#               [10, 9, 2, 2, 1, 2, 2, 6, 1, 1, 6, 2, 2, 1, 2, 2, 9, 10]]
-#
+
+matrix = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+]
 
 # Write world condition for a specific level to a file
 filename = 'blueprint'
@@ -90,13 +93,14 @@ outfile = open(filename, 'wb')
 pickle.dump(world_data, outfile)
 outfile.close()
 
-# grid = Grid(matrix=world_data)
+# grid = Grid(matrix=matrix)
 
-world = Kitchen(world_data)
+world = Kitchen(world_data, matrix)
 
 movables = []
 cooks = []
 assistants = []
+new_assistant_thread = []
 command_queue = Queue()
 
 
@@ -117,6 +121,7 @@ for tile in world.tile_list:
         cooks.append(tile)
         assistants.append(tile)
         helpers.add(tile)
+        #sprites_no_cook_floor.add(tile)
     else:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
@@ -129,7 +134,7 @@ new_thread = ReadThread(client, cooks, movables, semaphore, screen, sinks)
 new_thread.start()
 
 semaphore.acquire()
-semaphore.release()
+
 
 all_sprites_group.add(cooks[0])
 all_sprites_group.add(cooks[1])
@@ -138,14 +143,31 @@ for i in range(2, len(cooks)):
 
 # TODO przekazac parametr asystentow, assqueue - DONE
 new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
-                               sinks, assistants, command_queue)
+                               sinks, command_queue)
 new_thread_write.start()
 
+my_assistants = []
 
-# new_assistant_thread = AssistantThread(client, cooks, assistants, command_queue)
-# new_assistant_thread.start()
+if cooks[0].controlling:
+    for assistant in assistants:
+        if assistant.rect.x < 450:
+            my_assistants.append(assistant)
+else:
+    for assistant in assistants:
+        if assistant.rect.x > 450:
+            my_assistants.append(assistant)
 
+
+a_semaphore = Semaphore(1)
+
+index = 0
+for assistant in my_assistants:
+    new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore))
+    new_assistant_thread[index].start()
+    index += 1
+semaphore.release()
 clock = pygame.time.Clock()
+
 # Game Loop
 
 while running:
@@ -201,5 +223,8 @@ pygame.quit()
 
 new_thread.join()
 new_thread_write.join()
+
+for thread in new_assistant_thread:
+    thread.join()
 
 client.close()

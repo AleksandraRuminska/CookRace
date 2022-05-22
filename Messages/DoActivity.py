@@ -10,8 +10,7 @@ class DoActivity(Message):
 
     def encode(self):
         arr = [self._messageType, self._id, self._time]
-        byteArr = [x.to_bytes(1, byteorder='big', signed=True) for x in arr]
-        return byteArr
+        return self.convertArr(arr)
 
     def get_time(self):
         return self._time

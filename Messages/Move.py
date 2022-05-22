@@ -11,5 +11,4 @@ class Move(Message):
 
     def encode(self):
         arr = [self._messageType, self._id, self._dx, self._dy]
-        byteArr = [x.to_bytes(1, byteorder='big', signed=True) for x in arr]
-        return byteArr
+        return self.convertArr(arr)

@@ -18,9 +18,9 @@ os.chdir(path1)
 
 class Cook(pygame.sprite.Sprite):
     # No coords in constructor
-    def __init__(self, controlling, id):
+    def __init__(self, controlling, id, semaphore):
         super().__init__()
-
+        self.semaphore = semaphore
         height = SPRITE_SIZE
         width = SPRITE_SIZE
         self.width = width
@@ -54,14 +54,16 @@ class Cook(pygame.sprite.Sprite):
 
         if x < 0:
             self.direction = "L"
-            self.image = self.left
+            # self.image = self.left
             if self.carry is not None:
                 self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
         elif x > 0:
             self.direction = "R"
-            self.image = self.right
+            # self.image = self.right
             if self.carry is not None:
                 self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
+
+
         if y > 0:
             self.direction = "D"
             if self.carry is not None:

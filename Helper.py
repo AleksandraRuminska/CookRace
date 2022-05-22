@@ -1,6 +1,8 @@
 import os
+from threading import Semaphore
 
 import pygame
+from pathfinding.core.grid import Grid
 
 from Cook import Cook
 from Tile import Tile
@@ -23,19 +25,28 @@ os.chdir(path1)
 
 # TODO inherit from cook, not tile - DONE
 class Helper(Cook):
-    def __init__(self, image_name, col, row_count, id):
-        super().__init__(0, id)
+    def __init__(self, image_name, col, row_count, id, grid):
+        super().__init__(0, id, Semaphore(1))
 
         self.image = image_name
         self.rect.x = col * SPRITE_SIZE
         self.rect.y = row_count * SPRITE_SIZE
+        self.grid = grid
+        self.path = None
 
-    def find_path(self, grid, index_x, index_y):
-        start = grid.node(self.rect.x / SPRITE_SIZE, self.rect.y / SPRITE_SIZE)
-        end = grid.node(index_x / SPRITE_SIZE, index_y / SPRITE_SIZE)
+    def find_path(self, index_x, index_y):
 
+        grid = Grid(matrix=self.grid)
+        start = grid.node(int(self.rect.x / SPRITE_SIZE), int(self.rect.y / SPRITE_SIZE))
+        end = grid.node(int(index_x / SPRITE_SIZE), int(index_y / SPRITE_SIZE))
+
+        print("\nStart: ", str(start))
+        print("End: ", end, " \n")
         finder = AStarFinder()
-        path = finder.find_path(start, end, grid)
+        paths, runs = finder.find_path(start, end, grid)
+        print("PATH: ", paths)
+        self.path = paths
+        return paths, runs
 
     def move(self, x, y, relative):
         if relative:
