@@ -18,9 +18,9 @@ os.chdir(path1)
 
 class Cook(pygame.sprite.Sprite):
     # No coords in constructor
-    def __init__(self, controlling, id):
+    def __init__(self, controlling, id, semaphore):
         super().__init__()
-
+        self.semaphore = semaphore
         height = SPRITE_SIZE
         width = SPRITE_SIZE
         self.width = width

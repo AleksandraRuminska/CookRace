@@ -28,9 +28,11 @@ class ReadThread(threading.Thread):
                 # absolute
                 # TODO add cooks to start of list, not append to end; first one at index 0, second at index 1 - DONE
                 if len(self.cooks) == self.assistantCount:
-                    self.cooks.insert(0, Cook(True if in_data[2] == 1 else False, in_data[1]))
+                    semaphore = threading.Semaphore(1)
+                    self.cooks.insert(0, Cook(True if in_data[2] == 1 else False, in_data[1], semaphore))
                 elif len(self.cooks) == self.assistantCount + 1:
-                    self.cooks.insert(1, Cook(True if in_data[2] == 1 else False, in_data[1]))
+                    semaphore = threading.Semaphore(1)
+                    self.cooks.insert(1, Cook(True if in_data[2] == 1 else False, in_data[1],semaphore))
 
                 # TODO ADD LENGTH OF ASSISTANTS TO 2 - DONE
                 if len(self.cooks) == 2 + self.assistantCount:
@@ -43,11 +45,12 @@ class ReadThread(threading.Thread):
 
                 print("Moving by:", movement_x, "position x: ", self.cooks[1].rect.x)
                 print("Moving by:", movement_y, "position y: ", self.cooks[1].rect.y)
-
+                self.cooks[in_data[1]].semaphore.acquire()
                 self.cooks[in_data[1]].move(movement_x, movement_y, True)
-
+                self.cooks[in_data[1]].semaphore.release()
             elif in_data[0] == MessageType.PICKUP:
                 # pick up
+                self.cooks[in_data[1]].semaphore.acquire()
                 if self.cooks[in_data[1]].is_carrying():
                     self.cooks[in_data[1]].put_down()
                 else:
@@ -58,7 +61,7 @@ class ReadThread(threading.Thread):
                                     <= self.cooks[in_data[1]].rect.x + SPRITE_SIZE:
                                 self.cooks[in_data[1]].pick_up(obj)
                                 obj.is_moved = True
-
+                self.cooks[in_data[1]].semaphore.release()
                     # self.cooks[in_data[1]].pick_up(self.plate)
 
             elif in_data[0] == MessageType.PUTINPLACE:
@@ -77,7 +80,9 @@ class ReadThread(threading.Thread):
                 #
                 #         self.cooks[in_data[1]].path = None
                 # else:
+                self.cooks[in_data[1]].semaphore.acquire()
                 self.cooks[in_data[1]].move(movement_x, movement_y, False)
+                self.cooks[in_data[1]].semaphore.release()
 
             elif in_data[0] == MessageType.DOACTIVITY:
                 self.sinks[in_data[1]].time += in_data[2]

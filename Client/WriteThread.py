@@ -68,7 +68,9 @@ class WriteThread(threading.Thread):
                 if collision == [] or self.cook.rect.right != collision[0].rect.left:
                     if move_ticker == 0:
                         move_ticker = move_cap
+                        self.cook.semaphore.acquire()
                         self.cook.move(move_dist, 0, True)
+                        self.cook.semaphore.release()
                         self.cook.direction = "R"
                         self.cook.image = self.cook.right
                         msg = Move(self.cook.id, 10, 0)
@@ -80,7 +82,9 @@ class WriteThread(threading.Thread):
                 if collision == [] or self.cook.rect.left != collision[0].rect.right:
                     if move_ticker == 0:
                         move_ticker = move_cap
+                        self.cook.semaphore.acquire()
                         self.cook.move(-move_dist, 0, True)
+                        self.cook.semaphore.release()
                         self.cook.direction = "L"
                         self.cook.image = self.cook.left
                         msg = Move(self.cook.id, -move_dist, 0)
@@ -92,7 +96,9 @@ class WriteThread(threading.Thread):
                 if collision == [] or self.cook.rect.top != collision[0].rect.bottom:
                     if move_ticker == 0:
                         move_ticker = move_cap
+                        self.cook.semaphore.acquire()
                         self.cook.move(0, -move_dist, True)
+                        self.cook.semaphore.release()
                         self.cook.direction = "U"
                         msg = Move(self.cook.id, 0, -move_dist)
 
@@ -103,13 +109,16 @@ class WriteThread(threading.Thread):
                 if collision == [] or self.cook.rect.bottom != collision[0].rect.top:
                     if move_ticker == 0:
                         move_ticker = move_cap
+                        self.cook.semaphore.acquire()
                         self.cook.move(0, move_dist, True)
+                        self.cook.semaphore.release()
                         self.cook.direction = "D"
                         msg = Move(self.cook.id, 0, move_dist)
 
 
             elif keys[pygame.K_SPACE]:
                 msg = PickUp(self.cook.id)
+
 
             elif keys[pygame.K_0]:
                 i = 0
