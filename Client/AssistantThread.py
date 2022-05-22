@@ -29,7 +29,7 @@ class AssistantThread(threading.Thread):
             self.semaphore.acquire()
             if not self.command_queue.empty():
                 #print("NOT NONE")
-                msg = self.command_queue.get()
+                msg = self.command_queue.get(block=True)
                 self.semaphore.release()
                 if msg.get_message_type() == MessageType.DOACTIVITY:
                     time = msg.get_time()

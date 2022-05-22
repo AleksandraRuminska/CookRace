@@ -49,6 +49,7 @@ class ClientThread(threading.Thread):
             if msg[0] == MessageType.MOVE:
                 dx = int.from_bytes(msg[2:3], byteorder='big', signed=True)
                 dy = int.from_bytes(msg[3:4], byteorder='big', signed=True)
+                #if (msg[1] == 1):
                 print("____________________________________________________")
                 print(dx)
                 print(dy)
@@ -124,21 +125,27 @@ while True:
                          int(cooks[1].y / SPRITE_SIZE), cooks[1].y % SPRITE_SIZE)
         for x in sockets:
             x.send(((msg.encode())))
+        moveCounter = 0
+        move_tick = 10
         while True:
             msg = updateQueue.get(block=True)
             if msg._messageType == MessageType.MOVE:
+                moveCounter += 1
                 cooks[msg._id].move(msg._dx, msg._dy)
-                msg = PutInPlace(msg._id, int(cooks[msg._id].x / SPRITE_SIZE), cooks[msg._id].x % SPRITE_SIZE,
-                                 int(cooks[msg._id].y / SPRITE_SIZE), cooks[msg._id].y % SPRITE_SIZE)
-                print("____________________________________________________")
-                print(msg._id)
-                #print(int(cooks[msg._id].x))
-                print(cooks[msg._id].x)
-                #print(int(cooks[msg._id].y))
-                print(cooks[msg._id].y)
-                print("____________________________________________________")
-                for x in sockets:
-                    x.send((msg.encode()))
+                if moveCounter == move_tick:
+                    moveCounter = 0
+                    msg = PutInPlace(msg._id, int(cooks[msg._id].x / SPRITE_SIZE), cooks[msg._id].x % SPRITE_SIZE,
+                                     int(cooks[msg._id].y / SPRITE_SIZE), cooks[msg._id].y % SPRITE_SIZE)
+                    #if(msg._id==1):
+                    print("____________________________________________________")
+                    print(msg._id)
+                        #print(int(cooks[msg._id].x))
+                    print(cooks[msg._id].x)
+                        #print(int(cooks[msg._id].y))
+                    print(cooks[msg._id].y)
+                    print("____________________________________________________")
+                    for x in sockets:
+                        x.send((msg.encode()))
             elif msg._messageType == MessageType.DOACTIVITY:
                 for x in sockets:
                     x.send((msg.encode()))
