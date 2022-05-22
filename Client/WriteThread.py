@@ -16,6 +16,7 @@ from Messages.PickUp import PickUp
 SPRITE_SIZE = 50
 move_dist = 5
 
+
 def collR(sprite, sprite2):
     rect = copy.deepcopy(sprite.rect)
     rect.x += move_dist
@@ -64,57 +65,71 @@ class WriteThread(threading.Thread):
             clock.tick(60)
 
             if keys[pygame.K_RIGHT]:
-                collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collR)
-                if collision == []:# or self.cook.rect.right != collision[0].rect.left:
-                    if move_ticker == 0:
-                        move_ticker = move_cap
-                        self.cook.semaphore.acquire()
-                        self.cook.move(move_dist, 0, True)
-                        self.cook.semaphore.release()
+                if move_ticker == 0:
+                    move_ticker = move_cap
+                    self.cook.semaphore.acquire()
+                    self.cook.move(move_dist, 0, True)
+                    self.cook.semaphore.release()
+                    collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False)
+                    if collision == []:  # or self.cook.rect.right != collision[0].rect.left:
                         self.cook.direction = "R"
                         self.cook.image = self.cook.right
-                        msg = Move(self.cook.id, 10, 0)
+                        msg = Move(self.cook.id, move_dist, 0)
+                    else:
+                        self.cook.semaphore.acquire()
+                        self.cook.move(-move_dist, 0, True)
+                        self.cook.semaphore.release()
 
 
 
             elif keys[pygame.K_LEFT]:
-                collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collL)
-                if collision == []:# or self.cook.rect.left != collision[0].rect.right:
-                    if move_ticker == 0:
-                        move_ticker = move_cap
-                        self.cook.semaphore.acquire()
-                        self.cook.move(-move_dist, 0, True)
-                        self.cook.semaphore.release()
+                if move_ticker == 0:
+                    move_ticker = move_cap
+                    self.cook.semaphore.acquire()
+                    self.cook.move(-move_dist, 0, True)
+                    self.cook.semaphore.release()
+                    collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False)
+                    if collision == []:  # or self.cook.rect.left != collision[0].rect.right:
                         self.cook.direction = "L"
                         self.cook.image = self.cook.left
                         msg = Move(self.cook.id, -move_dist, 0)
+                    else:
+                        self.cook.semaphore.acquire()
+                        self.cook.move(move_dist, 0, True)
+                        self.cook.semaphore.release()
 
 
 
             elif keys[pygame.K_UP]:
-                collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collU)
-                if collision == []:# or self.cook.rect.top != collision[0].rect.bottom:
-                    if move_ticker == 0:
-                        move_ticker = move_cap
-                        self.cook.semaphore.acquire()
-                        self.cook.move(0, -move_dist, True)
-                        self.cook.semaphore.release()
+                if move_ticker == 0:
+                    move_ticker = move_cap
+                    self.cook.semaphore.acquire()
+                    self.cook.move(0, -move_dist, True)
+                    self.cook.semaphore.release()
+                    collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False)
+                    if collision == []:  # or self.cook.rect.top != collision[0].rect.bottom:
                         self.cook.direction = "U"
                         msg = Move(self.cook.id, 0, -move_dist)
-
+                    else:
+                        self.cook.semaphore.acquire()
+                        self.cook.move(0, move_dist, True)
+                        self.cook.semaphore.release()
 
 
             elif keys[pygame.K_DOWN]:
-                collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collD)
-                if collision == []: #or self.cook.rect.bottom != collision[0].rect.top:
                     if move_ticker == 0:
                         move_ticker = move_cap
                         self.cook.semaphore.acquire()
                         self.cook.move(0, move_dist, True)
                         self.cook.semaphore.release()
-                        self.cook.direction = "D"
-                        msg = Move(self.cook.id, 0, move_dist)
-
+                        collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False)
+                        if collision == []:  # or self.cook.rect.bottom != collision[0].rect.top:
+                            self.cook.direction = "D"
+                            msg = Move(self.cook.id, 0, move_dist)
+                        else:
+                            self.cook.semaphore.acquire()
+                            self.cook.move(0, -move_dist, True)
+                            self.cook.semaphore.release()
 
             elif keys[pygame.K_SPACE]:
                 msg = PickUp(self.cook.id)
