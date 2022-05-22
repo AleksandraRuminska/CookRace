@@ -4,6 +4,9 @@ from copy import deepcopy
 from queue import Queue
 from time import sleep
 
+from pygame import Rect
+from pygame.sprite import Sprite
+
 from Messages import PickUp
 from Messages.Create import Create
 from Messages.DoActivity import DoActivity
@@ -57,12 +60,12 @@ class ClientThread(threading.Thread):
                 self.queue.put(Move(msg[1], dx, dy))
             #     i = 0
             #     #for cook in self.cooks:
-            #         #print("i: ", i, " x: ", cook.x, " y: ", cook.y)
+            #         #print("i: ", i, " x: ", cook.rect.x, " y: ", cook.rect.y)
             #         #i+=1
             #     self.cooks[msg[1]].move(dx, dy)
-            #     #print("Cook: ", self.cooks[msg[1]].x, " , ", self.cooks[msg[1]].y)
-            #     msg = PutInPlace(msg[1], int(self.cooks[msg[1]].x / SPRITE_SIZE), self.cooks[msg[1]].x % SPRITE_SIZE,
-            #                      int(self.cooks[msg[1]].y / SPRITE_SIZE), self.cooks[msg[1]].y % SPRITE_SIZE)
+            #     #print("Cook: ", self.cooks[msg[1]].rect.x, " , ", self.cooks[msg[1]].rect.y)
+            #     msg = PutInPlace(msg[1], int(self.cooks[msg[1]].rect.x / SPRITE_SIZE), self.cooks[msg[1]].rect.x % SPRITE_SIZE,
+            #                      int(self.cooks[msg[1]].rect.y / SPRITE_SIZE), self.cooks[msg[1]].rect.y % SPRITE_SIZE)
             #     for x in self.sockets:
             #         x.send((msg.encode()))
             #     # self.csocket.send(msg)
@@ -97,8 +100,31 @@ counter = 0
 sockets = []
 updateQueue = Queue()
 cooks = []
+
+matrix = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+]
+rect_list = []
+for i in range(len(matrix[0])):
+    for j in range(int(len(matrix)/len(matrix[0]))):
+        if matrix[i][j] == 0:
+            rect = Rect(i*SPRITE_SIZE, j*SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE)
+            rect_list.append(rect)
 for i in range(8):
-    cooks.append(CookServerData())
+    cooks.append(CookServerData(rect_list))
 
 cooks[0].move(100, 100)
 cooks[1].move(800, 100)
@@ -108,6 +134,8 @@ cooks[4].move(550, 350)
 cooks[5].move(50, 550)
 cooks[6].move(300, 550)
 cooks[7].move(750, 600)
+
+
 while True:
     server.listen(1)
     clientsock, clientAddress = server.accept()
@@ -116,17 +144,17 @@ while True:
     newthread.start()
     counter += 1
     if counter == 2:
-        msg = PutInPlace(0, int(cooks[0].x / SPRITE_SIZE), cooks[0].x % SPRITE_SIZE,
-                         int(cooks[0].y / SPRITE_SIZE), cooks[0].y % SPRITE_SIZE)
+        msg = PutInPlace(0, int(cooks[0].rect.x / SPRITE_SIZE), cooks[0].rect.x % SPRITE_SIZE,
+                         int(cooks[0].rect.y / SPRITE_SIZE), cooks[0].rect.y % SPRITE_SIZE)
         for x in sockets:
             x.send(((msg.encode())))
         sleep(1)
-        msg = PutInPlace(1, int(cooks[1].x / SPRITE_SIZE), cooks[1].x % SPRITE_SIZE,
-                         int(cooks[1].y / SPRITE_SIZE), cooks[1].y % SPRITE_SIZE)
+        msg = PutInPlace(1, int(cooks[1].rect.x / SPRITE_SIZE), cooks[1].rect.x % SPRITE_SIZE,
+                         int(cooks[1].rect.y / SPRITE_SIZE), cooks[1].rect.y % SPRITE_SIZE)
         for x in sockets:
             x.send(((msg.encode())))
         moveCounter = 0
-        move_tick = 10
+        move_tick = 1
         while True:
             msg = updateQueue.get(block=True)
             if msg._messageType == MessageType.MOVE:
@@ -134,18 +162,22 @@ while True:
                 cooks[msg._id].move(msg._dx, msg._dy)
                 if moveCounter == move_tick:
                     moveCounter = 0
-                    msg = PutInPlace(msg._id, int(cooks[msg._id].x / SPRITE_SIZE), cooks[msg._id].x % SPRITE_SIZE,
-                                     int(cooks[msg._id].y / SPRITE_SIZE), cooks[msg._id].y % SPRITE_SIZE)
+                    msg = PutInPlace(msg._id, int(cooks[msg._id].rect.x / SPRITE_SIZE), cooks[msg._id].rect.x % SPRITE_SIZE,
+                                     int(cooks[msg._id].rect.y / SPRITE_SIZE), cooks[msg._id].rect.y % SPRITE_SIZE)
                     #if(msg._id==1):
                     print("____________________________________________________")
                     print(msg._id)
-                        #print(int(cooks[msg._id].x))
-                    print(cooks[msg._id].x)
-                        #print(int(cooks[msg._id].y))
-                    print(cooks[msg._id].y)
+                        #print(int(cooks[msg._id].rect.x))
+                    print(cooks[msg._id].rect.x)
+                        #print(int(cooks[msg._id].rect.rect.rect.y))
+                    print(cooks[msg._id].rect.rect.rect.y)
                     print("____________________________________________________")
-                    for x in sockets:
-                        x.send((msg.encode()))
+                    #for x in sockets:
+                    #    x.send((msg.encode()))
+                    if(msg._id==1):
+                        sockets[0].send((msg.encode()))
+                    else:
+                        sockets[1].send((msg.encode()))
             elif msg._messageType == MessageType.DOACTIVITY:
                 for x in sockets:
                     x.send((msg.encode()))

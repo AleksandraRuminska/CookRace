@@ -121,7 +121,7 @@ for tile in world.tile_list:
         cooks.append(tile)
         assistants.append(tile)
         helpers.add(tile)
-        sprites_no_cook_floor.add(tile)
+        #sprites_no_cook_floor.add(tile)
     else:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
