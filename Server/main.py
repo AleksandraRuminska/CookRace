@@ -88,7 +88,7 @@ class ClientThread(threading.Thread):
 
 # userMap = {}
 #TODO ADD HAMACHI CONF, CUSTOM CONF
-choice = input("Choose conf: \n 1: Kacper \n 2:localhost")
+choice = int(input("Choose conf: \n 1: Kacper \n 2:localhost"))
 if choice == 1:
     ADDRESS = "192.168.0.108"
 elif choice == 2:

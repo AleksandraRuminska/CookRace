@@ -20,7 +20,7 @@ from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
 #TODO ADD HAMACHI CONF, CUSTOM CONF
-choice = input("Choose conf: \n 1: Kacper \n 2: Localhost")
+choice = int(input("Choose conf: \n 1: Kacper \n 2: Localhost"))
 if choice == 1:
     SERVER = "192.168.0.108"
 else:
