@@ -14,7 +14,7 @@ from Messages.PutInPlace import PutInPlace
 from Messages.PickUp import PickUp
 
 SPRITE_SIZE = 50
-move_dist = 10
+move_dist = 5
 
 def collR(sprite, sprite2):
     rect = copy.deepcopy(sprite.rect)
