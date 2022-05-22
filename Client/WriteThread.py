@@ -14,7 +14,7 @@ from Messages.PutInPlace import PutInPlace
 from Messages.PickUp import PickUp
 
 SPRITE_SIZE = 50
-move_dist = 10
+move_dist = 5
 
 def collR(sprite, sprite2):
     rect = copy.deepcopy(sprite.rect)
@@ -61,7 +61,7 @@ class WriteThread(threading.Thread):
             move_cap = 2
             msg = None
             keys = pygame.key.get_pressed()
-            clock.tick(60)
+            clock.tick(120)
 
             if keys[pygame.K_RIGHT]:
                 collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collR)
