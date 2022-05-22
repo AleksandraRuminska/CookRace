@@ -19,8 +19,12 @@ from Sink import Sink
 from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
-
-SERVER = "192.168.0.108"
+#TODO ADD HAMACHI CONF, CUSTOM CONF
+choice = input("Choose conf: \n 1: Kacper \n 2: Localhost")
+if choice == 1:
+    SERVER = "192.168.0.108"
+else:
+    SERVER = "127.0.0.1"
 # SERVER = "25.41.143.165"
 
 PORT = 8080
@@ -119,7 +123,6 @@ for tile in world.tile_list:
         sinks.append(tile)
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
-    # TODO add list of helpers to cooks list - DONE
     elif type(tile) == Helper:
         all_sprites_group.add(tile)
         cooks.append(tile)
@@ -145,7 +148,6 @@ all_sprites_group.add(cooks[1])
 for i in range(2, len(cooks)):
     all_sprites_group.add(cooks[i])
 
-# TODO przekazac parametr asystentow, assqueue - DONE
 new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
                                sinks, command_queue, move_queue)
 new_thread_write.start()

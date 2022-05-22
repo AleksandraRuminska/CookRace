@@ -87,13 +87,19 @@ class ClientThread(threading.Thread):
 
 
 # userMap = {}
-LOCALHOST = "192.168.0.108"
-# LOCALHOST = "25.41.143.165"
+#TODO ADD HAMACHI CONF, CUSTOM CONF
+choice = input("Choose conf: \n 1: Kacper \n 2:localhost")
+if choice == 1:
+    ADDRESS = "192.168.0.108"
+elif choice == 2:
+    ADDRESS = "127.0.0.1"
+else:
+    ADDRESS = "127.0.0.1"
 
 PORT = 8080
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server.bind((LOCALHOST, PORT))
+server.bind((ADDRESS, PORT))
 print("Server started")
 print("Waiting for client request..")
 counter = 0
