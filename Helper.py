@@ -1,4 +1,5 @@
 import os
+from threading import Semaphore
 
 import pygame
 from pathfinding.core.grid import Grid
@@ -25,7 +26,7 @@ os.chdir(path1)
 # TODO inherit from cook, not tile - DONE
 class Helper(Cook):
     def __init__(self, image_name, col, row_count, id, grid):
-        super().__init__(0, id,None)
+        super().__init__(0, id,Semaphore(1))
 
         self.image = image_name
         self.rect.x = col * SPRITE_SIZE
