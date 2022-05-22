@@ -10,6 +10,9 @@ from Client.AssistantThread import AssistantThread
 from Floor import Floor
 from Helper import Helper
 from Kitchen import Kitchen
+from Messages.DoActivity import DoActivity
+from Messages.Move import Move
+from Messages.PickUp import PickUp
 from Plate import Plate
 from ReadThread import ReadThread
 from Sink import Sink
@@ -102,6 +105,7 @@ cooks = []
 assistants = []
 new_assistant_thread = []
 command_queue = Queue()
+move_queue = Queue()
 
 
 for tile in world.tile_list:
@@ -143,7 +147,7 @@ for i in range(2, len(cooks)):
 
 # TODO przekazac parametr asystentow, assqueue - DONE
 new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
-                               sinks, command_queue)
+                               sinks, command_queue, move_queue)
 new_thread_write.start()
 
 my_assistants = []
@@ -172,10 +176,22 @@ clock = pygame.time.Clock()
 
 while running:
     direction = ""
-
+    clock.tick(60)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            print(pygame.key.name(event.key))
+            if pygame.key.name(event.key) == "space":
+                move_queue.put(PickUp(0 if cooks[0].controlling else 1))
+            elif pygame.key.name(event.key) == "[0]":
+                move_queue.put(DoActivity(0 if cooks[0].controlling else 1, 1))
+            elif pygame.key.name(event.key) == "j":
+                msg = DoActivity(0, 10)
+                command_queue.put(msg)
+
+
+
 
     # for MyCook in cooks:
     # collision = pygame.sprite.spritecollide(MyCook, sprites_no_cook_floor, False)
