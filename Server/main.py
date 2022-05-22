@@ -170,14 +170,14 @@ while True:
                         #print(int(cooks[msg._id].rect.x))
                     print(cooks[msg._id].rect.x)
                         #print(int(cooks[msg._id].rect.rect.rect.y))
-                    print(cooks[msg._id].rect.rect.rect.y)
+                    print(cooks[msg._id].rect.y)
                     print("____________________________________________________")
-                    #for x in sockets:
-                    #    x.send((msg.encode()))
-                    if(msg._id==1):
-                        sockets[0].send((msg.encode()))
-                    else:
-                        sockets[1].send((msg.encode()))
+                    for x in sockets:
+                        x.send((msg.encode()))
+                    #if(msg._id==1):
+                    #    sockets[0].send((msg.encode()))
+                    #else:
+                    #    sockets[1].send((msg.encode()))
             elif msg._messageType == MessageType.DOACTIVITY:
                 for x in sockets:
                     x.send((msg.encode()))
