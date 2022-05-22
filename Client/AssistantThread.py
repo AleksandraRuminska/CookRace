@@ -1,15 +1,11 @@
-# TODO get command from queue - DONE
-# TODO execute command(send message to socket) - DONE
-# TODO once command is done wait until a new command is in the list
 
 import threading
 import random
 from time import sleep
 
-from pygame.time import delay
+
 
 from Messages.MessageType import MessageType
-from Messages.Move import Move
 from Messages.PutInPlace import PutInPlace
 
 SPRITE_SIZE = 50
@@ -24,11 +20,10 @@ class AssistantThread(threading.Thread):
         self.semaphore = semaphore
 
     def run(self):
-        # TODO Semaphore
         while True:
             self.semaphore.acquire()
             if not self.command_queue.empty():
-                #print("NOT NONE")
+                # print("NOT NONE")
                 msg = self.command_queue.get(block=True)
                 self.semaphore.release()
                 if msg.get_message_type() == MessageType.DOACTIVITY:
@@ -82,6 +77,5 @@ class AssistantThread(threading.Thread):
 
             else:
                 self.semaphore.release()
-                #print("NONE")
+                # print("NONE")
                 sleep(0.3)
-

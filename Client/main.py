@@ -10,14 +10,21 @@ from Client.AssistantThread import AssistantThread
 from Floor import Floor
 from Helper import Helper
 from Kitchen import Kitchen
+from Messages.DoActivity import DoActivity
+from Messages.Move import Move
+from Messages.PickUp import PickUp
 from Plate import Plate
 from ReadThread import ReadThread
 from Sink import Sink
 from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
-
-SERVER = "192.168.0.108"
+#TODO ADD HAMACHI CONF, CUSTOM CONF
+choice = int(input("Choose conf: \n 1: Kacper \n 2: Localhost"))
+if choice == 1:
+    SERVER = "192.168.0.108"
+else:
+    SERVER = "127.0.0.1"
 # SERVER = "25.41.143.165"
 
 PORT = 8080
@@ -102,6 +109,7 @@ cooks = []
 assistants = []
 new_assistant_thread = []
 command_queue = Queue()
+move_queue = Queue()
 
 
 for tile in world.tile_list:
@@ -115,7 +123,6 @@ for tile in world.tile_list:
         sinks.append(tile)
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
-    # TODO add list of helpers to cooks list - DONE
     elif type(tile) == Helper:
         all_sprites_group.add(tile)
         cooks.append(tile)
@@ -141,9 +148,8 @@ all_sprites_group.add(cooks[1])
 for i in range(2, len(cooks)):
     all_sprites_group.add(cooks[i])
 
-# TODO przekazac parametr asystentow, assqueue - DONE
 new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
-                               sinks, command_queue)
+                               sinks, command_queue, move_queue)
 new_thread_write.start()
 
 my_assistants = []
@@ -172,10 +178,22 @@ clock = pygame.time.Clock()
 
 while running:
     direction = ""
-
+    clock.tick(60)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            print(pygame.key.name(event.key))
+            if pygame.key.name(event.key) == "space":
+                move_queue.put(PickUp(0 if cooks[0].controlling else 1))
+            elif pygame.key.name(event.key) == "[0]":
+                move_queue.put(DoActivity(0 if cooks[0].controlling else 1, 1))
+            elif pygame.key.name(event.key) == "j":
+                msg = DoActivity(0, 10)
+                command_queue.put(msg)
+
+
+
 
     # for MyCook in cooks:
     # collision = pygame.sprite.spritecollide(MyCook, sprites_no_cook_floor, False)

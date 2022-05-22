@@ -26,15 +26,12 @@ class ReadThread(threading.Thread):
             in_data = self.client.recv(6)
             if in_data[0] == MessageType.CREATE:
                 # absolute
-                # TODO add cooks to start of list, not append to end; first one at index 0, second at index 1 - DONE
                 if len(self.cooks) == self.assistantCount:
                     semaphore = threading.Semaphore(1)
                     self.cooks.insert(0, Cook(True if in_data[2] == 1 else False, in_data[1], semaphore))
                 elif len(self.cooks) == self.assistantCount + 1:
                     semaphore = threading.Semaphore(1)
                     self.cooks.insert(1, Cook(True if in_data[2] == 1 else False, in_data[1],semaphore))
-
-                # TODO ADD LENGTH OF ASSISTANTS TO 2 - DONE
                 if len(self.cooks) == 2 + self.assistantCount:
                     self.semaphore.release()
 
