@@ -119,8 +119,8 @@ matrix = [
 ]
 rect_list = []
 for i in range(len(matrix[0])):
-    for j in range(int(len(matrix)/len(matrix[0]))):
-        if matrix[i][j] == 0:
+    for j in range(len(matrix)):
+        if matrix[j][i] == 0:
             rect = Rect(i*SPRITE_SIZE, j*SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE)
             rect_list.append(rect)
 for i in range(8):
