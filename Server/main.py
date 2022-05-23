@@ -88,13 +88,14 @@ class ClientThread(threading.Thread):
 
 # userMap = {}
 #TODO ADD HAMACHI CONF, CUSTOM CONF
-choice = int(input("Choose conf: \n 1: Kacper \n 2:localhost"))
+choice = int(input("Choose conf: \n 1: Kacper \n 2:localhost \n 3: Hamachi Kacper"))
 if choice == 1:
     ADDRESS = "192.168.0.108"
 elif choice == 2:
     ADDRESS = "127.0.0.1"
-else:
-    ADDRESS = "127.0.0.1"
+elif choice == 3:
+    ADDRESS = "25.47.123.189"
+
 
 PORT = 8080
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
