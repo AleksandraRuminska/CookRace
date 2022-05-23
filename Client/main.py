@@ -188,7 +188,7 @@ while running:
             print(pygame.key.name(event.key))
             if pygame.key.name(event.key) == "space":
                 move_queue.put(PickUp(0 if cooks[0].controlling else 1))
-            elif pygame.key.name(event.key) == "[0]":
+            elif pygame.key.name(event.key) == "[0]" or pygame.key.name(event.key) == "0":
                 move_queue.put(DoActivity(0 if cooks[0].controlling else 1, 1))
             elif pygame.key.name(event.key) == "j":
                 msg = DoActivity(0, 10)
