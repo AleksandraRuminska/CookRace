@@ -19,7 +19,7 @@ from Sink import Sink
 from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
-#TODO ADD HAMACHI CONF, CUSTOM CONF
+# TODO ADD HAMACHI CONF, CUSTOM CONF
 choice = int(input("Choose conf: \n 1: Kacper \n 2: Localhost \n 3: Kacper Hamachi"))
 if choice == 1:
     SERVER = "192.168.0.108"
@@ -66,9 +66,9 @@ sinks = []
 
 world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1],
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-              [[1, 7], 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
-              [3, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 3],
-              [1, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 0, 1],
+              [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
+              [3, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 3],
+              [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, [0, 16], 0, 5, 0, [0, 16], 0, 13, 13, 0, [0, 16], 0, 5, 0, 0, 0, 1],
@@ -113,7 +113,6 @@ new_assistant_thread = []
 command_queue = Queue()
 move_queue = Queue()
 
-
 for tile in world.tile_list:
     if type(tile) == Plate:
         all_sprites_group.add(tile)
@@ -130,11 +129,10 @@ for tile in world.tile_list:
         cooks.append(tile)
         assistants.append(tile)
         helpers.add(tile)
-        #sprites_no_cook_floor.add(tile)
+        # sprites_no_cook_floor.add(tile)
     else:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
-
 
 semaphore = Semaphore(1)
 
@@ -143,7 +141,6 @@ new_thread = ReadThread(client, cooks, movables, semaphore, screen, sinks)
 new_thread.start()
 
 semaphore.acquire()
-
 
 all_sprites_group.add(cooks[0])
 all_sprites_group.add(cooks[1])
@@ -165,7 +162,6 @@ else:
         if assistant.rect.x > 450:
             my_assistants.append(assistant)
 
-
 a_semaphore = Semaphore(1)
 
 index = 0
@@ -177,9 +173,10 @@ semaphore.release()
 clock = pygame.time.Clock()
 
 # Game Loop
-
+executions = 0
 while running:
     direction = ""
+    executions += 1
     clock.tick(60)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -188,14 +185,11 @@ while running:
             print(pygame.key.name(event.key))
             if pygame.key.name(event.key) == "space":
                 move_queue.put(PickUp(0 if cooks[0].controlling else 1))
-            elif pygame.key.name(event.key) == "[0]":
+            elif pygame.key.name(event.key) == "[0]" or pygame.key.name(event.key) == "0":
                 move_queue.put(DoActivity(0 if cooks[0].controlling else 1, 1))
             elif pygame.key.name(event.key) == "j":
                 msg = DoActivity(0, 10)
                 command_queue.put(msg)
-
-
-
 
     # for MyCook in cooks:
     # collision = pygame.sprite.spritecollide(MyCook, sprites_no_cook_floor, False)
@@ -219,14 +213,39 @@ while running:
         for plate in movables:
             if sink.rect.colliderect(plate):
                 plate_in_sink = True
-                sink.is_washed = True
+                if plate.isDirty:
+                    sink.is_washed = True
+
+                if sink.is_finished:
+                    if plate.isDirty:
+                        plate.change_image()
+                    plate.isDirty = False
                 break
-            else:
-                sink.is_finished = False
-                # sink.time = 0
 
         if not plate_in_sink:
             sink.time = 0
+            sink.is_finished = False
+
+    for plate in movables:
+        if (250 <= plate.rect.x < 400) or (500 <= plate.rect.x < 650):
+            if 0 <= plate.rect.y <= (2 * SPRITE_SIZE):
+                if not plate.isDirty:
+                    flag = False
+                    for cook in cooks:
+                        if cook.carry == plate:
+                            flag = True
+                            break
+                    if not flag:
+                        plate.isReady = True
+
+        if plate.isReady:
+            if not plate.food_consumed:
+                plate.food_consuming()
+            else:
+                print("EXECUTIONS: ", executions)
+                if executions % 60 == 0:
+                    plate.consumption()
+                    executions = 0
 
     all_sprites_group.update()
     sprites_no_cook_floor.update()

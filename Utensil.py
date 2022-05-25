@@ -1,4 +1,10 @@
+import random
+from turtle import delay
+
+from pygame.event import wait
+
 from MoveableObject import MoveableObject
+SPRITE_SIZE = 50
 
 
 class Utensil(MoveableObject):
@@ -11,3 +17,6 @@ class Utensil(MoveableObject):
         self.isReady = False
         # max capacity obtained
         self.isFull = False
+        self.isDirty = False
+
+
