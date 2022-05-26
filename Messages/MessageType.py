@@ -7,3 +7,4 @@ class MessageType(IntEnum):
     MOVE = 2
     PICKUP = 3
     DOACTIVITY = 4
+    FACE = 5

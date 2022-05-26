@@ -81,14 +81,14 @@ class ClientThread(threading.Thread):
             #     for x in self.sockets:
             #         x.send(msg)
             elif msg[0] == MessageType.DOACTIVITY:
-                self.queue.put(DoActivity(msg[1], msg[2]))
+                self.queue.put(DoActivity(msg[1], msg[2], msg[3]))
             #     for x in self.sockets:
             #         x.send(msg)
 
 
 # userMap = {}
 #TODO ADD HAMACHI CONF, CUSTOM CONF
-choice = int(input("Choose conf: \n 1: Kacper \n 2:localhost \n 3: Hamachi Kacper"))
+choice = int(input("Choose conf: \n 1: Private Kacper \n 2: Localhost \n 3: Hamachi Kacper \n"))
 if choice == 1:
     ADDRESS = "192.168.0.108"
 elif choice == 2:

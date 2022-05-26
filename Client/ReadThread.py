@@ -11,7 +11,7 @@ SPRITE_SIZE = 50
 
 
 class ReadThread(threading.Thread):
-    def __init__(self, client, cooks, movables, semaphore, screen, sinks):
+    def __init__(self, client, cooks, movables, semaphore, screen, sinks, sprites_no_cook_floor):
         threading.Thread.__init__(self)
         self.client = client
         self.cooks = cooks
@@ -20,6 +20,7 @@ class ReadThread(threading.Thread):
         self.screen = screen
         self.sinks = sinks
         self.assistantCount = len(cooks)
+        self.sprites_no_cook_floor = sprites_no_cook_floor
 
     def run(self):
         while True:
@@ -49,7 +50,7 @@ class ReadThread(threading.Thread):
                 # pick up
                 self.cooks[in_data[1]].semaphore.acquire()
                 if self.cooks[in_data[1]].is_carrying():
-                    self.cooks[in_data[1]].put_down()
+                    self.cooks[in_data[1]].put_down(self.sprites_no_cook_floor)
                 else:
                     for obj in self.movables:
                         if self.cooks[in_data[1]].rect.y - SPRITE_SIZE <= obj.rect.y <= \
@@ -82,13 +83,17 @@ class ReadThread(threading.Thread):
                 self.cooks[in_data[1]].semaphore.release()
 
             elif in_data[0] == MessageType.DOACTIVITY:
-                self.sinks[in_data[1]].time += in_data[2]
-                if self.sinks[in_data[1]].time < SPRITE_SIZE:
-                    pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(self.sinks[in_data[1]].rect.x,
-                                                                           self.sinks[
-                                                                               in_data[1]].rect.y + SPRITE_SIZE / 2,
-                                                                           self.sinks[in_data[1]].time, 5))
+                sink = None
+                if self.sinks[0].occupant is self.cooks[in_data[1]]:
+                    sink = self.sinks[0]
+                elif self.sinks[1].occupant is self.cooks[in_data[1]]:
+                    sink = self.sinks[1]
+                sink.time += in_data[2]
+                if sink.time < SPRITE_SIZE:
+                    pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(sink.rect.x,
+                                                                           sink.rect.y + SPRITE_SIZE / 2,
+                                                                           sink.time, 5))
                     pygame.display.flip()
                 else:
-                    self.sinks[in_data[1]].is_washed = False
-                    self.sinks[in_data[1]].is_finished = True
+                    sink.is_washed = False
+                    sink.is_finished = True

@@ -23,11 +23,13 @@ helper2left = pygame.image.load(os.path.join(path, "resources", "Helper2Left.png
 
 os.chdir(path1)
 
+
 # TODO inherit from cook, not tile - DONE
 class Helper(Cook):
     def __init__(self, image_name, col, row_count, id, grid):
         super().__init__(0, id, Semaphore(1))
-
+        self.left = helper2left
+        self.right = helper2
         self.image = image_name
         self.rect.x = col * SPRITE_SIZE
         self.rect.y = row_count * SPRITE_SIZE
@@ -48,40 +50,40 @@ class Helper(Cook):
         self.path = paths
         return paths, runs
 
-    def move(self, x, y, relative):
-        if relative:
-            self.rect.x += x
-            self.rect.y += y
-
-        else:
-            if x < self.rect.x:
-                x = -x
-            if y < self.rect.y:
-                y = -y
-            self.rect.x = abs(x)
-            self.rect.y = abs(y)
-
-        if x < 0:
-            self.direction = "L"
-            if self.image == helper1:
-                self.image = helper1left
-            else:
-                self.image = helper2left
-            if self.carry is not None:
-                self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
-        elif x > 0:
-            self.direction = "R"
-            if self.image == helper1left:
-                self.image = helper1
-            else:
-                self.image = helper2
-            if self.carry is not None:
-                self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
-        if y > 0:
-            self.direction = "D"
-            if self.carry is not None:
-                self.carry.rect.y = self.rect.y + SPRITE_SIZE / 2
-        elif y < 0:
-            self.direction = "U"
-            if self.carry is not None:
-                self.carry.rect.y = self.rect.y - SPRITE_SIZE / 2
+    # def move(self, x, y, relative):
+    #     if relative:
+    #         self.rect.x += x
+    #         self.rect.y += y
+    #
+    #     else:
+    #         if x < self.rect.x:
+    #             x = -x
+    #         if y < self.rect.y:
+    #             y = -y
+    #         self.rect.x = abs(x)
+    #         self.rect.y = abs(y)
+    #
+    #     if x < 0:
+    #         self.direction = "L"
+    #         if self.image == helper1:
+    #             self.image = helper1left
+    #         else:
+    #             self.image = helper2left
+    #         if self.carry is not None:
+    #             self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
+    #     elif x > 0:
+    #         self.direction = "R"
+    #         if self.image == helper1left:
+    #             self.image = helper1
+    #         else:
+    #             self.image = helper2
+    #         if self.carry is not None:
+    #             self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
+    #     if y > 0:
+    #         self.direction = "D"
+    #         if self.carry is not None:
+    #             self.carry.rect.y = self.rect.y + SPRITE_SIZE / 2
+    #     elif y < 0:
+    #         self.direction = "U"
+    #         if self.carry is not None:
+    #             self.carry.rect.y = self.rect.y - SPRITE_SIZE / 2
