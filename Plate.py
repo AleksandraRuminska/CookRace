@@ -39,7 +39,6 @@ class Plate(Utensil):
 
         else:
             self.rect.x = 1200
-
         self.rect.y = -100
         self.food_consumed = True
         #self.time_rand = random.randint(1, 4)
@@ -55,7 +54,7 @@ class Plate(Utensil):
             else:
                 self.rect.x = 450
             # self.rect.y = random.randint(2, 4) * SPRITE_SIZE + SPRITE_SIZE/2
-            self.rect.y = 3 * SPRITE_SIZE + SPRITE_SIZE/2
+            self.rect.y = 3 * SPRITE_SIZE
             self.change_image()
             self.isDirty = True
             self.isReady = False

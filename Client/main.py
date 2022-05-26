@@ -21,7 +21,7 @@ from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
 # TODO ADD HAMACHI CONF, CUSTOM CONF
-choice = int(input("Choose conf: \n 1: Private Kacper \n 2: Localhost \n 3: Hamachi Kacper"))
+choice = int(input("Choose conf: \n 1: Private Kacper \n 2: Localhost \n 3: Hamachi Kacper \n"))
 if choice == 1:
     SERVER = "192.168.0.108"
 elif choice == 3:
