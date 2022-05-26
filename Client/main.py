@@ -190,6 +190,7 @@ while running:
                 move_queue.put(DoActivity(0 if cooks[0].controlling else 1, 1, ActivityType.ActivityType.WASH_PLATE))
             elif pygame.key.name(event.key) == "j":
                 msg = DoActivity(0, 10, ActivityType.ActivityType.MOVE_R)
+                command_queue.put(msg)
             elif pygame.key.name(event.key) == "k":
                 msg = DoActivity(0, 1, ActivityType.ActivityType.WASH_PLATE)
                 command_queue.put(msg)
