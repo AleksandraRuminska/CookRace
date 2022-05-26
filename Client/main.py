@@ -10,6 +10,7 @@ from Client.AssistantThread import AssistantThread
 from Floor import Floor
 from Helper import Helper
 from Kitchen import Kitchen
+from Messages import ActivityType
 from Messages.DoActivity import DoActivity
 from Messages.Move import Move
 from Messages.PickUp import PickUp
@@ -20,7 +21,7 @@ from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
 # TODO ADD HAMACHI CONF, CUSTOM CONF
-choice = int(input("Choose conf: \n 1: Kacper \n 2: Localhost \n 3: Kacper Hamachi"))
+choice = int(input("Choose conf: \n 1: Private Kacper \n 2: Localhost \n 3: Hamachi Kacper"))
 if choice == 1:
     SERVER = "192.168.0.108"
 elif choice == 3:
@@ -186,9 +187,11 @@ while running:
             if pygame.key.name(event.key) == "space":
                 move_queue.put(PickUp(0 if cooks[0].controlling else 1))
             elif pygame.key.name(event.key) == "[0]" or pygame.key.name(event.key) == "0":
-                move_queue.put(DoActivity(0 if cooks[0].controlling else 1, 1))
+                move_queue.put(DoActivity(0 if cooks[0].controlling else 1, 1, ActivityType.ActivityType.WASH_PLATE))
             elif pygame.key.name(event.key) == "j":
-                msg = DoActivity(0, 10)
+                msg = DoActivity(0, 10, ActivityType.ActivityType.MOVE_R)
+            elif pygame.key.name(event.key) == "k":
+                msg = DoActivity(0, 1, ActivityType.ActivityType.WASH_PLATE)
                 command_queue.put(msg)
 
     # for MyCook in cooks:
@@ -210,6 +213,14 @@ while running:
     for sink in sinks:
         plate_in_sink = False
         sink.is_washed = False
+        if not sink.occupied or not sink.rect2.colliderect(sink.occupant.rect):
+            if sink.occupied and not sink.rect2.colliderect(sink.occupant.rect):
+                sink.leave()
+            for cook in cooks:
+                if sink.rect2.colliderect(cook.rect) and not sink.occupied():
+                    sink.occupy(cook)
+                    break
+
         for plate in movables:
             if sink.rect.colliderect(plate):
                 plate_in_sink = True

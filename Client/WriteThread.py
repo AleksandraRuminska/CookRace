@@ -7,6 +7,7 @@ import copy
 from pygame import sprite
 
 from AssistantThread import AssistantThread
+from Messages import ActivityType
 from Messages.DoActivity import DoActivity
 from Messages.MessageType import MessageType
 from Messages.Move import Move
@@ -70,7 +71,7 @@ class WriteThread(threading.Thread):
                     i = 0
                     for sink in self.sinks:
                         if sink.is_washed and not sink.is_finished:
-                            msg = DoActivity(i, 1)
+                            msg = DoActivity(i, 1, ActivityType.ActivityType.WASH_PLATE)
                         i += 1
                 if msg is None:
                     # if type(msg) == Move:
