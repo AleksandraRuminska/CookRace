@@ -12,7 +12,7 @@ class Sink(Station):
         super().__init__(image_name, col, row_count)
         self.rect2 = copy.deepcopy(self.rect)
         self.rect2.height += 50
-        self.rect2.centery += 50
+        self.rect2.y -= 50
         self.is_washed = False
         self.is_finished = False
 

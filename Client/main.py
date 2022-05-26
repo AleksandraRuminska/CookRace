@@ -218,12 +218,12 @@ while running:
             if sink.occupied and not sink.rect2.colliderect(sink.occupant.rect):
                 sink.leave()
             for cook in cooks:
-                if sink.rect2.colliderect(cook.rect) and not sink.occupied():
+                if sink.rect2.colliderect(cook.rect) and not sink.occupied:
                     sink.occupy(cook)
                     break
 
         for plate in movables:
-            if sink.rect.colliderect(plate):
+            if sink.rect.colliderect(plate) and sink.occupied:
                 plate_in_sink = True
                 if plate.isDirty:
                     sink.is_washed = True
