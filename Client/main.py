@@ -137,7 +137,7 @@ for tile in world.tile_list:
 semaphore = Semaphore(1)
 
 semaphore.acquire()
-new_thread = ReadThread(client, cooks, movables, semaphore, screen, sinks)
+new_thread = ReadThread(client, cooks, movables, semaphore, screen, sinks, sprites_no_cook_floor)
 new_thread.start()
 
 semaphore.acquire()
@@ -228,7 +228,7 @@ while running:
 
     for plate in movables:
         if (250 <= plate.rect.x < 400) or (500 <= plate.rect.x < 650):
-            if 0 <= plate.rect.y <= (2 * SPRITE_SIZE):
+            if 0 <= plate.rect.y <= (SPRITE_SIZE):
                 if not plate.isDirty:
                     flag = False
                     for cook in cooks:

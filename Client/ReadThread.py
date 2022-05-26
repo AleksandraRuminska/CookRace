@@ -11,7 +11,7 @@ SPRITE_SIZE = 50
 
 
 class ReadThread(threading.Thread):
-    def __init__(self, client, cooks, movables, semaphore, screen, sinks):
+    def __init__(self, client, cooks, movables, semaphore, screen, sinks, sprites_no_cook_floor):
         threading.Thread.__init__(self)
         self.client = client
         self.cooks = cooks
@@ -20,6 +20,7 @@ class ReadThread(threading.Thread):
         self.screen = screen
         self.sinks = sinks
         self.assistantCount = len(cooks)
+        self.sprites_no_cook_floor = sprites_no_cook_floor
 
     def run(self):
         while True:
@@ -49,7 +50,7 @@ class ReadThread(threading.Thread):
                 # pick up
                 self.cooks[in_data[1]].semaphore.acquire()
                 if self.cooks[in_data[1]].is_carrying():
-                    self.cooks[in_data[1]].put_down()
+                    self.cooks[in_data[1]].put_down(self.sprites_no_cook_floor)
                 else:
                     for obj in self.movables:
                         if self.cooks[in_data[1]].rect.y - SPRITE_SIZE <= obj.rect.y <= \
