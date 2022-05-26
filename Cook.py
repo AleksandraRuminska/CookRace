@@ -26,7 +26,8 @@ class Cook(pygame.sprite.Sprite):
         self.width = width
         self.height = height
         self.direction = "R"
-
+        self.myStations = []
+        self.myUtensils = []
         self.image = image
         self.right = image
         self.left = cook_left

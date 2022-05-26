@@ -10,7 +10,7 @@ class Station(Tile):
         self.occupied = False
         self.occupant = None
 
-    def occupy(self,cook):
+    def occupy(self, cook):
         self.occupied = True
         self.occupant = cook
 

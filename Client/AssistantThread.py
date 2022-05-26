@@ -1,13 +1,18 @@
-
 import threading
 import random
+from threading import Condition
 from time import sleep
 
 from Messages.ActivityType import ActivityType
 from Messages.MessageType import MessageType
 from Messages.PutInPlace import PutInPlace
+from Plate import Plate
+from Sink import Sink
 
 SPRITE_SIZE = 50
+
+
+
 
 
 class AssistantThread(threading.Thread):
@@ -17,6 +22,23 @@ class AssistantThread(threading.Thread):
         self.assistant = assistants
         self.command_queue = command_queue
         self.semaphore = semaphore
+
+    def moveTo(self, x, y):
+        path, runs = self.assistant.find_path(x, y)
+        # sleep(0.4)
+        print("Path: ", path)
+        print("Runs: ", runs)
+
+        message = None
+        print("LEN: ", len(path))
+        for i in range(0, len(path)):
+            print("path x: ", path[i][0], " ,y: ", path[i][1])
+            message = PutInPlace(self.assistant.id, path[i][0], 0,
+                                 path[i][1], 0)
+            if message is not None:
+                to_send = message.encode()
+                self.client.send(to_send)
+                sleep(0.6)
 
     def run(self):
         while True:
@@ -42,26 +64,11 @@ class AssistantThread(threading.Thread):
                         y = y * SPRITE_SIZE
 
                         # path, runs = self.assistants[num-2].find_path(x, y)
-                        path, runs = self.assistant.find_path(x, y)
-                        # sleep(0.4)
-                        print("Path: ", path)
-                        print("Runs: ", runs)
+                        self.moveTo(x, y)
+                        # print("X: ", self.assistant.rect.x, " Y: ", self.assistant.rect.y)
 
-                        message = None
-                        print("LEN: ", len(path))
-                        for i in range(0, len(path)):
-                            print("path x: ", path[i][0], " ,y: ", path[i][1])
-                            message = PutInPlace(self.assistant.id, path[i][0], 0,
-                                                 path[i][1], 0)
-                            if message is not None:
-                                to_send = message.encode()
-                                self.client.send(((to_send)))
-                                sleep(0.6)
-
-                            # print("X: ", self.assistant.rect.x, " Y: ", self.assistant.rect.y)
-
-                            # sleep(0.3)
-                            # delay(200)
+                        # sleep(0.3)
+                        # delay(200)
 
                         # for i in range(0, len(path)):
                         #     # sleep(0.3)
@@ -72,7 +79,21 @@ class AssistantThread(threading.Thread):
                         # message = PutInPlace(self.assistants.id, 0, 0,
                         #                     0, 0)
                     if msg.get_activity_type() == ActivityType.WASH_PLATE:
-                        pass
+                        # step 1: check if there's a dirty plate
+                        for utensil in self.assistant.myUtensils:
+                            if type(utensil) is Plate and utensil.isDirty:
+                                # step 2: get the plate
+                                # step 3: wait for an available station
+                                for station in self.assistant.myStations:
+                                    if type(station) is Sink:
+                                        while True:
+                                            if station.occupied:
+                                                sleep(3)
+                                            else:
+                                                break
+                                        # step 4: go to said station
+                                        self.moveTo(station.rect2.x, station.rect2.y)
+
 
 
 

@@ -23,6 +23,7 @@ helper2left = pygame.image.load(os.path.join(path, "resources", "Helper2Left.png
 
 os.chdir(path1)
 
+
 # TODO inherit from cook, not tile - DONE
 class Helper(Cook):
     def __init__(self, image_name, col, row_count, id, grid):

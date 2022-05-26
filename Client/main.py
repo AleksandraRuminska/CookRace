@@ -113,15 +113,26 @@ assistants = []
 new_assistant_thread = []
 command_queue = Queue()
 move_queue = Queue()
-
+left_stations = []
+right_stations = []
+left_utensils = []
+right_utensils = []
 for tile in world.tile_list:
     if type(tile) == Plate:
+        if tile.rect.x < 450:
+            left_utensils.append(tile)
+        else:
+            right_utensils.append(tile)
         all_sprites_group.add(tile)
         movable.add(tile)
         movables.append(tile)
     elif type(tile) == Floor:
         all_sprites_group.add(tile)
     elif type(tile) == Sink:
+        if tile.rect.x < 450:
+            left_stations.append(tile)
+        else:
+            right_stations.append(tile)
         sinks.append(tile)
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
@@ -153,15 +164,13 @@ new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True 
 new_thread_write.start()
 
 my_assistants = []
+(my_cook, my_stations, my_utensils) = (cooks[0], left_stations, left_utensils) if cooks[0].controlling else (cooks[1], right_stations, right_utensils)
 
-if cooks[0].controlling:
-    for assistant in assistants:
-        if assistant.rect.x < 450:
-            my_assistants.append(assistant)
-else:
-    for assistant in assistants:
-        if assistant.rect.x > 450:
-            my_assistants.append(assistant)
+for assistant in assistants:
+    if (cooks[0].controlling and assistant.rect.x < 450) or (assistant.rect.x > 450 and cooks[1].controlling):
+        assistant.myStations = my_stations
+        assistant.myUtensils = my_utensils
+        my_assistants.append(assistant)
 
 a_semaphore = Semaphore(1)
 
@@ -187,7 +196,10 @@ while running:
             if pygame.key.name(event.key) == "space":
                 move_queue.put(PickUp(0 if cooks[0].controlling else 1))
             elif pygame.key.name(event.key) == "[0]" or pygame.key.name(event.key) == "0":
-                move_queue.put(DoActivity(0 if cooks[0].controlling else 1, 1, ActivityType.ActivityType.WASH_PLATE))
+                for sink in sinks:
+                    if my_cook is sink.occupant:
+                        move_queue.put(
+                            DoActivity(0 if cooks[0].controlling else 1, 1, ActivityType.ActivityType.WASH_PLATE))
             elif pygame.key.name(event.key) == "j":
                 msg = DoActivity(0, 10, ActivityType.ActivityType.MOVE_R)
                 command_queue.put(msg)
