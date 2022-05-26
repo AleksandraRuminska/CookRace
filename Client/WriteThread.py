@@ -92,10 +92,9 @@ class WriteThread(threading.Thread):
                             self.cook.move(move_dist, 0, True)
                             self.cook.semaphore.release()
                             # self.cook.direction = "R"
-                            self.cook.image = self.cook.right
-                            msg = Move(self.cook.id, move_dist, 0)
-                    self.cook.direction = "R"
 
+                            msg = Move(self.cook.id, move_dist, 0)
+                    self.cook.faceRight()
                 elif keys[pygame.K_LEFT]:
                     collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collL)
                     if collision == []:  # or self.cook.rect.left != collision[0].rect.right:
@@ -105,10 +104,9 @@ class WriteThread(threading.Thread):
                             self.cook.move(-move_dist, 0, True)
                             self.cook.semaphore.release()
                             # self.cook.direction = "L"
-                            self.cook.image = self.cook.left
-                            msg = Move(self.cook.id, -move_dist, 0)
-                    self.cook.direction = "L"
 
+                            msg = Move(self.cook.id, -move_dist, 0)
+                    self.cook.faceLeft()
 
                 elif keys[pygame.K_UP]:
                     collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collU)

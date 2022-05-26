@@ -65,48 +65,70 @@ class Cook(pygame.sprite.Sprite):
 
         if x < 0:
             self.direction = "L"
-            # self.image = self.left
+            self.image = self.left
             if self.carry is not None:
                 self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
+                self.carry.rect.y = self.rect.y
         elif x > 0:
             self.direction = "R"
-            # self.image = self.right
+            self.image = self.right
             if self.carry is not None:
                 self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
+                self.carry.rect.y = self.rect.y
 
         if y > 0:
             self.direction = "D"
             if self.carry is not None:
                 self.carry.rect.y = self.rect.y + SPRITE_SIZE / 2
+                self.carry.rect.x = self.rect.x
         elif y < 0:
             self.direction = "U"
             if self.carry is not None:
                 self.carry.rect.y = self.rect.y - SPRITE_SIZE / 2
+                self.carry.rect.x = self.rect.x
+
+    def faceLeft(self):
+        self.direction = "L"
+        self.image = self.left
+        if self.carry is not None:
+            self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
+            self.carry.rect.y = self.rect.y
+
+    def faceRight(self):
+        self.direction = "L"
+        self.image = self.right
+        if self.carry is not None:
+            self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
+            self.carry.rect.y = self.rect.y
 
     def pick_up(self, item):
         self.carry = item
-
+        self.carry.currentlyCarried = True
         if self.direction == "L":
             self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
+            self.carry.rect.y = self.rect.y
         elif self.direction == "R":
             self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
+            self.carry.rect.y = self.rect.y
         elif self.direction == "D":
-            if self.image == self.right:
-                self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
-            else:
-                self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
-
+            # if self.image == self.right:
+            #    self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
+            # else:
+            #    self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
+            #
             self.carry.rect.y = self.rect.y + SPRITE_SIZE / 2
+            self.carry.rect.x = self.rect.x
 
         elif self.direction == "U":
-            if self.image == self.right:
-                self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
-            else:
-                self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
+            # if self.image == self.right:
+            #    self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
+            # else:
+            #    self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
             self.carry.rect.y = self.rect.y - SPRITE_SIZE / 2
+            self.carry.rect.x = self.rect.x
 
     def put_down(self, sprites_no_cook_floor):
-
+        self.carry.currentlyCarried = False
         for tile in sprites_no_cook_floor:
             if self.carry.rect.colliderect(tile):
                 self.carry.rect.x = tile.rect.x

@@ -4,6 +4,7 @@ from threading import Condition
 from time import sleep
 
 from Messages.ActivityType import ActivityType
+from Messages.DoActivity import DoActivity
 from Messages.MessageType import MessageType
 from Messages.PickUp import PickUp
 from Messages.PutInPlace import PutInPlace
@@ -79,7 +80,7 @@ class AssistantThread(threading.Thread):
                     if msg.get_activity_type() == ActivityType.WASH_PLATE:
                         # step 1: check if there's a dirty plate
                         for utensil in self.assistant.myUtensils:
-                            if type(utensil) is Plate and utensil.isDirty:
+                            if type(utensil) is Plate and utensil.isDirty and not utensil.currentlyCarried :
                                 # step 2: get to the plate
                                 path, runs = self.checkPathAllSides(utensil.rect.x, utensil.rect.y)
                                 self.moveTo(path, runs)
@@ -107,7 +108,12 @@ class AssistantThread(threading.Thread):
                                         to_send = msg.encode()
                                         self.client.send(to_send)
                                         sleep(0.6)
-
+                                        # step 7: wash until clean(for now assume we occupy station at this point)
+                                        while utensil.isDirty:
+                                            msg = DoActivity(self.assistant.id, 1, ActivityType.WASH_PLATE)
+                                            to_send = msg.encode()
+                                            self.client.send(to_send)
+                                            sleep(0.1)
 
 
             else:

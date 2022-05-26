@@ -83,13 +83,17 @@ class ReadThread(threading.Thread):
                 self.cooks[in_data[1]].semaphore.release()
 
             elif in_data[0] == MessageType.DOACTIVITY:
-                self.sinks[in_data[1]].time += in_data[2]
-                if self.sinks[in_data[1]].time < SPRITE_SIZE:
-                    pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(self.sinks[in_data[1]].rect.x,
-                                                                           self.sinks[
-                                                                               in_data[1]].rect.y + SPRITE_SIZE / 2,
-                                                                           self.sinks[in_data[1]].time, 5))
+                sink = None
+                if self.sinks[0].occupant is self.cooks[in_data[1]]:
+                    sink = self.sinks[0]
+                elif self.sinks[1].occupant is self.cooks[in_data[1]]:
+                    sink = self.sinks[1]
+                sink.time += in_data[2]
+                if sink.time < SPRITE_SIZE:
+                    pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(sink.rect.x,
+                                                                           sink.rect.y + SPRITE_SIZE / 2,
+                                                                           sink.time, 5))
                     pygame.display.flip()
                 else:
-                    self.sinks[in_data[1]].is_washed = False
-                    self.sinks[in_data[1]].is_finished = True
+                    sink.is_washed = False
+                    sink.is_finished = True
