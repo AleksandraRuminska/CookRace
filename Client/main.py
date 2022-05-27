@@ -7,8 +7,10 @@ import pygame
 from pathfinding.core.grid import Grid
 
 from Client.AssistantThread import AssistantThread
+from CuttingBoard import CuttingBoard
 from Floor import Floor
 from Helper import Helper
+from Ingredient import Ingredient
 from Kitchen import Kitchen
 from Messages import ActivityType
 from Messages.DoActivity import DoActivity
@@ -17,6 +19,7 @@ from Messages.PickUp import PickUp
 from Plate import Plate
 from ReadThread import ReadThread
 from Sink import Sink
+from Tomato import Tomato
 from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
@@ -72,7 +75,7 @@ world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1]
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 4],
-              [1, 0, [0, 16], 0, 5, 0, [0, 16], 0, 13, 13, 0, [0, 16], 0, 5, 0, 0, 0, 1],
+              [1, 0, [0, 16], 0, [5, 17], 0, [0, 16], 0, 13, 13, 0, [0, 16], 0, [5, 17], 0, 0, 0, 1],
               [1, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, 1],
@@ -110,6 +113,7 @@ world = Kitchen(world_data, matrix)
 movables = []
 cooks = []
 assistants = []
+cutting_boards = []
 new_assistant_thread = []
 command_queue = Queue()
 move_queue = Queue()
@@ -117,6 +121,9 @@ left_stations = []
 right_stations = []
 left_utensils = []
 right_utensils = []
+left_ingredients = []
+right_ingredients = []
+
 for tile in world.tile_list:
     if type(tile) == Plate:
         if tile.rect.x < 450:
@@ -126,8 +133,10 @@ for tile in world.tile_list:
         all_sprites_group.add(tile)
         movable.add(tile)
         movables.append(tile)
+
     elif type(tile) == Floor:
         all_sprites_group.add(tile)
+
     elif type(tile) == Sink:
         if tile.rect.x < 450:
             left_stations.append(tile)
@@ -136,20 +145,42 @@ for tile in world.tile_list:
         sinks.append(tile)
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
+
+    elif type(tile) == Tomato:
+        if tile.rect.x < 450:
+            left_ingredients.append(tile)
+        else:
+            right_ingredients.append(tile)
+        all_sprites_group.add(tile)
+        movable.add(tile)
+        movables.append(tile)
+
+    elif type(tile) == CuttingBoard:
+        if tile.rect.x < 450:
+            left_stations.append(tile)
+        else:
+            right_stations.append(tile)
+        cutting_boards.append(tile)
+        all_sprites_group.add(tile)
+        sprites_no_cook_floor.add(tile)
+
     elif type(tile) == Helper:
         all_sprites_group.add(tile)
         cooks.append(tile)
         assistants.append(tile)
         helpers.add(tile)
         # sprites_no_cook_floor.add(tile)
+
     else:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
 
+ingredients = left_ingredients + right_ingredients
+
 semaphore = Semaphore(1)
 
 semaphore.acquire()
-new_thread = ReadThread(client, cooks, movables, semaphore, screen, sinks, sprites_no_cook_floor)
+new_thread = ReadThread(client, cooks, movables, semaphore, screen, sinks, cutting_boards, sprites_no_cook_floor)
 new_thread.start()
 
 semaphore.acquire()
@@ -160,7 +191,7 @@ for i in range(2, len(cooks)):
     all_sprites_group.add(cooks[i])
 
 new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
-                               sinks, command_queue, move_queue)
+                               sinks, cutting_boards, command_queue, move_queue)
 new_thread_write.start()
 
 my_assistants = []
@@ -195,11 +226,18 @@ while running:
             print(pygame.key.name(event.key))
             if pygame.key.name(event.key) == "space":
                 move_queue.put(PickUp(0 if cooks[0].controlling else 1))
+
             elif pygame.key.name(event.key) == "[0]" or pygame.key.name(event.key) == "0":
                 for sink in sinks:
                     if my_cook is sink.occupant:
                         move_queue.put(
                             DoActivity(0 if cooks[0].controlling else 1, 1, ActivityType.ActivityType.WASH_PLATE))
+                for cutting_board in cutting_boards:
+                    if my_cook is cutting_board.occupant:
+                        move_queue.put(
+                            DoActivity(0 if cooks[0].controlling else 1, 1, ActivityType.ActivityType.SLICE))
+
+
             elif pygame.key.name(event.key) == "j":
                 msg = DoActivity(0, 10, ActivityType.ActivityType.MOVE_R)
                 command_queue.put(msg)
@@ -223,53 +261,103 @@ while running:
     #         MyCook.rect.bottom = collision[0].rect.top
     #         MyCook.collision = True
 
-    for sink in sinks:
-        plate_in_sink = False
-        sink.is_washed = False
-        if not sink.occupied or not sink.rect2.colliderect(sink.occupant.rect):
-            if sink.occupied and not sink.rect2.colliderect(sink.occupant.rect):
-                sink.leave()
-            for cook in cooks:
-                if sink.rect2.colliderect(cook.rect) and not sink.occupied:
-                    sink.occupy(cook)
+    if ActivityType.ActivityType.WASH_PLATE:
+        for sink in sinks:
+            plate_in_sink = False
+            sink.is_washed = False
+            if not sink.occupied or not sink.rect2.colliderect(sink.occupant.rect):
+                if sink.occupied and not sink.rect2.colliderect(sink.occupant.rect):
+                    sink.leave()
+                for cook in cooks:
+                    if sink.rect2.colliderect(cook.rect) and not sink.occupied:
+                        sink.occupy(cook)
+                        break
+
+            for plate in movables:
+                if sink.rect.colliderect(plate) and sink.occupied:
+                    plate_in_sink = True
+                    if plate.isDirty:
+                        sink.is_washed = True
+
+                    if sink.is_finished:
+                        if plate.isDirty:
+                            plate.change_image()
+                        plate.isDirty = False
                     break
 
+            if not plate_in_sink:
+                sink.time = 0
+                sink.is_finished = False
+
         for plate in movables:
-            if sink.rect.colliderect(plate) and sink.occupied:
-                plate_in_sink = True
-                if plate.isDirty:
-                    sink.is_washed = True
+            if (250 <= plate.rect.x < 400) or (500 <= plate.rect.x < 650):
+                if 0 <= plate.rect.y <= (SPRITE_SIZE):
+                    if not plate.isDirty:
+                        flag = False
+                        for cook in cooks:
+                            if cook.carry == plate:
+                                flag = True
+                                break
+                        if not flag:
+                            plate.isReady = True
 
-                if sink.is_finished:
-                    if plate.isDirty:
-                        plate.change_image()
-                    plate.isDirty = False
-                break
+            if plate.isReady:
+                if not plate.food_consumed:
+                    plate.food_consuming()
+                else:
+                    print("EXECUTIONS: ", executions)
+                    if executions % 60 == 0:
+                        plate.consumption()
+                        executions = 0
 
-        if not plate_in_sink:
-            sink.time = 0
-            sink.is_finished = False
+    for cutting_board in cutting_boards:
+        ingredient_on_board = False
+        cutting_board.is_sliced = False
+        if not cutting_board.occupied or not cutting_board.rect2.colliderect(cutting_board.occupant.rect):
+            if cutting_board.occupied and not cutting_board.rect2.colliderect(cutting_board.occupant.rect):
+                cutting_board.leave()
+            for cook in cooks:
+                if cutting_board.rect2.colliderect(cook.rect) and not cutting_board.occupied:
+                    cutting_board.occupy(cook)
+                    break
 
-    for plate in movables:
-        if (250 <= plate.rect.x < 400) or (500 <= plate.rect.x < 650):
-            if 0 <= plate.rect.y <= (SPRITE_SIZE):
-                if not plate.isDirty:
-                    flag = False
-                    for cook in cooks:
-                        if cook.carry == plate:
-                            flag = True
-                            break
-                    if not flag:
-                        plate.isReady = True
 
-        if plate.isReady:
-            if not plate.food_consumed:
-                plate.food_consuming()
-            else:
+        for ob in movables:
+            if ob in ingredients:
+                if cutting_board.rect.colliderect(ob) and cutting_board.occupied:
+                    ingredient_on_board = True
+                    if ob.isSliced:
+                        cutting_board.is_sliced = True
+
+                    if cutting_board.is_finished:
+                        if ob.isSliced:
+                            ob.change_image()
+                        ob.isSliced = False
+                    break
+
+            if not ingredient_on_board:
+                cutting_board.time = 0
+                cutting_board.is_finished = False
+
+    for ob in movables:
+        if ob in ingredients:
+            if (250 <= ob.rect.x < 400) or (500 <= ob.rect.x < 650):
+                if 0 <= ob.rect.y <= (SPRITE_SIZE):
+                    if not ob.isSliced:
+                        flag = False
+                        for cook in cooks:
+                            if cook.carry == ob:
+                                flag = True
+                                break
+                        if not flag:
+                            ob.isReady = True
+
+            if ob.isReady:
                 print("EXECUTIONS: ", executions)
                 if executions % 60 == 0:
-                    plate.consumption()
                     executions = 0
+
+
 
     all_sprites_group.update()
     sprites_no_cook_floor.update()

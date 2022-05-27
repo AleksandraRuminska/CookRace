@@ -43,12 +43,13 @@ def collD(sprite, sprite2):
 
 
 class WriteThread(threading.Thread):
-    def __init__(self, client, cook, sprites_no_cook_floor, sinks, command_queue, move_queue):
+    def __init__(self, client, cook, sprites_no_cook_floor, sinks, cutting_boards, command_queue, move_queue):
         threading.Thread.__init__(self)
         self.client = client
         self.cook = cook
         self.sprites_no_cook_floor = sprites_no_cook_floor
         self.sinks = sinks
+        self.cutting_boards = cutting_boards
         self.command_queue = command_queue
         self.clicked = 10
         self.move_queue = move_queue
@@ -59,7 +60,6 @@ class WriteThread(threading.Thread):
         command_ticker = 0
 
         while True:
-
             # Moving the players left and right
             move_cap = 2
             msg = None
@@ -68,11 +68,19 @@ class WriteThread(threading.Thread):
                 if type(move) is PickUp:
                     msg = PickUp(self.cook.id)
                 elif type(move) is DoActivity:
-                    i = 0
-                    for sink in self.sinks:
-                        if sink.is_washed and not sink.is_finished:
-                            msg = DoActivity(i, 1, ActivityType.ActivityType.WASH_PLATE)
-                        i += 1
+                    if move.get_activity_type() == ActivityType.ActivityType.WASH_PLATE:
+                        i = 0
+                        for sink in self.sinks:
+                            if sink.is_washed and not sink.is_finished:
+                                msg = DoActivity(i, 1, ActivityType.ActivityType.WASH_PLATE)
+                            i += 1
+                    elif move.get_activity_type() == ActivityType.ActivityType.SLICE:
+                        i = 0
+                        for cutting_board in self.cutting_boards:
+                            if cutting_board.is_sliced and not cutting_board.is_finished:
+                                msg = DoActivity(i, 1, ActivityType.ActivityType.SLICE)
+                            i += 1
+
                 if msg is None:
                     # if type(msg) == Move:
                     #     print("" + str(msg._dx) + " " + str(msg._dy) + " " + str(self.cook.rect.x) + " " + str(

@@ -11,7 +11,7 @@ class DoActivity(Message):
         self._activityType = activityType
 
     def encode(self):
-        arr = [self._messageType, self._id, self._time]
+        arr = [self._messageType, self._id, self._time, self._activityType]
         return self.convertArr(arr)
 
     def get_time(self):

@@ -5,13 +5,14 @@ import pygame
 from pygame.time import delay
 
 from Cook import Cook
+from Messages.ActivityType import ActivityType
 from Messages.MessageType import MessageType
 
 SPRITE_SIZE = 50
 
 
 class ReadThread(threading.Thread):
-    def __init__(self, client, cooks, movables, semaphore, screen, sinks, sprites_no_cook_floor):
+    def __init__(self, client, cooks, movables, semaphore, screen, sinks, cutting_boards, sprites_no_cook_floor):
         threading.Thread.__init__(self)
         self.client = client
         self.cooks = cooks
@@ -19,6 +20,7 @@ class ReadThread(threading.Thread):
         self.semaphore = semaphore
         self.screen = screen
         self.sinks = sinks
+        self.cutting_boards = cutting_boards
         self.assistantCount = len(cooks)
         self.sprites_no_cook_floor = sprites_no_cook_floor
 
@@ -83,17 +85,35 @@ class ReadThread(threading.Thread):
                 self.cooks[in_data[1]].semaphore.release()
 
             elif in_data[0] == MessageType.DOACTIVITY:
-                sink = None
-                if self.sinks[0].occupant is self.cooks[in_data[1]]:
-                    sink = self.sinks[0]
-                elif self.sinks[1].occupant is self.cooks[in_data[1]]:
-                    sink = self.sinks[1]
-                sink.time += in_data[2]
-                if sink.time < SPRITE_SIZE:
-                    pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(sink.rect.x,
-                                                                           sink.rect.y + SPRITE_SIZE / 2,
-                                                                           sink.time, 5))
-                    pygame.display.flip()
-                else:
-                    sink.is_washed = False
-                    sink.is_finished = True
+                if in_data[3] == ActivityType.WASH_PLATE:
+                    sink = None
+                    if self.sinks[0].occupant is self.cooks[in_data[1]]:
+                        sink = self.sinks[0]
+                    elif self.sinks[1].occupant is self.cooks[in_data[1]]:
+                        sink = self.sinks[1]
+                    sink.time += in_data[2]
+                    if sink.time < SPRITE_SIZE:
+                        pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(sink.rect.x,
+                                                                               sink.rect.y + SPRITE_SIZE / 2,
+                                                                               sink.time, 5))
+                        pygame.display.flip()
+                    else:
+                        sink.is_washed = False
+                        sink.is_finished = True
+
+                elif in_data[3] == ActivityType.SLICE:
+                    cutting_board = None
+                    if self.cutting_boards[0].occupant is self.cooks[in_data[1]]:
+                        cutting_board = self.cutting_boards[0]
+                    elif self.cutting_boards[1].occupant is self.cooks[in_data[1]]:
+                        cutting_board = self.cutting_boards[1]
+                    cutting_board.time += in_data[2]
+                    if cutting_board.time < SPRITE_SIZE:
+                        pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(cutting_board.rect.x,
+                                                                               cutting_board.rect.y + SPRITE_SIZE / 2,
+                                                                               cutting_board.time, 5))
+                        pygame.display.flip()
+                    else:
+                        cutting_board.is_sliced = False
+                        cutting_board.is_finished = True
+
