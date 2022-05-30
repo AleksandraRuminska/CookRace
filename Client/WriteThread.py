@@ -9,6 +9,7 @@ from pygame import sprite
 from AssistantThread import AssistantThread
 from Messages import ActivityType
 from Messages.DoActivity import DoActivity
+from Messages.Face import Face
 from Messages.MessageType import MessageType
 from Messages.Move import Move
 from Messages.PutInPlace import PutInPlace
@@ -92,8 +93,9 @@ class WriteThread(threading.Thread):
                             self.cook.move(move_dist, 0, True)
                             self.cook.semaphore.release()
                             # self.cook.direction = "R"
-
                             msg = Move(self.cook.id, move_dist, 0)
+                    else:
+                        msg = Face(self.cook.id, 1)
                     self.cook.faceRight()
                 elif keys[pygame.K_LEFT]:
                     collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collL)
@@ -104,8 +106,9 @@ class WriteThread(threading.Thread):
                             self.cook.move(-move_dist, 0, True)
                             self.cook.semaphore.release()
                             # self.cook.direction = "L"
-
                             msg = Move(self.cook.id, -move_dist, 0)
+                    else:
+                        msg = Face(self.cook.id, 3)
                     self.cook.faceLeft()
 
                 elif keys[pygame.K_UP]:
@@ -118,6 +121,8 @@ class WriteThread(threading.Thread):
                             self.cook.semaphore.release()
                             # self.cook.direction = "U"
                             msg = Move(self.cook.id, 0, -move_dist)
+                    else:
+                        msg = Face(self.cook.id, 0)
                     self.cook.direction = "U"
 
                 elif keys[pygame.K_DOWN]:
@@ -130,6 +135,8 @@ class WriteThread(threading.Thread):
                             self.cook.semaphore.release()
                             # self.cook.direction = "D"
                             msg = Move(self.cook.id, 0, move_dist)
+                    else:
+                        msg = Face(self.cook.id, 2)
                     self.cook.direction = "D"
 
             if move_ticker > 0:
