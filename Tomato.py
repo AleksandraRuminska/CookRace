@@ -25,6 +25,6 @@ class Tomato(Ingredient):
 
     def change_image(self):
         if self.isSliced:
-            self.image = self.whole_tomato
-        else:
             self.image = self.sliced
+        else:
+            self.image = self.whole_tomato

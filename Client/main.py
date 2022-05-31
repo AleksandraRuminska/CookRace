@@ -261,54 +261,53 @@ while running:
     #         MyCook.rect.bottom = collision[0].rect.top
     #         MyCook.collision = True
 
-    if ActivityType.ActivityType.WASH_PLATE:
-        for sink in sinks:
-            plate_in_sink = False
-            sink.is_washed = False
-            if not sink.occupied or not sink.rect2.colliderect(sink.occupant.rect):
-                if sink.occupied and not sink.rect2.colliderect(sink.occupant.rect):
-                    sink.leave()
-                for cook in cooks:
-                    if sink.rect2.colliderect(cook.rect) and not sink.occupied:
-                        sink.occupy(cook)
-                        break
-
-            for plate in movables:
-                if sink.rect.colliderect(plate) and sink.occupied:
-                    plate_in_sink = True
-                    if plate.isDirty:
-                        sink.is_washed = True
-
-                    if sink.is_finished:
-                        if plate.isDirty:
-                            plate.change_image()
-                        plate.isDirty = False
+    for sink in sinks:
+        plate_in_sink = False
+        sink.is_washed = False
+        if not sink.occupied or not sink.rect2.colliderect(sink.occupant.rect):
+            if sink.occupied and not sink.rect2.colliderect(sink.occupant.rect):
+                sink.leave()
+            for cook in cooks:
+                if sink.rect2.colliderect(cook.rect) and not sink.occupied:
+                    sink.occupy(cook)
                     break
 
-            if not plate_in_sink:
-                sink.time = 0
-                sink.is_finished = False
-
         for plate in movables:
-            if (250 <= plate.rect.x < 400) or (500 <= plate.rect.x < 650):
-                if 0 <= plate.rect.y <= (SPRITE_SIZE):
-                    if not plate.isDirty:
-                        flag = False
-                        for cook in cooks:
-                            if cook.carry == plate:
-                                flag = True
-                                break
-                        if not flag:
-                            plate.isReady = True
+            if sink.rect.colliderect(plate) and sink.occupied:
+                plate_in_sink = True
+                if plate.isDirty:
+                    sink.is_washed = True
 
-            if plate.isReady:
-                if not plate.food_consumed:
-                    plate.food_consuming()
-                else:
-                    print("EXECUTIONS: ", executions)
-                    if executions % 60 == 0:
-                        plate.consumption()
-                        executions = 0
+                if sink.is_finished:
+                    if plate.isDirty:
+                        plate.change_image()
+                    plate.isDirty = False
+                break
+
+        if not plate_in_sink:
+            sink.time = 0
+            sink.is_finished = False
+
+    for plate in movables:
+        if (250 <= plate.rect.x < 400) or (500 <= plate.rect.x < 650):
+            if 0 <= plate.rect.y <= (SPRITE_SIZE):
+                if not plate.isDirty:
+                    flag = False
+                    for cook in cooks:
+                        if cook.carry == plate:
+                            flag = True
+                            break
+                    if not flag:
+                        plate.isReady = True
+
+        if plate.isReady:
+            if not plate.food_consumed:
+                plate.food_consuming()
+            else:
+                print("EXECUTIONS: ", executions)
+                if executions % 60 == 0:
+                    plate.consumption()
+                    executions = 0
 
     for cutting_board in cutting_boards:
         ingredient_on_board = False
@@ -321,23 +320,22 @@ while running:
                     cutting_board.occupy(cook)
                     break
 
-
         for ob in movables:
             if ob in ingredients:
                 if cutting_board.rect.colliderect(ob) and cutting_board.occupied:
                     ingredient_on_board = True
-                    if ob.isSliced:
+                    if not ob.isSliced:
                         cutting_board.is_sliced = True
 
                     if cutting_board.is_finished:
                         if ob.isSliced:
                             ob.change_image()
-                        ob.isSliced = False
+                        ob.isSliced = True
                     break
 
-            if not ingredient_on_board:
-                cutting_board.time = 0
-                cutting_board.is_finished = False
+        if not ingredient_on_board:
+            cutting_board.time = 0
+            cutting_board.is_finished = False
 
     for ob in movables:
         if ob in ingredients:
@@ -352,10 +350,6 @@ while running:
                         if not flag:
                             ob.isReady = True
 
-            if ob.isReady:
-                print("EXECUTIONS: ", executions)
-                if executions % 60 == 0:
-                    executions = 0
 
 
 
