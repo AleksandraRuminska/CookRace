@@ -4,7 +4,7 @@ from threading import Semaphore
 import pygame
 from pathfinding.core.grid import Grid
 
-from Cook import Cook
+from Cooks.Cook import Cook
 from Tile import Tile
 from pathfinding.finder.a_star import AStarFinder
 
