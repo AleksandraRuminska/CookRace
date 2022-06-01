@@ -34,7 +34,7 @@ class ReadThread(threading.Thread):
                     self.cooks.insert(0, Cook(True if in_data[2] == 1 else False, in_data[1], semaphore))
                 elif len(self.cooks) == self.assistantCount + 1:
                     semaphore = threading.Semaphore(1)
-                    self.cooks.insert(1, Cook(True if in_data[2] == 1 else False, in_data[1],semaphore))
+                    self.cooks.insert(1, Cook(True if in_data[2] == 1 else False, in_data[1], semaphore))
                 if len(self.cooks) == 2 + self.assistantCount:
                     self.semaphore.release()
 
@@ -117,3 +117,12 @@ class ReadThread(threading.Thread):
                         cutting_board.is_sliced = False
                         cutting_board.is_finished = True
 
+            elif in_data[0] == MessageType.FACE:
+                if in_data[2] == 0:
+                    self.cooks[in_data[1]].direction = "U"
+                if in_data[2] == 1:
+                    self.cooks[in_data[1]].faceRight()
+                if in_data[2] == 2:
+                    self.cooks[in_data[1]].direction = "D"
+                if in_data[2] == 3:
+                    self.cooks[in_data[1]].faceLeft()

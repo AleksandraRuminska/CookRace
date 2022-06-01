@@ -10,6 +10,7 @@ from pygame.sprite import Sprite
 from Messages import PickUp
 from Messages.Create import Create
 from Messages.DoActivity import DoActivity
+from Messages.Face import Face
 from Messages.MessageType import MessageType
 from Messages.Move import Move
 from Messages.PutInPlace import PutInPlace
@@ -48,11 +49,11 @@ class ClientThread(threading.Thread):
     def run(self):
         while True:
             msg = self.csocket.recv(6)
-            #print("WHAT??")
+            # print("WHAT??")
             if msg[0] == MessageType.MOVE:
                 dx = int.from_bytes(msg[2:3], byteorder='big', signed=True)
                 dy = int.from_bytes(msg[3:4], byteorder='big', signed=True)
-                #if (msg[1] == 1):
+                # if (msg[1] == 1):
                 print("____________________________________________________")
                 print(dx)
                 print(dy)
@@ -84,10 +85,12 @@ class ClientThread(threading.Thread):
                 self.queue.put(DoActivity(msg[1], msg[2], msg[3]))
             #     for x in self.sockets:
             #         x.send(msg)
+            elif msg[0] == MessageType.FACE:
+                self.queue.put(Face(msg[1], msg[2]))
 
 
 # userMap = {}
-#TODO ADD HAMACHI CONF, CUSTOM CONF
+# TODO ADD HAMACHI CONF, CUSTOM CONF
 choice = int(input("Choose conf: \n 1: Private Kacper \n 2: Localhost \n 3: Hamachi Kacper \n"))
 if choice == 1:
     ADDRESS = "192.168.0.108"
@@ -95,7 +98,6 @@ elif choice == 2:
     ADDRESS = "127.0.0.1"
 elif choice == 3:
     ADDRESS = "25.47.123.189"
-
 
 PORT = 8080
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -128,7 +130,7 @@ rect_list = []
 for i in range(len(matrix[0])):
     for j in range(len(matrix)):
         if matrix[j][i] == 0:
-            rect = Rect(i*SPRITE_SIZE, j*SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE)
+            rect = Rect(i * SPRITE_SIZE, j * SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE)
             rect_list.append(rect)
 for i in range(8):
     cooks.append(CookServerData(rect_list))
@@ -141,7 +143,6 @@ cooks[4].move(550, 350)
 cooks[5].move(50, 550)
 cooks[6].move(300, 550)
 cooks[7].move(750, 600)
-
 
 while True:
     server.listen(1)
@@ -169,29 +170,33 @@ while True:
                 cooks[msg._id].move(msg._dx, msg._dy)
                 if moveCounter == move_tick:
                     moveCounter = 0
-                    msg = PutInPlace(msg._id, int(cooks[msg._id].rect.x / SPRITE_SIZE), cooks[msg._id].rect.x % SPRITE_SIZE,
+                    msg = PutInPlace(msg._id, int(cooks[msg._id].rect.x / SPRITE_SIZE),
+                                     cooks[msg._id].rect.x % SPRITE_SIZE,
                                      int(cooks[msg._id].rect.y / SPRITE_SIZE), cooks[msg._id].rect.y % SPRITE_SIZE)
-                    #if(msg._id==1):
+                    # if(msg._id==1):
                     print("____________________________________________________")
                     print(msg._id)
-                        #print(int(cooks[msg._id].rect.x))
+                    # print(int(cooks[msg._id].rect.x))
                     print(cooks[msg._id].rect.x)
-                        #print(int(cooks[msg._id].rect.rect.rect.y))
+                    # print(int(cooks[msg._id].rect.rect.rect.y))
                     print(cooks[msg._id].rect.y)
                     print("____________________________________________________")
                     for x in sockets:
                         x.send((msg.encode()))
-                    #if(msg._id==1):
+                    # if(msg._id==1):
                     #    sockets[0].send((msg.encode()))
-                    #else:
+                    # else:
                     #    sockets[1].send((msg.encode()))
             elif msg._messageType == MessageType.DOACTIVITY:
                 for x in sockets:
                     x.send((msg.encode()))
             elif msg._messageType == MessageType.PUTINPLACE:
-                cooks[msg._id].move(msg._x_s * SPRITE_SIZE + msg._x_r,msg._y_s * SPRITE_SIZE + msg._y_r)
+                cooks[msg._id].move(msg._x_s * SPRITE_SIZE + msg._x_r, msg._y_s * SPRITE_SIZE + msg._y_r)
                 for x in sockets:
                     x.send((msg.encode()))
             elif msg._messageType == MessageType.PICKUP:
+                for x in sockets:
+                    x.send((msg.encode()))
+            elif msg._messageType == MessageType.FACE:
                 for x in sockets:
                     x.send((msg.encode()))
