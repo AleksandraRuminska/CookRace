@@ -19,4 +19,5 @@ class Utensil(MoveableObject):
         # max capacity obtained
         self.isFull = False
         self.isDirty = False
+        self.carry = []
 

@@ -16,7 +16,9 @@ from Messages import ActivityType
 from Messages.DoActivity import DoActivity
 from Messages.Move import Move
 from Messages.PickUp import PickUp
+from Pan import Pan
 from Plate import Plate
+from Pot import Pot
 from ReadThread import ReadThread
 from Sink import Sink
 from Tomato import Tomato
@@ -24,11 +26,13 @@ from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
 # TODO ADD HAMACHI CONF, CUSTOM CONF
-choice = int(input("Choose conf: \n 1: Private Kacper \n 2: Localhost \n 3: Hamachi Kacper \n"))
+choice = int(input("Choose conf: \n 1: Private Kacper \n 2: Localhost \n 3: Hamachi Kacper \n  4: Hamachi Pauliina \n"))
 if choice == 1:
     SERVER = "192.168.0.108"
 elif choice == 3:
     SERVER = "25.47.123.189"
+elif choice == 4:
+    SERVER = "25.44.122.35"
 else:
     SERVER = "127.0.0.1"
 # SERVER = "25.41.143.165"
@@ -64,6 +68,7 @@ all_sprites_group = pygame.sprite.Group()
 sprites_no_cook_floor = pygame.sprite.Group()
 movable = pygame.sprite.Group()
 helpers = pygame.sprite.Group()
+ingredientsGroup = pygame.sprite.Group()
 # sinks = pygame.sprite.Group()
 sinks = []
 # Matrix for creation of world conditions for a specific level
@@ -73,13 +78,13 @@ world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1]
               [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
               [3, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 3],
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-              [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+              [[1, 18], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 18]],
               [4, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, [0, 16], 0, [5, 17], 0, [0, 16], 0, 13, 13, 0, [0, 16], 0, [5, 17], 0, 0, 0, 1],
-              [1, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 1],
+              [[1, 18], 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, [1, 18]],
               [4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, 1],
-              [1, [0, 16], 0, 0, 1, 0, [0, 16], 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, 1],
+              [[1, 19], [0, 16], 0, 0, 1, 0, [0, 16], 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, [1, 19]],
               [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, [0, 16], 0, 1],
               [10, 9, 2, 2, 1, 2, 2, 6, 1, 1, 6, 2, 2, 1, 2, 2, 9, 10]]
 
@@ -123,13 +128,15 @@ left_utensils = []
 right_utensils = []
 left_ingredients = []
 right_ingredients = []
+utensils = []
 
 for tile in world.tile_list:
-    if type(tile) == Plate:
+    if type(tile) == Plate or type(tile) == Pot or type(tile) == Pan:
         if tile.rect.x < 450:
             left_utensils.append(tile)
         else:
             right_utensils.append(tile)
+        utensils.append(tile)
         all_sprites_group.add(tile)
         movable.add(tile)
         movables.append(tile)
@@ -154,6 +161,7 @@ for tile in world.tile_list:
         all_sprites_group.add(tile)
         movable.add(tile)
         movables.append(tile)
+        ingredientsGroup.add(tile)
 
     elif type(tile) == CuttingBoard:
         if tile.rect.x < 450:
@@ -176,7 +184,6 @@ for tile in world.tile_list:
         sprites_no_cook_floor.add(tile)
 
 ingredients = left_ingredients + right_ingredients
-
 semaphore = Semaphore(1)
 
 semaphore.acquire()
@@ -202,6 +209,9 @@ for assistant in assistants:
         assistant.myStations = my_stations
         assistant.myUtensils = my_utensils
         my_assistants.append(assistant)
+
+cooks[0].utensils = utensils
+cooks[1].utensils = utensils
 
 a_semaphore = Semaphore(1)
 
@@ -272,7 +282,7 @@ while running:
                     sink.occupy(cook)
                     break
 
-        for plate in movables:
+        for plate in utensils:
             if sink.rect.colliderect(plate) and sink.occupied:
                 plate_in_sink = True
                 if plate.isDirty:
@@ -288,7 +298,8 @@ while running:
             sink.time = 0
             sink.is_finished = False
 
-    for plate in movables:
+
+    for plate in utensils:
         if (250 <= plate.rect.x < 400) or (500 <= plate.rect.x < 650):
             if 0 <= plate.rect.y <= (SPRITE_SIZE):
                 if not plate.isDirty:
@@ -337,6 +348,7 @@ while running:
             cutting_board.time = 0
             cutting_board.is_finished = False
 
+    #??
     for ob in movables:
         if ob in ingredients:
             if (250 <= ob.rect.x < 400) or (500 <= ob.rect.x < 650):
@@ -357,9 +369,11 @@ while running:
     sprites_no_cook_floor.update()
     helpers.update()
     movable.update()
+    ingredientsGroup.update()
     all_sprites_group.draw(screen)
     helpers.draw(screen)
     movable.draw(screen)
+    ingredientsGroup.draw(screen)
 
     pygame.display.flip()
 

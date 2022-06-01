@@ -36,9 +36,15 @@ class Plate(Utensil):
     def food_consuming(self):
         if self.rect.x < 450:
             self.rect.x = -200
+            if len(self.carry) > 0:
+                for item in self.carry:
+                    item.rect.x = -200
 
         else:
             self.rect.x = 1200
+            if len(self.carry) > 0:
+                for item in self.carry:
+                    item.rect.x = 1200
         self.rect.y = -100
         self.food_consumed = True
         #self.time_rand = random.randint(1, 4)
@@ -59,3 +65,8 @@ class Plate(Utensil):
             self.isDirty = True
             self.isReady = False
             self.food_consumed = False
+            for item in self.carry:
+                item.kill()
+
+            self.carry = []
+

@@ -54,13 +54,38 @@ class ReadThread(threading.Thread):
                 if self.cooks[in_data[1]].is_carrying():
                     self.cooks[in_data[1]].put_down(self.sprites_no_cook_floor)
                 else:
+                    first_object = None
+                    objects = []
+                    i = 0
                     for obj in self.movables:
                         if self.cooks[in_data[1]].rect.y - SPRITE_SIZE <= obj.rect.y <= \
                                 self.cooks[in_data[1]].rect.y + SPRITE_SIZE:
                             if self.cooks[in_data[1]].rect.x - SPRITE_SIZE <= obj.rect.x \
                                     <= self.cooks[in_data[1]].rect.x + SPRITE_SIZE:
+                                first_object = obj
+                                objects.append(obj)
+                        i += 1
+
+                    found_utensil = False
+                    utensil_to_pick_up = None
+                    num_utensils = 0
+                    for obj in objects:
+                        if obj in self.cooks[in_data[1]].utensils:
+                            if num_utensils == 0:
                                 self.cooks[in_data[1]].pick_up(obj)
                                 obj.is_moved = True
+                                found_utensil = True
+                                utensil_to_pick_up = obj
+                                num_utensils += 1
+                        else:
+                            if utensil_to_pick_up is not None:
+                                utensil_to_pick_up.carry.append(obj)
+
+                    if found_utensil == False and first_object is not None:
+                        self.cooks[in_data[1]].pick_up(first_object)
+                        first_object.is_moved = True
+
+                    #
                 self.cooks[in_data[1]].semaphore.release()
                     # self.cooks[in_data[1]].pick_up(self.plate)
 
