@@ -1,5 +1,6 @@
 import pygame.draw
 from Tile import Tile
+
 SPRITE_SIZE = 50
 
 
@@ -17,3 +18,6 @@ class Station(Tile):
     def leave(self):
         self.occupied = False
         self.occupant = None
+
+    def get_time(self):
+        return self.time

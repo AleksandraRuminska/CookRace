@@ -3,11 +3,13 @@ import random
 import pygame
 import os
 
+from CuttingBoard import CuttingBoard
 from Floor import Floor
 from Helper import Helper
 from Sink import Sink
 from Tile import Tile
 from Plate import Plate
+from Tomato import Tomato
 
 WHITE = (255, 255, 255)
 GREEN = (26, 160, 90)
@@ -38,7 +40,7 @@ floor = pygame.image.load(os.path.join(path, "resources", "Floor.png"))
 cupboard = pygame.image.load(os.path.join(path, "resources", "Cupboard.png"))
 helper1 = pygame.image.load(os.path.join(path, "resources", "Helper1.png"))
 helper2 = pygame.image.load(os.path.join(path, "resources", "Helper2.png"))
-
+tomato = pygame.image.load(os.path.join(path, "resources", "Tomato.png"))
 os.chdir(path1)
 
 
@@ -75,7 +77,7 @@ class Kitchen:
             tile = Tile(palnik, col, row_count)
             self.tile_list.append(tile)
         elif tile == 5:
-            tile = Tile(cutting, col, row_count)
+            tile = CuttingBoard(cutting, col, row_count)
             self.tile_list.append(tile)
         elif tile == 6:
             tile = Tile(waste, col, row_count)
@@ -109,6 +111,9 @@ class Kitchen:
             self.tile_list.append(tile)
         elif tile == 0:
             tile = Floor(floor, col, row_count)
+            self.tile_list.append(tile)
+        elif tile == 17:
+            tile = Tomato(tomato, col, row_count)
             self.tile_list.append(tile)
 
         # Helper
