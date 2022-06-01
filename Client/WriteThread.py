@@ -127,7 +127,7 @@ class WriteThread(threading.Thread):
                             msg = Move(self.cook.id, 0, -move_dist)
                     else:
                         msg = Face(self.cook.id, 0)
-                    self.cook.direction = "U"
+                    self.cook.faceUp()
 
                 elif keys[pygame.K_DOWN]:
                     collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collD)
@@ -141,7 +141,7 @@ class WriteThread(threading.Thread):
                             msg = Move(self.cook.id, 0, move_dist)
                     else:
                         msg = Face(self.cook.id, 2)
-                    self.cook.direction = "D"
+                    self.cook.faceDown()
 
             if move_ticker > 0:
                 move_ticker -= 1

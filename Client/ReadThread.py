@@ -119,10 +119,10 @@ class ReadThread(threading.Thread):
 
             elif in_data[0] == MessageType.FACE:
                 if in_data[2] == 0:
-                    self.cooks[in_data[1]].direction = "U"
+                    self.cooks[in_data[1]].faceUp()
                 if in_data[2] == 1:
                     self.cooks[in_data[1]].faceRight()
                 if in_data[2] == 2:
-                    self.cooks[in_data[1]].direction = "D"
+                    self.cooks[in_data[1]].faceDown()
                 if in_data[2] == 3:
                     self.cooks[in_data[1]].faceLeft()
