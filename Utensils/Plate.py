@@ -4,7 +4,7 @@ from time import sleep
 
 import pygame
 
-from Utensil import Utensil
+from Utensils.Utensil import Utensil
 SPRITE_SIZE = 50
 path1 = os.path.abspath(os.getcwd())
 
@@ -19,19 +19,19 @@ os.chdir(path1)
 class Plate(Utensil):
     def __init__(self, image_name, col, row_count):
         super().__init__(image_name, col, row_count)
-
+        self.isDirty = False
         self.maxCapacity = 5
-        self.dirty = dirty_plate
-        self.clean = image_name
+        self.dirty_image = dirty_plate
+        self.clean_image = image_name
         self.time_eating = 0
         self.time_rand = 0
         self.food_consumed = False
 
     def change_image(self):
         if self.isDirty:
-            self.image = self.clean
+            self.image = self.clean_image
         else:
-            self.image = self.dirty
+            self.image = self.dirty_image
 
     def food_consuming(self):
         if self.rect.x < 450:
@@ -69,4 +69,13 @@ class Plate(Utensil):
                 item.kill()
 
             self.carry = []
+
+
+    def cleanable(self):
+        return self.isDirty
+
+    def clean(self):
+        if self.isDirty:
+            self.change_image()
+            self.isDirty = False
 

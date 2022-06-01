@@ -3,16 +3,16 @@ import random
 import pygame
 import os
 
-from CuttingBoard import CuttingBoard
+from Stations.CuttingBoard import CuttingBoard
 from Floor import Floor
-from Helper import Helper
-from Pan import Pan
-from Pot import Pot
-from RubbishBin import RubbishBin
-from Sink import Sink
+from Cooks.Helper import Helper
+from Stations.Sink import Sink
+from Stations.RubbishBin import RubbishBin
 from Tile import Tile
-from Plate import Plate
-from Tomato import Tomato
+from Utensils.Plate import Plate
+from Utensils.Pot import Pot
+from Utensils.Pan import Pan
+from Ingredients.Tomato import Tomato
 
 WHITE = (255, 255, 255)
 GREEN = (26, 160, 90)

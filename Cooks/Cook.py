@@ -1,8 +1,10 @@
 import pygame
 import os
 
-from Plate import Plate
-from RubbishBin import RubbishBin
+from Stations.Station import Station
+
+from Utensils.Plate import Plate
+from Stations.RubbishBin import RubbishBin
 
 SPRITE_SIZE = 50
 
@@ -29,18 +31,16 @@ class Cook(pygame.sprite.Sprite):
         self.width = width
         self.height = height
         self.direction = "R"
-        self.myStations = []
-        self.myUtensils = []
+        self.myStations = {}
+        self.myUtensils = {}
         self.image = image
         self.right = image
         self.left = cook_left
         self.rect = self.image.get_rect()
         self.rect.x = -500
         self.rect.y = -500
-        self.utensils = []
 
         self.carry = None
-
         self.controlling = controlling
         self.id = id
         self.collision = False
@@ -120,22 +120,25 @@ class Cook(pygame.sprite.Sprite):
                     ingredient.rect.y = self.carry.rect.y
 
     def pick_up(self, item):
-        print("Picking up: ", type(item))
-        self.carry = item
-        self.carry.currentlyCarried = True
-        if self.direction == "L":
-            self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
-            self.carry.rect.y = self.rect.y
-        elif self.direction == "R":
-            self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
-            self.carry.rect.y = self.rect.y
-        elif self.direction == "D":
-            self.carry.rect.y = self.rect.y + SPRITE_SIZE / 2
-            self.carry.rect.x = self.rect.x
-
-        elif self.direction == "U":
-            self.carry.rect.y = self.rect.y - SPRITE_SIZE / 2
-            self.carry.rect.x = self.rect.x
+        success=item.semaphore.acquire(blocking=False)
+        if success:
+            self.carry = item
+            self.carry.currentlyCarried = True
+            if self.carry.placedOn is not None:
+                self.carry.placedOn.take_off()
+                self.carry.placedOn = None
+            if self.direction == "L":
+                self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
+                self.carry.rect.y = self.rect.y
+            elif self.direction == "R":
+                self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
+                self.carry.rect.y = self.rect.y
+            elif self.direction == "D":
+                self.carry.rect.y = self.rect.y + SPRITE_SIZE / 2
+                self.carry.rect.x = self.rect.x
+            elif self.direction == "U":
+                self.carry.rect.y = self.rect.y - SPRITE_SIZE / 2
+                self.carry.rect.x = self.rect.x
 
         if len(self.carry.carry) > 0:
             for ingredient in self.carry.carry:
@@ -143,68 +146,17 @@ class Cook(pygame.sprite.Sprite):
                 ingredient.rect.y = self.carry.rect.y
 
     def put_down(self, sprites_no_cook_floor):
-        # self.carry.currentlyCarried = False
-
-        # for utensil in utensils:
-        #     for ingredient in ingredients:
-        #         if ingredient.rect.colliderect(utensil) and not utensil.isDirty:
-        #             utensil.carry.append(ingredient)
-
+        self.carry.currentlyCarried = False
         for tile in sprites_no_cook_floor:
             if self.carry.rect.colliderect(tile):
-                if self.carry in self.utensils:
-                    utensil_on_tile = None
-                    utensil_on_tile = self.check_my_utensil_on_station(tile)
-                    if utensil_on_tile is None:
-                        self.carry.rect.x = tile.rect.x
-                        self.carry.rect.y = tile.rect.y
-                        self.carry.currentlyCarried = False
-                    else:
-                        if len(self.carry.carry) > 0:
-                            if len(utensil_on_tile.carry) < utensil_on_tile.maxCapacity:
-                                while len(utensil_on_tile.carry) < utensil_on_tile.maxCapacity and len(self.carry.carry) > 0:
-                                    ingredient = self.carry.carry.pop()
-                                    ingredient.rect.x = utensil_on_tile.rect.x
-                                    ingredient.rect.y = utensil_on_tile.rect.y
-                                    utensil_on_tile.carry.append(ingredient)
-
-                    if type(tile) == RubbishBin:
-                        self.carry.rect.x = tile.rect.x
-                        self.carry.rect.y = tile.rect.y
-                        self.carry.currentlyCarried = False
-                        if len(self.carry.carry) > 0:
-                            for item in self.carry.carry:
-                                item.kill()
-                else:
-
-                    utensil_on_tile = self.check_my_utensil_on_station(tile)
-
-                    if utensil_on_tile is not None and utensil_on_tile.isDirty:
-                        print("Can't put down - dirty")
-                    elif type(tile) == RubbishBin:
-                        self.carry.kill()
-                        self.carry.currentlyCarried = False
-                    else:
-                        self.carry.rect.x = tile.rect.x
-                        self.carry.rect.y = tile.rect.y
-                        self.carry.currentlyCarried = False
-
-                if len(self.carry.carry) > 0:
-                    for ingredient in self.carry.carry:
-                        ingredient.rect.x = tile.rect.x
-                        ingredient.rect.y = tile.rect.y
+                if issubclass(type(tile), Station):
+                    tile.place_on(self.carry)
+                    self.carry.placedOn = tile
+                self.carry.rect.x = tile.rect.x
+                self.carry.rect.y = tile.rect.y
                 break
-
-        if not self.carry.currentlyCarried:
-            self.carry = None
-
-    def check_my_utensil_on_station(self, tile):
-        for utensil in self.utensils:
-            if utensil.rect.colliderect(tile) and self.carry is not utensil:
-                return utensil
-
-        return None
-
+        self.carry.semaphore.release()
+        self.carry = None
 
     def is_carrying(self):
         if self.carry is not None:

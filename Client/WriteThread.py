@@ -44,13 +44,12 @@ def collD(sprite, sprite2):
 
 
 class WriteThread(threading.Thread):
-    def __init__(self, client, cook, sprites_no_cook_floor, sinks, cutting_boards, command_queue, move_queue):
+    def __init__(self, client, cook, sprites_no_cook_floor, stations, command_queue, move_queue):
         threading.Thread.__init__(self)
         self.client = client
         self.cook = cook
         self.sprites_no_cook_floor = sprites_no_cook_floor
-        self.sinks = sinks
-        self.cutting_boards = cutting_boards
+        self.stations = stations
         self.command_queue = command_queue
         self.clicked = 10
         self.move_queue = move_queue
@@ -70,12 +69,14 @@ class WriteThread(threading.Thread):
                     msg = PickUp(self.cook.id)
                 elif type(move) is DoActivity:
                     if move.get_activity_type() == ActivityType.ActivityType.WASH_PLATE:
-                        for sink in self.sinks:
-                            if sink.is_washed and not sink.is_finished:
+                        for sink in self.stations["sinks"]:
+                            #if sink.is_washed and not sink.is_finished:
+                            if not sink.is_finished:
                                 msg = DoActivity(move._id, 1, ActivityType.ActivityType.WASH_PLATE)
                     elif move.get_activity_type() == ActivityType.ActivityType.SLICE:
-                        for cutting_board in self.cutting_boards:
-                            if cutting_board.is_sliced and not cutting_board.is_finished:
+                        for cutting_board in self.stations["boards"]:
+                            #if cutting_board.is_sliced and not cutting_board.is_finished:
+                            if not cutting_board.is_finished:
                                 msg = DoActivity(move._id, 1, ActivityType.ActivityType.SLICE)
 
                 if msg is None:

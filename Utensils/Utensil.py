@@ -13,11 +13,11 @@ class Utensil(MoveableObject):
         super().__init__(image_name, col, row_count)
         self.ingredients = []
         self.maxCapacity = 1
-        self.currentlyCarried = False
         # is the meal cooked
         self.isReady = False
         # max capacity obtained
         self.isFull = False
         self.isDirty = False
         self.carry = []
+
 
