@@ -1,6 +1,6 @@
 import os
 import pygame
-from Ingredient import Ingredient
+from Ingredients.Ingredient import Ingredient
 
 SPRITE_SIZE = 50
 path1 = os.path.abspath(os.getcwd())
@@ -28,3 +28,11 @@ class Tomato(Ingredient):
             self.image = self.sliced
         else:
             self.image = self.whole_tomato
+
+    def sliceable(self):
+        return not self.isSliced
+
+    def slice(self):
+        self.isSliced = True
+        self.change_image()
+

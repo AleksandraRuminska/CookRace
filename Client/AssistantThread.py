@@ -1,6 +1,5 @@
 import threading
 import random
-from threading import Condition
 from time import sleep
 
 from Messages.ActivityType import ActivityType
@@ -9,8 +8,8 @@ from Messages.Face import Face
 from Messages.MessageType import MessageType
 from Messages.PickUp import PickUp
 from Messages.PutInPlace import PutInPlace
-from Plate import Plate
-from Sink import Sink
+from Utensils.Plate import Plate
+from Stations.Sink import Sink
 
 SPRITE_SIZE = 50
 
@@ -119,8 +118,8 @@ class AssistantThread(threading.Thread):
 
                     if msg.get_activity_type() == ActivityType.WASH_PLATE:
                         # step 1: check if there's a dirty plate
-                        for utensil in self.assistant.myUtensils:
-                            if type(utensil) is Plate and utensil.isDirty and not utensil.currentlyCarried:
+                        for utensil in self.assistant.myUtensils["plates"]:
+                            if utensil.isDirty and not utensil.currentlyCarried:
                                 # step 2: get to the plate
                                 path, runs, direction = self.checkPathAllSides(utensil.rect.x, utensil.rect.y)
                                 self.moveTo(path, runs)
@@ -138,32 +137,31 @@ class AssistantThread(threading.Thread):
                                     # someone yoinked it
                                     continue
                                 # step 4: wait for an available station
-                                for station in self.assistant.myStations:
-                                    if type(station) is Sink:
-                                        while True:
-                                            if station.occupied:
-                                                sleep(3)
-                                            else:
-                                                break
-                                        # step 5: go to said station
-                                        #path, runs = self.assistant.find_path(station.rect2.x, station.rect2.y)
-                                        path, runs, direction = self.checkPathAllSides(station.rect.x, station.rect.y)
-                                        self.moveTo(path, runs)
-                                        # step 5.5: face the station
-                                        msg = Face(self.assistant.id, direction)
+                                for station in self.assistant.myStations["sinks"]:
+                                    while True:
+                                        if station.occupied:
+                                            sleep(3)
+                                        else:
+                                            break
+                                    # step 5: go to said station
+                                    #path, runs = self.assistant.find_path(station.rect2.x, station.rect2.y)
+                                    path, runs, direction = self.checkPathAllSides(station.rect.x, station.rect.y)
+                                    self.moveTo(path, runs)
+                                    # step 5.5: face the station
+                                    msg = Face(self.assistant.id, direction)
+                                    to_send = msg.encode()
+                                    self.client.send(to_send)
+                                    sleep(0.5)
+                                    # step 6 : drop said plate at station
+                                    msg = PickUp(self.assistant.id)
+                                    to_send = msg.encode()
+                                    self.client.send(to_send)
+                                    # step 7: wash until clean(for now assume we occupy station at this point)
+                                    while utensil.isDirty:
+                                        msg = DoActivity(self.assistant.id, 1, ActivityType.WASH_PLATE)
                                         to_send = msg.encode()
                                         self.client.send(to_send)
-                                        sleep(0.5)
-                                        # step 6 : drop said plate at station
-                                        msg = PickUp(self.assistant.id)
-                                        to_send = msg.encode()
-                                        self.client.send(to_send)
-                                        # step 7: wash until clean(for now assume we occupy station at this point)
-                                        while utensil.isDirty:
-                                            msg = DoActivity(self.assistant.id, 1, ActivityType.WASH_PLATE)
-                                            to_send = msg.encode()
-                                            self.client.send(to_send)
-                                            sleep(0.1)
+                                        sleep(0.1)
 
 
             else:
