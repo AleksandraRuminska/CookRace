@@ -127,12 +127,12 @@ class AssistantThread(threading.Thread):
                                 msg = Face(self.assistant.id, direction)
                                 to_send = msg.encode()
                                 self.client.send(to_send)
-                                sleep(0.5)
+                                sleep(0.1)
                                 # step 3: pick up the plate
                                 msg = PickUp(self.assistant.id)
                                 to_send = msg.encode()
                                 self.client.send(to_send)
-                                sleep(0.5)
+                                sleep(0.1)
                                 if self.assistant.carry is None:
                                     # someone yoinked it
                                     continue

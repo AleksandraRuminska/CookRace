@@ -1,10 +1,12 @@
 import pygame
 import os
 
+from Ingredients.Ingredient import Ingredient
 from Stations.Station import Station
 
 from Utensils.Plate import Plate
 from Stations.RubbishBin import RubbishBin
+from Utensils.Utensil import Utensil
 
 SPRITE_SIZE = 50
 
@@ -39,7 +41,6 @@ class Cook(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = -500
         self.rect.y = -500
-
         self.carry = None
         self.controlling = controlling
         self.id = id
@@ -80,83 +81,69 @@ class Cook(pygame.sprite.Sprite):
 
     def faceDown(self):
         if self.carry is not None:
-            self.carry.rect.x = self.rect.x
-            self.carry.rect.y = self.rect.y + SPRITE_SIZE / 2
-            if len(self.carry.carry) > 0:
-                for ingredient in self.carry.carry:
-                    ingredient.rect.x = self.carry.rect.x
-                    ingredient.rect.y = self.carry.rect.y
+            self.carry.move(self.rect.x, self.rect.y + SPRITE_SIZE / 2)
 
     def faceUp(self):
         if self.carry is not None:
-            self.carry.rect.x = self.rect.x
-            self.carry.rect.y = self.rect.y - SPRITE_SIZE / 2
-            if len(self.carry.carry) > 0:
-                for ingredient in self.carry.carry:
-                    ingredient.rect.x = self.carry.rect.x
-                    ingredient.rect.y = self.carry.rect.y
-
+            self.carry.move(self.rect.x, self.rect.y - SPRITE_SIZE / 2)
 
     def faceLeft(self):
         self.direction = "L"
         self.image = self.left
         if self.carry is not None:
-            self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
-            self.carry.rect.y = self.rect.y
-            if len(self.carry.carry) > 0:
-                for ingredient in self.carry.carry:
-                    ingredient.rect.x = self.carry.rect.x
-                    ingredient.rect.y = self.carry.rect.y
+            self.carry.move(self.rect.x - SPRITE_SIZE / 2, self.rect.y)
 
     def faceRight(self):
-        self.direction = "L"
+        self.direction = "R"
         self.image = self.right
         if self.carry is not None:
-            self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
-            self.carry.rect.y = self.rect.y
-            if len(self.carry.carry) > 0:
-                for ingredient in self.carry.carry:
-                    ingredient.rect.x = self.carry.rect.x
-                    ingredient.rect.y = self.carry.rect.y
+            self.carry.move(self.rect.x + SPRITE_SIZE / 2, self.rect.y)
 
     def pick_up(self, item):
-        success=item.semaphore.acquire(blocking=False)
+        success = item.semaphore.acquire(blocking=False)
         if success:
             self.carry = item
             self.carry.currentlyCarried = True
             if self.carry.placedOn is not None:
                 self.carry.placedOn.take_off()
-                self.carry.placedOn = None
             if self.direction == "L":
-                self.carry.rect.x = self.rect.x - SPRITE_SIZE / 2
-                self.carry.rect.y = self.rect.y
+                self.faceLeft()
             elif self.direction == "R":
-                self.carry.rect.x = self.rect.x + SPRITE_SIZE / 2
-                self.carry.rect.y = self.rect.y
+                self.faceRight()
             elif self.direction == "D":
-                self.carry.rect.y = self.rect.y + SPRITE_SIZE / 2
-                self.carry.rect.x = self.rect.x
+                self.faceDown()
             elif self.direction == "U":
-                self.carry.rect.y = self.rect.y - SPRITE_SIZE / 2
-                self.carry.rect.x = self.rect.x
-
-        if len(self.carry.carry) > 0:
-            for ingredient in self.carry.carry:
-                ingredient.rect.x = self.carry.rect.x
-                ingredient.rect.y = self.carry.rect.y
+                self.faceUp()
+            return True
+        return False
 
     def put_down(self, sprites_no_cook_floor):
         self.carry.currentlyCarried = False
         for tile in sprites_no_cook_floor:
             if self.carry.rect.colliderect(tile):
-                if issubclass(type(tile), Station):
+                #we can drop something onto a plate.
+                # TODO: add check for if we can put this item on a plate
+                if tile.get_item() is not None and issubclass(type(tile.get_item()), Utensil) and issubclass(type(self.carry), Ingredient) and len(tile.get_item().ingredients) != tile.get_item().maxCapacity and True:
+                    tile.get_item().ingredients.append(self.carry)
+                    self.carry.move(tile.rect.x, tile.rect.y)
+                    self.carry = None
+                    return
+                elif issubclass(type(tile), Station):
+                    if issubclass(type(self.carry), Utensil) and tile.can_empty_utensil_here(self.carry):
+                        self.carry = tile.empty_utensil(self.carry)
+                        if self.carry is not None:
+                            self.carry.currentlyCarried = True
+                    else:
+                        tile.place_on(self.carry)
+                else:
                     tile.place_on(self.carry)
-                    self.carry.placedOn = tile
-                self.carry.rect.x = tile.rect.x
-                self.carry.rect.y = tile.rect.y
+                if self.carry.currentlyCarried is False:
+                    self.carry.move(tile.rect.x, tile.rect.y)
                 break
-        self.carry.semaphore.release()
-        self.carry = None
+        if self.carry.currentlyCarried is False:
+            self.carry.semaphore.release()
+            self.carry = None
+
 
     def is_carrying(self):
         if self.carry is not None:

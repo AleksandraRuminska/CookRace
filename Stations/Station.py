@@ -10,7 +10,6 @@ class Station(Tile):
         self._time = 0
         self.occupied = False
         self.occupant = None
-        self._current_item = None
         self.is_finished = False
 
     def occupy(self, cook):
@@ -20,15 +19,6 @@ class Station(Tile):
     def leave(self):
         self.occupied = False
         self.occupant = None
-
-    def place_on(self, item):
-        self._current_item = item
-
-    def take_off(self):
-        self._current_item = None
-
-    def get_item(self):
-        return self._current_item
 
     def get_time(self):
         return self._time
@@ -42,3 +32,6 @@ class Station(Tile):
     def draw_progress(self, screen):
         pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(self.rect.x, self.rect.y + SPRITE_SIZE / 2, self._time, 5))
         pygame.display.flip()
+
+    def can_empty_utensil_here(self, utensil):
+        return False
