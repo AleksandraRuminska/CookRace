@@ -13,6 +13,7 @@ class RubbishBin(Station):
         self.rect2 = copy.deepcopy(self.rect)
         self.rect2.height += 5
         self.rect2.y -= 5
+        self.kill_semaphore = None
 
     def can_empty_utensil_here(self, utensil):
         return True
@@ -23,8 +24,13 @@ class RubbishBin(Station):
                 for x in item.ingredients:
                     item.ingredients.remove(x)
                     x.semaphore.release()
+                    self.kill_semaphore.acquire()
                     x.kill()
+                    self.kill_semaphore.release()
                     print("HERE!!")
                     move_queue.put(Points(id_cook, 0, 5, 0))
+
+                    
+
             return item
         return None

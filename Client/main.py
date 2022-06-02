@@ -162,7 +162,7 @@ left_utensils = init_utensils()
 right_utensils = init_utensils()
 left_ingredients = init_ingredients()
 right_ingredients = init_ingredients()
-
+kill_semaphore = Semaphore(1)
 for tile in world.tile_list:
     if type(tile) == Plate:
         utensils["plates"].append(tile)
@@ -205,6 +205,7 @@ for tile in world.tile_list:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
     elif type(tile) == RubbishBin:
+        tile.kill_semaphore = kill_semaphore
         stations["bins"].append(tile)
         if tile.rect.x < 450:
             left_stations["bins"].append(tile)
@@ -261,7 +262,6 @@ left_utensils["all"] = left_utensils["plates"] + left_utensils["pots"] + left_ut
 right_utensils["all"] = right_utensils["plates"] + right_utensils["pots"] + right_utensils["pans"]
 utensils["all"] = utensils["plates"] + utensils["pots"] + utensils["pans"]
 semaphore = Semaphore(1)
-
 semaphore.acquire()
 new_thread = ReadThread(client, cooks, movables, semaphore, screen, stations, sprites_no_cook_floor, move_queue)
 new_thread.start()
@@ -409,6 +409,7 @@ while running:
             cutting_board.set_time(0)
             cutting_board.is_finished = False
 
+
     pygame.draw.rect(screen, BLACK, pygame.Rect(0, SCREEN_HEIGHT-SPRITE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT))
     font = pygame.font.Font('freesansbold.ttf', 24)
 
@@ -423,6 +424,9 @@ while running:
         break
 
 
+
+    kill_semaphore.acquire()
+
     all_sprites_group.update()
     sprites_no_cook_floor.update()
     helpers.update()
@@ -434,7 +438,7 @@ while running:
     ingredientsGroup.draw(screen)
 
     pygame.display.flip()
-
+    kill_semaphore.release()
     clock.tick(60)
 pygame.quit()
 
