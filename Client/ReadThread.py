@@ -10,7 +10,7 @@ SPRITE_SIZE = 50
 
 
 class ReadThread(threading.Thread):
-    def __init__(self, client, cooks, movables, semaphore, screen, stations, sprites_no_cook_floor):
+    def __init__(self, client, cooks, movables, semaphore, screen, stations, sprites_no_cook_floor, move_queue):
         threading.Thread.__init__(self)
         self.client = client
         self.cooks = cooks
@@ -20,6 +20,7 @@ class ReadThread(threading.Thread):
         self.stations = stations
         self.assistantCount = len(cooks)
         self.sprites_no_cook_floor = sprites_no_cook_floor
+        self.move_queue = move_queue
 
     def run(self):
         while True:
@@ -49,7 +50,7 @@ class ReadThread(threading.Thread):
                 # pick up
                 self.cooks[in_data[1]].semaphore.acquire()
                 if self.cooks[in_data[1]].is_carrying():
-                    self.cooks[in_data[1]].put_down(self.sprites_no_cook_floor)
+                    self.cooks[in_data[1]].put_down(self.sprites_no_cook_floor, self.move_queue)
                 else:
                     for obj in self.movables:
                         if obj.collide(self.cooks[in_data[1]].rect):
@@ -130,3 +131,11 @@ class ReadThread(threading.Thread):
                     self.cooks[in_data[1]].faceDown()
                 if in_data[2] == 3:
                     self.cooks[in_data[1]].faceLeft()
+
+            elif in_data[0] == MessageType.POINTS:
+                print("READING")
+                sign = 1
+                if in_data[4] == 0:
+                    sign = -1
+                print("Data 2: ", in_data[2], " Data 3: ", in_data[3])
+                self.cooks[in_data[1]].points = (sign * (in_data[2]*100 + in_data[3]))

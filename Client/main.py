@@ -13,6 +13,7 @@ from Kitchen import Kitchen
 from Messages import ActivityType
 from Messages.DoActivity import DoActivity
 from Messages.PickUp import PickUp
+from Stations.DropOff import DropOff
 from Stations.RubbishBin import RubbishBin
 from Utensils.Plate import Plate
 from Utensils.Pan import Pan
@@ -53,7 +54,7 @@ BROWN = (176, 146, 123)
 SPRITE_SIZE = 50
 colorList = (RED, GREEN, BLUE, BLACK, WHITE)
 SCREEN_WIDTH = 900
-SCREEN_HEIGHT = 700
+SCREEN_HEIGHT = 750
 
 size = (SCREEN_WIDTH, SCREEN_HEIGHT)
 
@@ -125,6 +126,7 @@ def init_utensils():
 def init_stations():
     sta_dict = {}
     sta_dict["sinks"] = []
+    sta_dict["drop_offs"] = []
     sta_dict["boards"] = []
     sta_dict["bins"] = []
     return sta_dict
@@ -136,11 +138,19 @@ def init_ingredients():
     return ing_dict
 
 
+def print_text(text, screen, center_x, center_y):
+    text1 = font.render(text, True, WHITE, BLACK)
+    textRect1 = text1.get_rect()
+    textRect1.center = (center_x, center_y)
+
+    screen.blit(text1, textRect1)
+
 movables = []
 cooks = []
 assistants = []
 cutting_boards = []
 new_assistant_thread = []
+tiles_stations = []
 command_queue = Queue()
 move_queue = Queue()
 stations = init_stations()
@@ -202,6 +212,17 @@ for tile in world.tile_list:
             right_stations["bins"].append(tile)
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
+        tiles_stations.append(tile)
+
+    elif type(tile) == DropOff:
+        stations["drop_offs"].append(tile)
+        if tile.rect.x < 450:
+            left_stations["drop_offs"].append(tile)
+        else:
+            right_stations["drop_offs"].append(tile)
+        all_sprites_group.add(tile)
+        sprites_no_cook_floor.add(tile)
+        tiles_stations.append(tile)
 
     elif type(tile) == Tomato:
         ingredients["tomatoes"].append(tile)
@@ -223,6 +244,7 @@ for tile in world.tile_list:
         cutting_boards.append(tile)
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
+        tiles_stations.append(tile)
 
     elif type(tile) == Helper:
         all_sprites_group.add(tile)
@@ -234,13 +256,14 @@ for tile in world.tile_list:
     else:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
+        tiles_stations.append(tile)
 left_utensils["all"] = left_utensils["plates"] + left_utensils["pots"] + left_utensils["pans"]
 right_utensils["all"] = right_utensils["plates"] + right_utensils["pots"] + right_utensils["pans"]
 utensils["all"] = utensils["plates"] + utensils["pots"] + utensils["pans"]
 semaphore = Semaphore(1)
 
 semaphore.acquire()
-new_thread = ReadThread(client, cooks, movables, semaphore, screen, stations, sprites_no_cook_floor)
+new_thread = ReadThread(client, cooks, movables, semaphore, screen, stations, sprites_no_cook_floor, move_queue)
 new_thread.start()
 
 semaphore.acquire()
@@ -278,7 +301,17 @@ for assistant in my_assistants:
     new_assistant_thread[index].start()
     index += 1
 semaphore.release()
+
+for utensil in utensils["all"]:
+    for tile in tiles_stations:
+        if utensil.rect.colliderect(tile):
+            tile.place_on(utensil)
+
+
 clock = pygame.time.Clock()
+
+game_time = 3
+start_ticks=pygame.time.get_ticks()
 
 # Game Loop
 executions = 0
@@ -343,14 +376,21 @@ while running:
                     if not flag:
                         plate.isReady = True
 
-        if plate.isReady:
-            if not plate.food_consumed:
-                plate.food_consuming()
-            else:
-                print("EXECUTIONS: ", executions)
-                if executions % 60 == 0:
-                    plate.consumption()
-                    executions = 0
+        # if plate.isReady:
+        #     if not plate.food_consumed:
+        #         plate.food_consuming()
+        #     else:
+        #         print("EXECUTIONS: ", executions)
+        #         if executions % 60 == 0:
+        #             plate.consumption()
+        #             executions = 0
+
+    for drop_off in stations["drop_offs"]:
+        if drop_off.is_occupied_by_utensil():
+            print("EXECUTIONS: ", executions)
+            if executions % 60 == 0:
+                drop_off.consumption()
+                executions = 0
 
     for cutting_board in stations["boards"]:
         ingredient_on_board = False
@@ -368,6 +408,20 @@ while running:
         else:
             cutting_board.set_time(0)
             cutting_board.is_finished = False
+
+    pygame.draw.rect(screen, BLACK, pygame.Rect(0, SCREEN_HEIGHT-SPRITE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT))
+    font = pygame.font.Font('freesansbold.ttf', 24)
+
+    print_text(str(cooks[0].points), screen, 2*SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE/2)
+    print_text(str(cooks[1].points), screen, SCREEN_WIDTH - 2*SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE/2)
+
+    time_now = pygame.time.get_ticks()/1000
+    seconds = (pygame.time.get_ticks() - start_ticks)/1000
+
+    print_text(str(int(game_time*60 - time_now)), screen, SCREEN_WIDTH/2, SCREEN_HEIGHT - SPRITE_SIZE/2)
+    if seconds == (game_time*60):
+        break
+
 
     all_sprites_group.update()
     sprites_no_cook_floor.update()

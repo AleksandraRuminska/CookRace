@@ -13,6 +13,7 @@ from Messages.DoActivity import DoActivity
 from Messages.Face import Face
 from Messages.MessageType import MessageType
 from Messages.Move import Move
+from Messages.Points import Points
 from Messages.PutInPlace import PutInPlace
 from Messages.PickUp import PickUp
 from Server.CookServerData import CookServerData
@@ -87,6 +88,20 @@ class ClientThread(threading.Thread):
             #         x.send(msg)
             elif msg[0] == MessageType.FACE:
                 self.queue.put(Face(msg[1], msg[2]))
+            elif msg[0] == MessageType.POINTS:
+                sign = 1
+                if msg[4] == 0:
+                    sign = -1
+
+                cooks[msg[1]].points += sign * (msg[2]*100 + msg[3])
+
+                hundreds = int(cooks[msg[1]].points/100)
+                rest = abs(cooks[msg[1]].points) % 100
+                print("POINTS: ",  cooks[msg[1]].points)
+                sign = 1
+                if cooks[msg[1]].points < 0:
+                    sign = 0
+                self.queue.put(Points(msg[1], hundreds, rest, sign))
 
 
 # userMap = {}
@@ -200,5 +215,8 @@ while True:
                 for x in sockets:
                     x.send((msg.encode()))
             elif msg._messageType == MessageType.FACE:
+                for x in sockets:
+                    x.send((msg.encode()))
+            elif msg._messageType == MessageType.POINTS:
                 for x in sockets:
                     x.send((msg.encode()))

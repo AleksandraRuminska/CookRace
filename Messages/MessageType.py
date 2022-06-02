@@ -8,3 +8,4 @@ class MessageType(IntEnum):
     PICKUP = 3
     DOACTIVITY = 4
     FACE = 5
+    POINTS = 6

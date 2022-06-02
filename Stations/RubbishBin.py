@@ -1,4 +1,6 @@
 import copy
+
+from Messages.Points import Points
 from Stations.Station import Station
 from Utensils.Utensil import Utensil
 
@@ -15,12 +17,14 @@ class RubbishBin(Station):
     def can_empty_utensil_here(self, utensil):
         return True
 
-    def empty_utensil(self, item):
+    def empty_utensil(self, item, move_queue, id_cook):
         if issubclass(type(item), Utensil):
             if len(item.ingredients) > 0:
                 for x in item.ingredients:
                     item.ingredients.remove(x)
                     x.semaphore.release()
                     x.kill()
+                    print("HERE!!")
+                    move_queue.put(Points(id_cook, 0, 5, 0))
             return item
         return None
