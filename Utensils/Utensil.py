@@ -18,5 +18,8 @@ class Utensil(MoveableObject):
         # max capacity obtained
         self.isFull = False
         self.isDirty = False
+        self.time_rand = 0
+        self.time_eating = 0
+        self.food_consumed = False
 
 

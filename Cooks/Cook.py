@@ -2,6 +2,8 @@ import pygame
 import os
 
 from Ingredients.Ingredient import Ingredient
+from Messages.Points import Points
+from Stations.DropOff import DropOff
 from Stations.Station import Station
 
 from Utensils.Plate import Plate
@@ -45,6 +47,7 @@ class Cook(pygame.sprite.Sprite):
         self.controlling = controlling
         self.id = id
         self.collision = False
+        self.points = 0
 
     def move(self, x, y, relative):
         moved_x = True
@@ -117,7 +120,7 @@ class Cook(pygame.sprite.Sprite):
             return True
         return False
 
-    def put_down(self, sprites_no_cook_floor):
+    def put_down(self, sprites_no_cook_floor, move_queue):
         self.carry.currentlyCarried = False
         for tile in sprites_no_cook_floor:
             if self.carry.rect.colliderect(tile):
@@ -128,23 +131,37 @@ class Cook(pygame.sprite.Sprite):
                     self.carry.move(tile.rect.x, tile.rect.y)
                     self.carry = None
                     return
+                elif tile.get_item() is not None and issubclass(type(tile.get_item()), Utensil) and issubclass(
+                        type(self.carry), Utensil):
+                    while len(tile.get_item().ingredients) < tile.get_item().maxCapacity and len(
+                            self.carry.ingredients) > 0:
+                        ingredient = self.carry.ingredients.pop()
+                        ingredient.move(tile.rect.x, tile.rect.y)
+                        tile.get_item().ingredients.append(ingredient)
+                    self.carry.currentlyCarried = True
                 elif issubclass(type(tile), Station):
                     if issubclass(type(self.carry), Utensil) and tile.can_empty_utensil_here(self.carry):
                         self.carry = tile.empty_utensil(self.carry)
-                        if self.carry is not None:
+                        if self.carry is not None and type(tile) is not DropOff:
                             self.carry.currentlyCarried = True
                     else:
-                        tile.place_on(self.carry)
+                        if tile.get_item() is None:
+                            tile.place_on(self.carry)
+                        else:
+                            self.carry.currentlyCarried = True
                 #TODO : check if something is already on the tile and preventing us from putting down
                 else:
-                    tile.place_on(self.carry)
+                    if tile.get_item() is None:
+                        tile.place_on(self.carry)
+                    else:
+                        self.carry.currentlyCarried = True
                 if self.carry.currentlyCarried is False:
-                    self.carry.move(tile.rect.x, tile.rect.y)
+                    self.carry.placedOn = tile
                 break
         if self.carry.currentlyCarried is False:
             self.carry.semaphore.release()
+            #self.carry.move(self.carry.placedOn.rect.x, self.carry.placedOn.rect.y)
             self.carry = None
-
 
     def is_carrying(self):
         if self.carry is not None:

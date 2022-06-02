@@ -10,6 +10,7 @@ from AssistantThread import AssistantThread
 from Messages import ActivityType
 from Messages.DoActivity import DoActivity
 from Messages.Face import Face
+from Messages.Points import Points
 from Messages.MessageType import MessageType
 from Messages.Move import Move
 from Messages.PutInPlace import PutInPlace
@@ -78,6 +79,9 @@ class WriteThread(threading.Thread):
                             #if cutting_board.is_sliced and not cutting_board.is_finished:
                             if not cutting_board.is_finished:
                                 msg = DoActivity(move._id, 1, ActivityType.ActivityType.SLICE)
+
+                elif type(move) is Points:
+                    msg = move
 
                 if msg is None:
                     # if type(msg) == Move:

@@ -18,7 +18,7 @@ class CuttingBoard(Station):
         else:
             return False
 
-    def empty_utensil(self, utensil):
+    def empty_utensil(self, utensil, move_queue, id_cook):
         if issubclass(type(utensil), Utensil):
             item = utensil.ingredients[0]
             utensil.ingredients.remove(item)

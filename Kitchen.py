@@ -6,6 +6,7 @@ import os
 from Stations.CuttingBoard import CuttingBoard
 from Floor import Floor
 from Cooks.Helper import Helper
+from Stations.DropOff import DropOff
 from Stations.Sink import Sink
 from Stations.RubbishBin import RubbishBin
 from Tile import Tile
@@ -100,7 +101,7 @@ class Kitchen:
             tile = Tile(next_sink, col, row_count)
             self.tile_list.append(tile)
         elif tile == 11:
-            tile = Tile(drop_off, col, row_count)
+            tile = DropOff(drop_off, col, row_count)
             self.tile_list.append(tile)
         elif tile == 12:
             tile = Tile(pick_up, col, row_count)
