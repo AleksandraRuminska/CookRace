@@ -135,6 +135,7 @@ class Cook(pygame.sprite.Sprite):
                             self.carry.currentlyCarried = True
                     else:
                         tile.place_on(self.carry)
+                #TODO : check if something is already on the tile and preventing us from putting down
                 else:
                     tile.place_on(self.carry)
                 if self.carry.currentlyCarried is False:

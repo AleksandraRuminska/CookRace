@@ -104,10 +104,10 @@ matrix = [
 ]
 
 # Write world condition for a specific level to a file
-filename = 'blueprint'
-outfile = open(filename, 'wb')
-pickle.dump(world_data, outfile)
-outfile.close()
+#filename = 'blueprint'
+#outfile = open(filename, 'wb')
+#pickle.dump(world_data, outfile)
+#outfile.close()
 
 # grid = Grid(matrix=matrix)
 
@@ -354,7 +354,7 @@ while running:
 
     for cutting_board in stations["boards"]:
         ingredient_on_board = False
-        # cutting_board.is_sliced = False
+
         if not cutting_board.occupied or not cutting_board.rect2.colliderect(cutting_board.occupant.rect):
             if cutting_board.occupied and not cutting_board.rect2.colliderect(cutting_board.occupant.rect):
                 cutting_board.leave()

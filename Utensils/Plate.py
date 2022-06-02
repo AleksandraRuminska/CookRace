@@ -71,6 +71,7 @@ class Plate(Utensil):
 
 
 
+    # TODO : todo. move to utensil
 
     def cleanable(self):
         return self.isDirty
