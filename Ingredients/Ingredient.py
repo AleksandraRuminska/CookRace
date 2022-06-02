@@ -10,3 +10,4 @@ class Ingredient(MoveableObject):
         self.cookType = ""
         # power of station
         self.power = 1
+        self.carry = []

@@ -9,7 +9,7 @@ class Tile(pygame.sprite.Sprite):
 
         height = SPRITE_SIZE
         width = SPRITE_SIZE
-
+        self._current_item = None
         self.width = width
         self.height = height
 
@@ -17,3 +17,15 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = col * SPRITE_SIZE
         self.rect.y = row_count * SPRITE_SIZE
+
+    def place_on(self, item):
+        self._current_item = item
+        self._current_item.placedOn = self
+
+    def take_off(self):
+        if self._current_item is not None:
+            self._current_item.placedOn = None
+            self._current_item = None
+
+    def get_item(self):
+        return self._current_item

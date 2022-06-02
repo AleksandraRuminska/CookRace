@@ -1,4 +1,4 @@
-from Utensil import Utensil
+from Utensils.Utensil import Utensil
 
 
 class Pot(Utensil):
