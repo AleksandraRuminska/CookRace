@@ -8,12 +8,15 @@ SPRITE_SIZE = 50
 
 
 class DropOff(Station):
-    def __init__(self, image_name, col, row_count):
+    def __init__(self, image_name, col, row_count, kill_semaphore, move_queue, cook):
         super().__init__(image_name, col, row_count)
         self.rect2 = copy.deepcopy(self.rect)
         self.rect2.height += 5
         self.rect2.y -= 5
-        self.occypying_utensils = []
+        self.occupying_utensils = []
+        self.kill_semaphore = kill_semaphore
+        self.move_queue = move_queue
+        self.myCook = cook
 
     def can_empty_utensil_here(self, utensil):
         if issubclass(type(utensil), Utensil):  # and len(utensil.ingredients) == utensil.maxCapacity:

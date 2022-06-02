@@ -136,13 +136,12 @@ class Cook(pygame.sprite.Sprite):
                     while len(tile.get_item().ingredients) < tile.get_item().maxCapacity and len(
                             self.carry.ingredients) > 0:
                         ingredient = self.carry.ingredients.pop()
-                        ingredient.rect.x = tile.rect.x
-                        ingredient.rect.y = tile.rect.y
+                        ingredient.move(tile.rect.x, tile.rect.y)
                         tile.get_item().ingredients.append(ingredient)
                     self.carry.currentlyCarried = True
                 elif issubclass(type(tile), Station):
                     if issubclass(type(self.carry), Utensil) and tile.can_empty_utensil_here(self.carry):
-                        self.carry = tile.empty_utensil(self.carry, move_queue, self.id)
+                        self.carry = tile.empty_utensil(self.carry)
                         if self.carry is not None and type(tile) is not DropOff:
                             self.carry.currentlyCarried = True
                     else:
@@ -161,7 +160,7 @@ class Cook(pygame.sprite.Sprite):
                 break
         if self.carry.currentlyCarried is False:
             self.carry.semaphore.release()
-            self.carry.move(self.carry.placedOn.rect.x, self.carry.placedOn.rect.y)
+            #self.carry.move(self.carry.placedOn.rect.x, self.carry.placedOn.rect.y)
             self.carry = None
 
     def is_carrying(self):
