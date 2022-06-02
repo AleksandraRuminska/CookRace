@@ -99,7 +99,7 @@ elif choice == 2:
 elif choice == 3:
     ADDRESS = "25.47.123.189"
 elif choice == 4:
-    SERVER = "25.44.122.35"
+    ADDRESS = "25.44.122.35"
 
 PORT = 8080
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
