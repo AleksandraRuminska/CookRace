@@ -79,6 +79,10 @@ class WriteThread(threading.Thread):
                             #if cutting_board.is_sliced and not cutting_board.is_finished:
                             if not cutting_board.is_finished:
                                 msg = DoActivity(move._id, 3, ActivityType.ActivityType.SLICE)
+                    elif move.get_activity_type() == ActivityType.ActivityType.COOK:
+                        for stove in self.stations["stoves"]:
+                            if not stove.is_finished:
+                                msg = DoActivity(move._id, 3, ActivityType.ActivityType.COOK)
 
                 elif type(move) is Points:
                     if move._id == self.cook.id:

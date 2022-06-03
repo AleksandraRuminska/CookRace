@@ -3,8 +3,11 @@ import threading
 import pygame
 
 from Cooks.Cook import Cook
+from Ingredients.Tomato import Tomato
 from Messages.ActivityType import ActivityType
 from Messages.MessageType import MessageType
+from Utensils.Pan import Pan
+from Utensils.Pot import Pot
 
 SPRITE_SIZE = 50
 
@@ -118,9 +121,37 @@ class ReadThread(threading.Thread):
                                 # pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(cutting_board.rect.x,
                                 # cutting_board.rect.y + SPRITE_SIZE / 2, cutting_board.get_time(), 5))
                                 cutting_board.draw_progress(self.screen)
-                                # pygame.display.flip()
                             else:
                                 cutting_board.is_finished = True
+                elif in_data[3] == ActivityType.COOK:
+                    for stove in self.stations["stoves"]:
+                        if stove.occupant is self.cooks[in_data[1]] and stove.get_item() is not None \
+                                and len(stove.get_item().ingredients) > 0:
+                            if type(stove.get_item()) == Pot and type(stove.get_item().ingredients[0]) == Tomato\
+                                    and stove.get_item().ingredients[0].cookable():
+                                stove.increase_time(in_data[2])
+                                if stove.get_time() < SPRITE_SIZE:
+                                    stove.draw_progress(self.screen)
+                                else:
+                                    stove.is_finished = True
+                            if type(stove.get_item()) == Pan  \
+                                    and stove.get_item().ingredients[0].cookable():
+                                stove.increase_time(in_data[2])
+                                if stove.get_time() < SPRITE_SIZE:
+                                    stove.draw_progress(self.screen)
+                                else:
+                                    stove.is_finished = True
+                #
+                # if type(stove.get_item()) == Pot and stove.get_item().ingredients[0].cookable():
+                #     pass
+                # elif type(stove.get_item()) == Pan and stove.get_item().ingredients[0].fryable():
+                #     stove.increase_time(in_data[2])
+                #     if stove.get_time() < SPRITE_SIZE:
+                #         stove.draw_progress(self.screen)
+                #     else:
+                #         stove.is_finished = True
+
+
 
             elif in_data[0] == MessageType.FACE:
                 if in_data[2] == 0:

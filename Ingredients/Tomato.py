@@ -9,6 +9,8 @@ os.chdir(path_parent)
 
 path = os.getcwd()
 tomato_slices = pygame.image.load(os.path.join(path, "resources", "TomatoSlices.png"))
+tomato_soup = pygame.image.load(os.path.join(path, "resources", "TomatoSoup.png"))
+tomato_fried = pygame.image.load(os.path.join(path, "resources", "TomatoFried.png"))
 os.chdir(path1)
 
 
@@ -18,10 +20,13 @@ class Tomato(Ingredient):
 
         self.sliced = tomato_slices
         self.whole_tomato = image_name
+        self.cooked = tomato_soup
+        self.fried = tomato_fried
         self.name = "Tomato"
         self.cookType = "cook"
         self.isSliced = False
         self.isReady = False
+        self.isCooked = False
 
     def change_image(self):
         if self.isSliced:
@@ -32,7 +37,17 @@ class Tomato(Ingredient):
     def sliceable(self):
         return not self.isSliced
 
+    def cookable(self):
+        return not self.isCooked
+
     def slice(self):
         self.isSliced = True
         self.change_image()
 
+    def cook(self):
+        self.isCooked = True
+        self.image = self.cooked
+
+    def fry(self):
+        self.isCooked = True
+        self.image = self.fried
