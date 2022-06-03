@@ -32,7 +32,9 @@ class RubbishBin(Station):
     def empty_utensil(self, item):
         if issubclass(type(item), Utensil):
             if len(item.ingredients) > 0:
-                for x in item.ingredients:
+                length = len(item.ingredients)
+                for i in range(length):
+                    x = item.ingredients[0]
                     item.ingredients.remove(x)
                     x.semaphore.release()
                     self.kill_semaphore.acquire()
