@@ -160,7 +160,6 @@ class Cook(pygame.sprite.Sprite):
                 break
         if self.carry.currentlyCarried is False:
             self.carry.semaphore.release()
-            #self.carry.move(self.carry.placedOn.rect.x, self.carry.placedOn.rect.y)
             self.carry = None
 
     def is_carrying(self):

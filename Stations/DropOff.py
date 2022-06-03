@@ -2,56 +2,52 @@ import copy
 
 from Messages.Points import Points
 from Stations.Station import Station
+from Utensils.Plate import Plate
 from Utensils.Utensil import Utensil
 
 SPRITE_SIZE = 50
 
 
 class DropOff(Station):
-    def __init__(self, image_name, col, row_count, kill_semaphore, move_queue, cook):
+    def __init__(self, image_name, col, row_count):
         super().__init__(image_name, col, row_count)
         self.rect2 = copy.deepcopy(self.rect)
         self.rect2.height += 5
         self.rect2.y -= 5
         self.occupying_utensils = []
-        self.kill_semaphore = kill_semaphore
-        self.move_queue = move_queue
-        self.myCook = cook
-
-    def can_empty_utensil_here(self, utensil):
-        if issubclass(type(utensil), Utensil):  # and len(utensil.ingredients) == utensil.maxCapacity:
-            return True
-        else:
-            return False
+        self.kill_semaphore = None
+        self.move_queue = None
+        self.cook = None
 
     def is_occupied_by_utensil(self):
-        if len(self.occypying_utensils) > 0:
+        if len(self.occupying_utensils) > 0:
             return True
         else:
             return False
 
-    def empty_utensil(self, item, move_queue, id_cook):
-        if issubclass(type(item), Utensil):
-            if len(item.ingredients) > 0:
-                # WHYYYY
-                item.rect.y = -200
-                for x in item.ingredients:
-                    item.ingredients.remove(x)
-                    x.semaphore.release()
-                    x.kill()
-                    print("DROP OFF")
+    def place_on(self, item):
+        if type(item) is Plate and len(item.ingredients) > 0:
+            item.move(0, -200, absolute=False)
+            for x in item.ingredients:
+                item.ingredients.remove(x)
+                x.semaphore.release()
+                self.kill_semaphore.acquire()
+                x.kill()
+                self.kill_semaphore.release()
+                print("DROP OFF")
 
-                move_queue.put(Points(id_cook, 0, 10, 1))
-                self.occypying_utensils.append(item)
-                item.food_consumed = True
-                item.time_rand = 2
-                item.time_eating = 0
-
-            return item
-        return None
+            self.move_queue.put(Points(self.cook.id, 0, 10, 1))
+            self.occupying_utensils.append(item)
+            item.food_consumed = True
+            item.time_rand = 2
+            item.time_eating = 0
+        else:
+            self._current_item = item
+            self._current_item.placedOn = self
+            self._current_item.move(self.rect.x, self.rect.y)
 
     def consumption(self):
-        for utensil in self.occypying_utensils:
+        for utensil in self.occupying_utensils:
             utensil.time_eating += 1
             if utensil.time_eating == utensil.time_rand:
                 if utensil.rect.x < 450:
@@ -63,9 +59,4 @@ class DropOff(Station):
                 utensil.isDirty = True
                 utensil.isReady = False
                 utensil.food_consumed = False
-                for item in utensil.ingredients:
-                    utensil.ingredients.remove(item)
-                    item.kill()
-                self.occypying_utensils.remove(utensil)
-
-
+                self.occupying_utensils.remove(utensil)

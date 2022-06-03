@@ -21,6 +21,7 @@ class Tile(pygame.sprite.Sprite):
     def place_on(self, item):
         self._current_item = item
         self._current_item.placedOn = self
+        self._current_item.move(self.rect.x, self.rect.y)
 
     def take_off(self):
         if self._current_item is not None:
