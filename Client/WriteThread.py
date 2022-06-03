@@ -73,15 +73,16 @@ class WriteThread(threading.Thread):
                         for sink in self.stations["sinks"]:
                             #if sink.is_washed and not sink.is_finished:
                             if not sink.is_finished:
-                                msg = DoActivity(move._id, 1, ActivityType.ActivityType.WASH_PLATE)
+                                msg = DoActivity(move._id, 3, ActivityType.ActivityType.WASH_PLATE)
                     elif move.get_activity_type() == ActivityType.ActivityType.SLICE:
                         for cutting_board in self.stations["boards"]:
                             #if cutting_board.is_sliced and not cutting_board.is_finished:
                             if not cutting_board.is_finished:
-                                msg = DoActivity(move._id, 1, ActivityType.ActivityType.SLICE)
+                                msg = DoActivity(move._id, 3, ActivityType.ActivityType.SLICE)
 
                 elif type(move) is Points:
-                    msg = move
+                    if move._id == self.cook.id:
+                        msg = move
 
                 if msg is None:
                     # if type(msg) == Move:
