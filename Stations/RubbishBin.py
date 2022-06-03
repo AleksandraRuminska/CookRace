@@ -14,11 +14,13 @@ class RubbishBin(Station):
         self.rect2.height += 5
         self.rect2.y -= 5
         self.kill_semaphore = None
+        self.move_queue = None
+        self.cook = None
 
     def can_empty_utensil_here(self, utensil):
         return True
 
-    def empty_utensil(self, item, move_queue, id_cook):
+    def empty_utensil(self, item):
         if issubclass(type(item), Utensil):
             if len(item.ingredients) > 0:
                 for x in item.ingredients:
@@ -28,9 +30,7 @@ class RubbishBin(Station):
                     x.kill()
                     self.kill_semaphore.release()
                     print("HERE!!")
-                    move_queue.put(Points(id_cook, 0, 5, 0))
-
-                    
+                    self.move_queue.put(Points(self.cook.id, 0, 5, 0))
 
             return item
         return None

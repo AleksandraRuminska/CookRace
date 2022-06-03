@@ -105,10 +105,10 @@ matrix = [
 ]
 
 # Write world condition for a specific level to a file
-#filename = 'blueprint'
-#outfile = open(filename, 'wb')
-#pickle.dump(world_data, outfile)
-#outfile.close()
+# filename = 'blueprint'
+# outfile = open(filename, 'wb')
+# pickle.dump(world_data, outfile)
+# outfile.close()
 
 # grid = Grid(matrix=matrix)
 
@@ -145,10 +145,10 @@ def print_text(text, screen, center_x, center_y):
 
     screen.blit(text1, textRect1)
 
+
 movables = []
 cooks = []
 assistants = []
-cutting_boards = []
 new_assistant_thread = []
 tiles_stations = []
 command_queue = Queue()
@@ -163,6 +163,7 @@ right_utensils = init_utensils()
 left_ingredients = init_ingredients()
 right_ingredients = init_ingredients()
 kill_semaphore = Semaphore(1)
+
 for tile in world.tile_list:
     if type(tile) == Plate:
         utensils["plates"].append(tile)
@@ -206,6 +207,8 @@ for tile in world.tile_list:
         sprites_no_cook_floor.add(tile)
     elif type(tile) == RubbishBin:
         tile.kill_semaphore = kill_semaphore
+        tile.move_queue = move_queue
+
         stations["bins"].append(tile)
         if tile.rect.x < 450:
             left_stations["bins"].append(tile)
@@ -216,6 +219,8 @@ for tile in world.tile_list:
         tiles_stations.append(tile)
 
     elif type(tile) == DropOff:
+        tile.kill_semaphore = kill_semaphore
+        tile.move_queue = move_queue
         stations["drop_offs"].append(tile)
         if tile.rect.x < 450:
             left_stations["drop_offs"].append(tile)
@@ -242,7 +247,6 @@ for tile in world.tile_list:
             left_stations["boards"].append(tile)
         else:
             right_stations["boards"].append(tile)
-        cutting_boards.append(tile)
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
         tiles_stations.append(tile)
@@ -272,7 +276,14 @@ all_sprites_group.add(cooks[0])
 all_sprites_group.add(cooks[1])
 for i in range(2, len(cooks)):
     all_sprites_group.add(cooks[i])
-
+for x in left_stations["bins"]:
+    x.cook = cooks[0]
+for x in left_stations["drop_offs"]:
+    x.cook = cooks[0]
+for x in right_stations["bins"]:
+    x.cook = cooks[1]
+for x in right_stations["drop_offs"]:
+    x.cook = cooks[1]
 new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
                                left_stations if cooks[0].controlling else right_stations, command_queue, move_queue)
 new_thread_write.start()
@@ -302,16 +313,15 @@ for assistant in my_assistants:
     index += 1
 semaphore.release()
 
-for utensil in utensils["all"]:
+for x in movables:
     for tile in tiles_stations:
-        if utensil.rect.colliderect(tile):
-            tile.place_on(utensil)
-
+        if x.rect.colliderect(tile):
+            tile.place_on(x)
 
 clock = pygame.time.Clock()
 
 game_time = 3
-start_ticks=pygame.time.get_ticks()
+start_ticks = pygame.time.get_ticks()
 
 # Game Loop
 executions = 0
@@ -328,11 +338,11 @@ while running:
                 move_queue.put(PickUp(0 if cooks[0].controlling else 1))
 
             elif pygame.key.name(event.key) == "[0]" or pygame.key.name(event.key) == "0":
-                for sink in sinks:
+                for sink in stations["sinks"]:
                     if my_cook is sink.occupant:
                         move_queue.put(
                             DoActivity(0 if cooks[0].controlling else 1, 1, ActivityType.ActivityType.WASH_PLATE))
-                for cutting_board in cutting_boards:
+                for cutting_board in stations["boards"]:
                     if my_cook is cutting_board.occupant:
                         move_queue.put(
                             DoActivity(0 if cooks[0].controlling else 1, 1, ActivityType.ActivityType.SLICE))
@@ -358,32 +368,9 @@ while running:
         if sink.get_item() is not None and sink.get_item().cleanable():
             if sink.is_finished:
                 sink.get_item().clean()
-                # sink.get_item().isSliced = True
         else:
             sink.set_time(0)
             sink.is_finished = False
-
-    # turning in plates
-    for plate in utensils["plates"]:
-        if (250 <= plate.rect.x < 400) or (500 <= plate.rect.x < 650):
-            if 0 <= plate.rect.y <= SPRITE_SIZE:
-                if not plate.isDirty:
-                    flag = False
-                    for cook in cooks:
-                        if cook.carry == plate:
-                            flag = True
-                            break
-                    if not flag:
-                        plate.isReady = True
-
-        # if plate.isReady:
-        #     if not plate.food_consumed:
-        #         plate.food_consuming()
-        #     else:
-        #         print("EXECUTIONS: ", executions)
-        #         if executions % 60 == 0:
-        #             plate.consumption()
-        #             executions = 0
 
     for drop_off in stations["drop_offs"]:
         if drop_off.is_occupied_by_utensil():
@@ -409,21 +396,18 @@ while running:
             cutting_board.set_time(0)
             cutting_board.is_finished = False
 
-
-    pygame.draw.rect(screen, BLACK, pygame.Rect(0, SCREEN_HEIGHT-SPRITE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.draw.rect(screen, BLACK, pygame.Rect(0, SCREEN_HEIGHT - SPRITE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT))
     font = pygame.font.Font('freesansbold.ttf', 24)
 
-    print_text(str(cooks[0].points), screen, 2*SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE/2)
-    print_text(str(cooks[1].points), screen, SCREEN_WIDTH - 2*SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE/2)
+    print_text(str(cooks[0].points), screen, 2 * SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE / 2)
+    print_text(str(cooks[1].points), screen, SCREEN_WIDTH - 2 * SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE / 2)
 
-    time_now = pygame.time.get_ticks()/1000
-    seconds = (pygame.time.get_ticks() - start_ticks)/1000
+    time_now = pygame.time.get_ticks() / 1000
+    seconds = (pygame.time.get_ticks() - start_ticks) / 1000
 
-    print_text(str(int(game_time*60 - time_now)), screen, SCREEN_WIDTH/2, SCREEN_HEIGHT - SPRITE_SIZE/2)
-    if seconds == (game_time*60):
+    print_text(str(int(game_time * 60 - time_now)), screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - SPRITE_SIZE / 2)
+    if seconds == (game_time * 60):
         break
-
-
 
     kill_semaphore.acquire()
 

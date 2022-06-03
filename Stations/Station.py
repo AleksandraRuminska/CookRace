@@ -35,3 +35,6 @@ class Station(Tile):
 
     def can_empty_utensil_here(self, utensil):
         return False
+
+    def empty_utensil(self, item):
+        return None
