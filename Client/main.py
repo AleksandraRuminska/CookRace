@@ -402,12 +402,12 @@ while running:
     print_text(str(cooks[0].points), screen, 2 * SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE / 2)
     print_text(str(cooks[1].points), screen, SCREEN_WIDTH - 2 * SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE / 2)
 
-    time_now = pygame.time.get_ticks() / 1000
-    seconds = (pygame.time.get_ticks() - start_ticks) / 1000
+    #time_now = pygame.time.get_ticks() / 1000
+    #seconds = (pygame.time.get_ticks() - start_ticks) / 1000
 
-    print_text(str(int(game_time * 60 - time_now)), screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - SPRITE_SIZE / 2)
-    if seconds == (game_time * 60):
-        break
+    #print_text(str(int(game_time * 60 - time_now)), screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - SPRITE_SIZE / 2)
+    #if seconds == (game_time * 60):
+    #    break
 
     kill_semaphore.acquire()
 
