@@ -28,7 +28,9 @@ class DropOff(Station):
     def place_on(self, item):
         if type(item) is Plate and len(item.ingredients) > 0:
             item.move(0, -200, absolute=False)
-            for x in item.ingredients:
+            length = len(item.ingredients)
+            for i in range(length):
+                x = item.ingredients[0]
                 item.ingredients.remove(x)
                 x.semaphore.release()
                 self.kill_semaphore.acquire()

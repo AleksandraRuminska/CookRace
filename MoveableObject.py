@@ -23,6 +23,12 @@ class MoveableObject(Tile):
     def sliceable(self):
         return False
 
+    def cookable(self):
+        return False
+
+    def fryable(self):
+        return False
+
     def move(self, dx, dy, absolute=True):
         if absolute:
             self.rect.x = dx

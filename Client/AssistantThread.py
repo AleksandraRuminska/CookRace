@@ -2,6 +2,7 @@ import threading
 import random
 from time import sleep
 
+from Ingredients.Tomato import Tomato
 from Messages.ActivityType import ActivityType
 from Messages.DoActivity import DoActivity
 from Messages.Face import Face
@@ -10,6 +11,7 @@ from Messages.PickUp import PickUp
 from Messages.PutInPlace import PutInPlace
 from Utensils.Plate import Plate
 from Stations.Sink import Sink
+from Ingredients.Ingredient import Ingredient
 
 SPRITE_SIZE = 50
 
@@ -162,9 +164,79 @@ class AssistantThread(threading.Thread):
                                         to_send = msg.encode()
                                         self.client.send(to_send)
                                         sleep(0.1)
+                                    path = path[:-3:-1]
+                                    self.moveTo(path, runs)
+                    elif msg.get_activity_type() == ActivityType.SLICE:
+                        ingredient = None
+                        path_length = 1000
+                        path_min = []
+                        path_run_min = 0
+                        path_min_dir = None
+                        move_approved = False
+                        for station in self.assistant.myStations["all"]:
 
+                            if type(station.get_item()) == Tomato and not station.get_item().isSliced:
+                                ingredient = station.get_item()
+                                # step 2: get to the plate
+                                path, runs, direction = self.checkPathAllSides(station.rect.x, station.rect.y)
+                                if len(path) < path_length:
+                                    move_approved = True
+                                    path_length = len(path)
+                                    path_min = path
+                                    path_run_min = runs
+                                    path_min_dir = direction
+
+                        if move_approved:
+                            self.moveTo(path_min, path_run_min)
+                            # step 2.5: face the plate
+                            msg = Face(self.assistant.id, path_min_dir)
+                            to_send = msg.encode()
+                            self.client.send(to_send)
+                            sleep(0.1)
+                            # step 3: pick up the plate
+                            msg = PickUp(self.assistant.id)
+                            to_send = msg.encode()
+                            self.client.send(to_send)
+                            sleep(0.1)
+                        # if self.assistant.carry is None:
+                        #     # someone yoinked it
+                        #     continue
+
+                            # step 4: wait for an available station
+                            for destination_station in self.assistant.myStations["boards"]:
+                                while True:
+                                    if destination_station.occupied or destination_station.get_item() is not None:
+                                        sleep(3)
+                                    else:
+                                        break
+                                        # step 5: go to said station
+                                        # path, runs = self.assistant.find_path(station.rect2.x, station.rect2.y)
+                                path, runs, direction = self.checkPathAllSides(destination_station.rect.x,
+                                                                               destination_station.rect.y)
+
+                                self.moveTo(path, runs)
+                                # step 5.5: face the station
+                                msg = Face(self.assistant.id, direction)
+                                to_send = msg.encode()
+                                self.client.send(to_send)
+                                sleep(0.5)
+                                # step 6 : drop said plate at station
+                                msg = PickUp(self.assistant.id)
+                                to_send = msg.encode()
+                                self.client.send(to_send)
+                                # step 7: wash until clean(for now assume we occupy station at this point)
+                                while ingredient.sliceable():
+                                    msg = DoActivity(self.assistant.id, 1, ActivityType.SLICE)
+                                    to_send = msg.encode()
+                                    self.client.send(to_send)
+                                    sleep(0.1)
+                                #path, runs, direction = self.checkPathAllSides(self.assistant.rect.x + SPRITE_SIZE,
+                                #                                               SPRITE_SIZE)
+                                #1 step back
+                                path = path[:-3:-1]
+                                self.moveTo(path, runs)
+                                break
 
             else:
                 self.semaphore.release()
-                # print("NONE")
                 sleep(0.3)
