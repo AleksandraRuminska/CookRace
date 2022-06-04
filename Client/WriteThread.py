@@ -1,19 +1,13 @@
 import threading
-from time import sleep
 
 import pygame
 import copy
 
-from pygame import sprite
-
-from AssistantThread import AssistantThread
-from Messages import ActivityType
+from Messages.enums import ActivityType
 from Messages.DoActivity import DoActivity
 from Messages.Face import Face
 from Messages.Points import Points
-from Messages.MessageType import MessageType
 from Messages.Move import Move
-from Messages.PutInPlace import PutInPlace
 from Messages.PickUp import PickUp
 
 SPRITE_SIZE = 50
@@ -72,12 +66,12 @@ class WriteThread(threading.Thread):
                     if move.get_activity_type() == ActivityType.ActivityType.WASH_PLATE:
                         for sink in self.stations["sinks"]:
                             #if sink.is_washed and not sink.is_finished:
-                            if not sink.is_finished:
+                            if sink.occupant is self.cook and sink.get_item() is not None and sink.get_item().sliceable():
                                 msg = DoActivity(move._id, 3, ActivityType.ActivityType.WASH_PLATE)
                     elif move.get_activity_type() == ActivityType.ActivityType.SLICE:
                         for cutting_board in self.stations["boards"]:
                             #if cutting_board.is_sliced and not cutting_board.is_finished:
-                            if not cutting_board.is_finished:
+                            if cutting_board.occupant is self.cook and cutting_board.get_item() is not None and cutting_board.get_item().sliceable():
                                 msg = DoActivity(move._id, 3, ActivityType.ActivityType.SLICE)
                     elif move.get_activity_type() == ActivityType.ActivityType.COOK:
                         for stove in self.stations["stoves"]:
@@ -158,8 +152,9 @@ class WriteThread(threading.Thread):
 
             if msg is not None:
                 if type(msg) == Move:
-                    print("" + str(msg._dx) + " " + str(msg._dy) + " " + str(self.cook.rect.x) + " " + str(
-                        self.cook.rect.y))
+                    pass
+                    #print("" + str(msg._dx) + " " + str(msg._dy) + " " + str(self.cook.rect.x) + " " + str(
+                    #    self.cook.rect.y))
                 to_send = msg.encode()
                 self.client.send(((to_send)))
                 # sleep(0.1)

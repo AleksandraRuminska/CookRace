@@ -105,6 +105,7 @@ class Cook(pygame.sprite.Sprite):
     def pick_up(self, item):
         success = item.semaphore.acquire(blocking=False)
         if success:
+            #print("blocking item at " + str(self.rect.x) + ", " + str(self.rect.y))
             self.carry = item
             self.carry.currentlyCarried = True
             if self.carry.placedOn is not None:
@@ -159,6 +160,7 @@ class Cook(pygame.sprite.Sprite):
                     self.carry.placedOn = tile
                 break
         if self.carry.currentlyCarried is False:
+            #print("unblocking item at " + str(self.rect.x) + ", " + str(self.rect.y))
             self.carry.semaphore.release()
             self.carry = None
 

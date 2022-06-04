@@ -1,5 +1,5 @@
 from Messages.Message import Message
-from Messages.MessageType import MessageType
+from Messages.enums.MessageType import MessageType
 
 
 class Create(Message):

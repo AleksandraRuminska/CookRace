@@ -1,11 +1,8 @@
 import threading
 
-import pygame
-
 from Cooks.Cook import Cook
-from Ingredients.Tomato import Tomato
-from Messages.ActivityType import ActivityType
-from Messages.MessageType import MessageType
+from Messages.enums.ActivityType import ActivityType
+from Messages.enums.MessageType import MessageType
 from Utensils.Pan import Pan
 from Utensils.Pot import Pot
 
@@ -44,8 +41,8 @@ class ReadThread(threading.Thread):
                 movement_x = int.from_bytes(in_data[2:3], byteorder='big', signed=True)
                 movement_y = int.from_bytes(in_data[3:], byteorder='big', signed=True)
 
-                print("Moving by:", movement_x, "position x: ", self.cooks[1].rect.x)
-                print("Moving by:", movement_y, "position y: ", self.cooks[1].rect.y)
+                # print("Moving by:", movement_x, "position x: ", self.cooks[1].rect.x)
+                # print("Moving by:", movement_y, "position y: ", self.cooks[1].rect.y)
                 self.cooks[in_data[1]].semaphore.acquire()
                 self.cooks[in_data[1]].move(movement_x, movement_y, True)
                 self.cooks[in_data[1]].semaphore.release()
@@ -60,37 +57,7 @@ class ReadThread(threading.Thread):
                             result = self.cooks[in_data[1]].pick_up(obj)
                             if result:
                                 break
-                    # first_object = None
-                    # objects = []
-                    # i = 0
-                    # for obj in self.movables:
-                    #     if obj.collide(self.cooks[in_data[1]].rect):
-                    #             first_object = obj
-                    #             objects.append(obj)
-                    #     i += 1
-                    #
-                    # found_utensil = False
-                    # utensil_to_pick_up = None
-                    # num_utensils = 0
-                    # for obj in objects:
-                    #     if obj in self.cooks[in_data[1]].myUtensils["all"]:
-                    #         if num_utensils == 0:
-                    #             self.cooks[in_data[1]].pick_up(obj)
-                    #             obj.is_moved = True
-                    #             found_utensil = True
-                    #             utensil_to_pick_up = obj
-                    #             num_utensils += 1
-                    #     else:
-                    #         if utensil_to_pick_up is not None:
-                    #             utensil_to_pick_up.ingredients.append(obj)
-                    #
-                    # if found_utensil is False and first_object is not None:
-                    #     self.cooks[in_data[1]].pick_up(first_object)
-                    #     first_object.is_moved = True
-                    #
-                    # #
                 self.cooks[in_data[1]].semaphore.release()
-                # self.cooks[in_data[1]].pick_up(self.plate)
 
             elif in_data[0] == MessageType.PUTINPLACE:
                 movement_x = in_data[2] * SPRITE_SIZE + in_data[3]
@@ -103,26 +70,39 @@ class ReadThread(threading.Thread):
             elif in_data[0] == MessageType.DOACTIVITY:
                 if in_data[3] == ActivityType.WASH_PLATE:
                     for sink in self.stations["sinks"]:
-                        if sink.occupant is self.cooks[in_data[1]] and sink.get_item() is not None and sink.get_item().cleanable():
-                            sink.increase_time(in_data[2])
-                            if sink.get_time() < SPRITE_SIZE:
+                        if sink.occupant is self.cooks[in_data[1]]:
+                            item = sink.get_item()
+                            if item is not None:
+                                success = item.semaphore.acquire(blocking=False)
+                                if success:
+                                    if sink.get_item() is not None and sink.get_item().cleanable():
+                                        sink.increase_time(in_data[2])
+                                        if sink.get_time() < SPRITE_SIZE:
                                 # pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(sink.rect.x,
                                 # sink.rect.y + SPRITE_SIZE / 2, sink.get_time(), 5))
-                                sink.draw_progress(self.screen)
+                                            sink.draw_progress(self.screen)
                                 # pygame.display.flip()
-                            else:
-                                sink.is_finished = True
-
+                                        else:
+                                # sink.is_finished = True
+                                            sink.get_item().clean()
+                                    item.semaphore.release()
                 elif in_data[3] == ActivityType.SLICE:
                     for cutting_board in self.stations["boards"]:
-                        if cutting_board.occupant is self.cooks[in_data[1]] and cutting_board.get_item() is not None and cutting_board.get_item().sliceable():
-                            cutting_board.increase_time(in_data[2])
-                            if cutting_board.get_time() < SPRITE_SIZE:
-                                # pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(cutting_board.rect.x,
-                                # cutting_board.rect.y + SPRITE_SIZE / 2, cutting_board.get_time(), 5))
-                                cutting_board.draw_progress(self.screen)
-                            else:
-                                cutting_board.is_finished = True
+                        if cutting_board.occupant is self.cooks[in_data[1]]:
+                            item = cutting_board.get_item()
+                            if item is not None:
+                                success = item.semaphore.acquire(blocking=False)
+                                if success:
+                                    if cutting_board.get_item() is not None and cutting_board.get_item().sliceable():
+                                        cutting_board.increase_time(in_data[2])
+                                        if cutting_board.get_time() < SPRITE_SIZE:
+                                            # pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(cutting_board.rect.x,
+                                            # cutting_board.rect.y + SPRITE_SIZE / 2, cutting_board.get_time(), 5))
+                                            cutting_board.draw_progress(self.screen)
+                                        else:
+                                            # cutting_board.is_finished = True
+                                            cutting_board.get_item().slice()
+                                    item.semaphore.release()
                 elif in_data[3] == ActivityType.COOK:
                     for stove in self.stations["stoves"]:
                         if stove.occupant is self.cooks[in_data[1]] and stove.get_item() is not None \
@@ -139,16 +119,6 @@ class ReadThread(threading.Thread):
                                     stove.draw_progress(self.screen)
                                 else:
                                     stove.is_finished = True
-                #
-                # if type(stove.get_item()) == Pot and stove.get_item().ingredients[0].cookable():
-                #     pass
-                # elif type(stove.get_item()) == Pan and stove.get_item().ingredients[0].fryable():
-                #     stove.increase_time(in_data[2])
-                #     if stove.get_time() < SPRITE_SIZE:
-                #         stove.draw_progress(self.screen)
-                #     else:
-                #         stove.is_finished = True
-
 
 
             elif in_data[0] == MessageType.FACE:
@@ -162,9 +132,9 @@ class ReadThread(threading.Thread):
                     self.cooks[in_data[1]].faceLeft()
 
             elif in_data[0] == MessageType.POINTS:
-                print("READING")
+                # print("READING")
                 sign = 1
                 if in_data[4] == 0:
                     sign = -1
-                print("Data 2: ", in_data[2], " Data 3: ", in_data[3])
-                self.cooks[in_data[1]].points = (sign * (in_data[2]*100 + in_data[3]))
+                # print("Data 2: ", in_data[2], " Data 3: ", in_data[3])
+                self.cooks[in_data[1]].points = (sign * (in_data[2] * 100 + in_data[3]))

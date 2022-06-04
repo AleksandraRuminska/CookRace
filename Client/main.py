@@ -1,4 +1,3 @@
-import pickle
 import socket
 from queue import Queue
 from threading import *
@@ -11,7 +10,7 @@ from Stations.CuttingBoard import CuttingBoard
 from Floor import Floor
 from Cooks.Helper import Helper
 from Kitchen import Kitchen
-from Messages import ActivityType
+from Messages.enums import ActivityType
 from Messages.DoActivity import DoActivity
 from Messages.PickUp import PickUp
 from Stations.DropOff import DropOff
@@ -78,13 +77,13 @@ world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1]
               [1, 0, 0, 0, 0, 0, 0, 0, [1, 17], [1, 17], 0, 0, 0, 0, 0, 0, 0, 1],
               [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
               [3, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 3],
-              [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+              [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
               [[1, 18], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 18]],
               [4, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, [0, 16], 0, 5, 0, [0, 16], 0, 13, 13, 0, [0, 16], 0, 5, 0, 0, 0, 1],
               [[1, 18], 0, 0, 0, [1, 17], 0, 0, 0, 13, 13, 0, 0, 0, [1, 17], 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
-              [1, 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, 1],
+              [[1, 7], 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, [1,7]],
               [[1, 19], [0, 16], 0, 0, [1,17], 0, [0, 16], 0, 15, 15, 0, 0, 0, [1, 17], 0, 0, 0, [1, 19]],
               [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, [0, 16], 0, 1],
               [10, 9, 2, [2, 20], 1, 2, 2, 6, 1, 1, 6, 2, 2, 1, [2, 20], 2, 9, 10]]
@@ -236,6 +235,7 @@ for tile in world.tile_list:
         tiles_stations.append(tile)
 
     elif type(tile) == Tomato:
+        #print(str(tile.rect.x) + str(tile.rect.y))
         ingredients["tomatoes"].append(tile)
         if tile.rect.x < 450:
             left_ingredients["tomatoes"].append(tile)
@@ -366,7 +366,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
-            print(pygame.key.name(event.key))
+            #print(pygame.key.name(event.key))
             if pygame.key.name(event.key) == "space":
                 move_queue.put(PickUp(0 if cooks[0].controlling else 1))
 
@@ -405,12 +405,8 @@ while running:
                     sink.occupy(cook)
                     break
 
-        if sink.get_item() is not None and sink.get_item().cleanable():
-            if sink.is_finished:
-                sink.get_item().clean()
-        else:
+        if sink.get_item() is None or not sink.get_item().cleanable():
             sink.set_time(0)
-            sink.is_finished = False
 
     for drop_off in stations["drop_offs"]:
         if drop_off.is_occupied_by_utensil():
@@ -429,12 +425,8 @@ while running:
                 if cutting_board.rect2.colliderect(cook.rect) and not cutting_board.occupied:
                     cutting_board.occupy(cook)
                     break
-        if cutting_board.get_item() is not None and cutting_board.get_item().sliceable():
-            if cutting_board.is_finished:
-                cutting_board.get_item().slice()
-        else:
+        if cutting_board.get_item() is None or not cutting_board.get_item().sliceable():
             cutting_board.set_time(0)
-            cutting_board.is_finished = False
 
     for stove in stations["stoves"]:
         utensil_on_stove = False

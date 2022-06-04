@@ -1,6 +1,6 @@
-from Messages import ActivityType
+from Messages.enums import ActivityType
 from Messages.Message import Message
-from Messages.MessageType import MessageType
+from Messages.enums.MessageType import MessageType
 
 
 class DoActivity(Message):
