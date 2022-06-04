@@ -23,7 +23,6 @@ class Tomato(Ingredient):
         self.cooked = tomato_soup
         self.fried = tomato_fried
         self.name = "Tomato"
-        self.cookType = "cook"
         self.isSliced = False
         self.isReady = False
         self.isCooked = False
@@ -38,7 +37,10 @@ class Tomato(Ingredient):
         return not self.isSliced
 
     def cookable(self):
-        return not self.isCooked
+        return not self.isCooked and self.isSliced
+
+    def fryable(self):
+        return not self.isCooked and self.isSliced
 
     def slice(self):
         self.isSliced = True

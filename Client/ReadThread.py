@@ -127,15 +127,13 @@ class ReadThread(threading.Thread):
                     for stove in self.stations["stoves"]:
                         if stove.occupant is self.cooks[in_data[1]] and stove.get_item() is not None \
                                 and len(stove.get_item().ingredients) > 0:
-                            if type(stove.get_item()) == Pot and type(stove.get_item().ingredients[0]) == Tomato\
-                                    and stove.get_item().ingredients[0].cookable():
+                            if type(stove.get_item()) == Pot and stove.get_item().ingredients[0].cookable():
                                 stove.increase_time(in_data[2])
                                 if stove.get_time() < SPRITE_SIZE:
                                     stove.draw_progress(self.screen)
                                 else:
                                     stove.is_finished = True
-                            if type(stove.get_item()) == Pan  \
-                                    and stove.get_item().ingredients[0].cookable():
+                            if type(stove.get_item()) == Pan and stove.get_item().ingredients[0].fryable():
                                 stove.increase_time(in_data[2])
                                 if stove.get_time() < SPRITE_SIZE:
                                     stove.draw_progress(self.screen)

@@ -19,11 +19,10 @@ class Steak(Ingredient):
         self.whole_tomato = image_name
         self.fried = steak_fried
         self.name = "Steak"
-        self.cookType = "fry"
         self.isReady = False
         self.isCooked = False
 
-    def cookable(self):
+    def fryable(self):
         return not self.isCooked
 
     def fry(self):

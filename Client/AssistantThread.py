@@ -164,6 +164,8 @@ class AssistantThread(threading.Thread):
                                         to_send = msg.encode()
                                         self.client.send(to_send)
                                         sleep(0.1)
+                                    path = path[:-3:-1]
+                                    self.moveTo(path, runs)
                     elif msg.get_activity_type() == ActivityType.SLICE:
                         ingredient = None
                         path_length = 1000
@@ -228,9 +230,10 @@ class AssistantThread(threading.Thread):
                                     to_send = msg.encode()
                                     self.client.send(to_send)
                                     sleep(0.1)
-                                path, runs, direction = self.checkPathAllSides(self.assistant.rect.x + SPRITE_SIZE,
-                                                                               SPRITE_SIZE)
-
+                                #path, runs, direction = self.checkPathAllSides(self.assistant.rect.x + SPRITE_SIZE,
+                                #                                               SPRITE_SIZE)
+                                #1 step back
+                                path = path[:-3:-1]
                                 self.moveTo(path, runs)
                                 break
 

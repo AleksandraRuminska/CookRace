@@ -449,11 +449,10 @@ while running:
 
         if stove.get_item() is not None and len(stove.get_item().ingredients) > 0:
             ingredient = stove.get_item().ingredients[0]
-            if type(stove.get_item()) == Pot and stove.get_item().ingredients[0].cookable() and\
-                    type(stove.get_item().ingredients[0]) == Tomato:
+            if type(stove.get_item()) == Pot and stove.get_item().ingredients[0].cookable():
                 if stove.is_finished:
                     ingredient.cook()
-            elif type(stove.get_item()) == Pan and stove.get_item().ingredients[0].cookable():
+            elif type(stove.get_item()) == Pan and stove.get_item().ingredients[0].fryable():
                 if stove.is_finished:
                     ingredient.fry()
         else:
