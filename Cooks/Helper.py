@@ -42,11 +42,11 @@ class Helper(Cook):
         start = grid.node(int(self.rect.x / SPRITE_SIZE), int(self.rect.y / SPRITE_SIZE))
         end = grid.node(int(index_x / SPRITE_SIZE), int(index_y / SPRITE_SIZE))
 
-        print("\nStart: ", str(start))
-        print("End: ", end, " \n")
+        #print("\nStart: ", str(start))
+        #print("End: ", end, " \n")
         finder = AStarFinder()
         paths, runs = finder.find_path(start, end, grid)
-        print("PATH: ", paths)
+        #print("PATH: ", paths)
         self.path = paths
         return paths, runs
 

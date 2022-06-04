@@ -9,3 +9,4 @@ class MessageType(IntEnum):
     DOACTIVITY = 4
     FACE = 5
     POINTS = 6
+    CONFIGURE = 7

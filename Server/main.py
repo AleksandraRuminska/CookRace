@@ -5,13 +5,12 @@ from queue import Queue
 from time import sleep
 
 from pygame import Rect
-from pygame.sprite import Sprite
 
 from Messages import PickUp
 from Messages.Create import Create
 from Messages.DoActivity import DoActivity
 from Messages.Face import Face
-from Messages.MessageType import MessageType
+from Messages.enums.MessageType import MessageType
 from Messages.Move import Move
 from Messages.Points import Points
 from Messages.PutInPlace import PutInPlace

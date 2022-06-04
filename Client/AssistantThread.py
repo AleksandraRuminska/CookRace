@@ -3,15 +3,13 @@ import random
 from time import sleep
 
 from Ingredients.Tomato import Tomato
-from Messages.ActivityType import ActivityType
+from Messages.enums.ActivityType import ActivityType
 from Messages.DoActivity import DoActivity
 from Messages.Face import Face
-from Messages.MessageType import MessageType
+from Messages.enums.MessageType import MessageType
 from Messages.PickUp import PickUp
 from Messages.PutInPlace import PutInPlace
-from Utensils.Plate import Plate
-from Stations.Sink import Sink
-from Ingredients.Ingredient import Ingredient
+from Stations.CuttingBoard import CuttingBoard
 
 SPRITE_SIZE = 50
 
@@ -40,13 +38,13 @@ class AssistantThread(threading.Thread):
         self.semaphore = semaphore
 
     def moveTo(self, path, runs):
-        print("Path: ", path)
-        print("Runs: ", runs)
+        #print("Path: ", path)
+        #print("Runs: ", runs)
         path = splitPath(path)
         message = None
-        print("LEN: ", len(path))
+        #print("LEN: ", len(path))
         for i in range(0, len(path)):
-            print("path x: ", path[i][0], " ,y: ", path[i][1])
+            #print("path x: ", path[i][0], " ,y: ", path[i][1])
             message = PutInPlace(self.assistant.id, int(path[i][0] / SPRITE_SIZE), path[i][0] % SPRITE_SIZE,
                                  int(path[i][1] / SPRITE_SIZE), path[i][1] % SPRITE_SIZE)
             if message is not None:
@@ -136,36 +134,52 @@ class AssistantThread(threading.Thread):
                                 self.client.send(to_send)
                                 sleep(0.1)
                                 if self.assistant.carry is None:
-                                    # someone yoinked it
                                     continue
                                 # step 4: wait for an available station
                                 for station in self.assistant.myStations["sinks"]:
                                     while True:
-                                        if station.occupied:
-                                            sleep(3)
+                                        if station.occupied or station.get_item() is not None:
+                                            sleep(random.randint(1, 5))
                                         else:
-                                            break
-                                    # step 5: go to said station
-                                    #path, runs = self.assistant.find_path(station.rect2.x, station.rect2.y)
-                                    path, runs, direction = self.checkPathAllSides(station.rect.x, station.rect.y)
-                                    self.moveTo(path, runs)
+                                            path, runs, direction = self.checkPathAllSides(station.rect.x,
+                                                                                           station.rect.y)
+                                            # step 5: go to said station
+                                            self.moveTo(path, runs)
+
+                                            if station.occupant is not self.assistant or station.get_item() is not None:
+                                                path = path[:-3:-1]
+                                                self.moveTo(path, runs)
+                                                sleep(random.randint(1, 5))
+                                            else:
+                                                break
+
+
                                     # step 5.5: face the station
                                     msg = Face(self.assistant.id, direction)
                                     to_send = msg.encode()
                                     self.client.send(to_send)
                                     sleep(0.5)
                                     # step 6 : drop said plate at station
+                                    utensil = self.assistant.carry
                                     msg = PickUp(self.assistant.id)
                                     to_send = msg.encode()
                                     self.client.send(to_send)
+                                    sleep(0.2)
                                     # step 7: wash until clean(for now assume we occupy station at this point)
+                                    utensil.semaphore.acquire()
                                     while utensil.isDirty:
+                                        utensil.semaphore.release()
                                         msg = DoActivity(self.assistant.id, 1, ActivityType.WASH_PLATE)
                                         to_send = msg.encode()
                                         self.client.send(to_send)
                                         sleep(0.1)
+                                        utensil.semaphore.acquire()
+                                    print("cleean")
+                                    utensil.semaphore.release()
                                     path = path[:-3:-1]
                                     self.moveTo(path, runs)
+                                    break
+                                break
                     elif msg.get_activity_type() == ActivityType.SLICE:
                         ingredient = None
                         path_length = 1000
@@ -175,7 +189,7 @@ class AssistantThread(threading.Thread):
                         move_approved = False
                         for station in self.assistant.myStations["all"]:
 
-                            if type(station.get_item()) == Tomato and not station.get_item().isSliced:
+                            if type(station) is not CuttingBoard and type(station.get_item()) == Tomato and not station.get_item().isSliced:
                                 ingredient = station.get_item()
                                 # step 2: get to the plate
                                 path, runs, direction = self.checkPathAllSides(station.rect.x, station.rect.y)
@@ -198,45 +212,62 @@ class AssistantThread(threading.Thread):
                             to_send = msg.encode()
                             self.client.send(to_send)
                             sleep(0.1)
-                        # if self.assistant.carry is None:
-                        #     # someone yoinked it
-                        #     continue
+                            if self.assistant.carry is None:
+                             # someone yoinked it
+                                continue
 
                             # step 4: wait for an available station
                             for destination_station in self.assistant.myStations["boards"]:
                                 while True:
                                     if destination_station.occupied or destination_station.get_item() is not None:
-                                        sleep(3)
+                                        #print("chef " + str(self.assistant.id) + "waiting for station")
+                                        sleep(random.randint(1, 5))
                                     else:
-                                        break
                                         # step 5: go to said station
                                         # path, runs = self.assistant.find_path(station.rect2.x, station.rect2.y)
-                                path, runs, direction = self.checkPathAllSides(destination_station.rect.x,
+                                        path, runs, direction = self.checkPathAllSides(destination_station.rect.x,
                                                                                destination_station.rect.y)
 
-                                self.moveTo(path, runs)
+
+
+                                        self.moveTo(path, runs)
+                                        sleep(random.randint(1, 5))
+                                        if destination_station.occupant is not self.assistant or destination_station.get_item() is not None:
+                                            path = path[:-3:-1]
+                                            self.moveTo(path, runs)
+                                        else:
+                                            break
+
                                 # step 5.5: face the station
                                 msg = Face(self.assistant.id, direction)
                                 to_send = msg.encode()
                                 self.client.send(to_send)
                                 sleep(0.5)
                                 # step 6 : drop said plate at station
+                                ingredient = self.assistant.carry
                                 msg = PickUp(self.assistant.id)
                                 to_send = msg.encode()
                                 self.client.send(to_send)
+                                sleep(0.2)
                                 # step 7: wash until clean(for now assume we occupy station at this point)
+                                #print("chef " + str(self.assistant.id) + "time to chop")
+                                ingredient.semaphore.acquire()
+                                #print("chef " + str(self.assistant.id) + "choppin")
                                 while ingredient.sliceable():
+                                    ingredient.semaphore.release()
                                     msg = DoActivity(self.assistant.id, 1, ActivityType.SLICE)
                                     to_send = msg.encode()
                                     self.client.send(to_send)
                                     sleep(0.1)
+                                    ingredient.semaphore.acquire()
+                                #print("chef " + str(self.assistant.id) + "chopped")
+                                ingredient.semaphore.release()
                                 #path, runs, direction = self.checkPathAllSides(self.assistant.rect.x + SPRITE_SIZE,
                                 #                                               SPRITE_SIZE)
                                 #1 step back
                                 path = path[:-3:-1]
                                 self.moveTo(path, runs)
                                 break
-
             else:
                 self.semaphore.release()
                 sleep(0.3)
