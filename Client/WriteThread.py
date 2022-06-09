@@ -39,7 +39,7 @@ def collD(sprite, sprite2):
 
 
 class WriteThread(threading.Thread):
-    def __init__(self, client, cook, sprites_no_cook_floor, stations, command_queue, move_queue):
+    def __init__(self, client, cook, sprites_no_cook_floor, stations, command_queue, move_queue, assistants):
         threading.Thread.__init__(self)
         self.client = client
         self.cook = cook
@@ -48,6 +48,7 @@ class WriteThread(threading.Thread):
         self.command_queue = command_queue
         self.clicked = 10
         self.move_queue = move_queue
+        self.assistants = assistants
 
     def run(self):
         clock = pygame.time.Clock()
@@ -94,7 +95,9 @@ class WriteThread(threading.Thread):
                 keys = pygame.key.get_pressed()
                 if keys[pygame.K_RIGHT]:
                     collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collR)
-                    if collision == []:  # or self.cook.rect.right != collision[0].rect.left:
+                    collision_assistants = pygame.sprite.spritecollide(self.cook, self.assistants, False, collR)
+
+                    if collision == [] and collision_assistants == []:  # or self.cook.rect.right != collision[0].rect.left:
                         if move_ticker == 0:
                             move_ticker = move_cap
                             self.cook.semaphore.acquire()
@@ -107,7 +110,9 @@ class WriteThread(threading.Thread):
                     self.cook.faceRight()
                 elif keys[pygame.K_LEFT]:
                     collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collL)
-                    if collision == []:  # or self.cook.rect.left != collision[0].rect.right:
+                    collision_assistants = pygame.sprite.spritecollide(self.cook, self.assistants, False, collL)
+
+                    if collision == [] and collision_assistants == []:  # or self.cook.rect.left != collision[0].rect.right:
                         if move_ticker == 0:
                             move_ticker = move_cap
                             self.cook.semaphore.acquire()
@@ -121,7 +126,9 @@ class WriteThread(threading.Thread):
 
                 elif keys[pygame.K_UP]:
                     collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collU)
-                    if collision == []:  # or self.cook.rect.top != collision[0].rect.bottom:
+                    collision_assistants = pygame.sprite.spritecollide(self.cook, self.assistants, False, collU)
+
+                    if collision == [] and collision_assistants == []:  # or self.cook.rect.top != collision[0].rect.bottom:
                         if move_ticker == 0:
                             move_ticker = move_cap
                             self.cook.semaphore.acquire()
@@ -135,7 +142,8 @@ class WriteThread(threading.Thread):
 
                 elif keys[pygame.K_DOWN]:
                     collision = pygame.sprite.spritecollide(self.cook, self.sprites_no_cook_floor, False, collD)
-                    if collision == []:  # or self.cook.rect.bottom != collision[0].rect.top:
+                    collision_assistants = pygame.sprite.spritecollide(self.cook, self.assistants, False, collD)
+                    if collision == [] and collision_assistants == []:  # or self.cook.rect.bottom != collision[0].rect.top:
                         if move_ticker == 0:
                             move_ticker = move_cap
                             self.cook.semaphore.acquire()

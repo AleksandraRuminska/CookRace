@@ -318,7 +318,7 @@ for x in right_stations["bins"]:
 for x in right_stations["drop_offs"]:
     x.cook = cooks[1]
 new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
-                               left_stations if cooks[0].controlling else right_stations, command_queue, move_queue)
+                               left_stations if cooks[0].controlling else right_stations, command_queue, move_queue, assistants)
 new_thread_write.start()
 
 my_assistants = []
@@ -341,7 +341,7 @@ a_semaphore = Semaphore(1)
 
 index = 0
 for assistant in my_assistants:
-    new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore))
+    new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore, assistants, cooks))
     new_assistant_thread[index].start()
     index += 1
 semaphore.release()

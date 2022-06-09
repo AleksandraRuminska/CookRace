@@ -1,6 +1,9 @@
+import copy
 import threading
 import random
 from time import sleep
+
+import pygame.sprite
 
 from Ingredients.Tomato import Tomato
 from Messages.enums.ActivityType import ActivityType
@@ -30,27 +33,72 @@ def splitPath(path):
 
 
 class AssistantThread(threading.Thread):
-    def __init__(self, client, assistants, command_queue, semaphore):
+    def __init__(self, client, assistants, command_queue, semaphore, all_assistants, cooks):
         threading.Thread.__init__(self)
         self.client = client
         self.assistant = assistants
         self.command_queue = command_queue
         self.semaphore = semaphore
+        self.all_assistants = all_assistants
+        self.cooks = cooks
 
     def moveTo(self, path, runs):
-        #print("Path: ", path)
-        #print("Runs: ", runs)
         path = splitPath(path)
         message = None
-        #print("LEN: ", len(path))
+
         for i in range(0, len(path)):
-            #print("path x: ", path[i][0], " ,y: ", path[i][1])
+
+            for assistant in self.all_assistants:
+                if assistant is not self.assistant \
+                        and assistant.rect.x - SPRITE_SIZE < path[i][0] < assistant.rect.x + SPRITE_SIZE \
+                        and assistant.rect.y - SPRITE_SIZE < path[i][1] < assistant.rect.y + SPRITE_SIZE:
+                    # return path[i+1][0], path[i+1][1]
+                    return path[i][0], path[i][1]
+
+            if self.cooks[0].rect.x - SPRITE_SIZE < path[i][0] < self.cooks[0].rect.x + SPRITE_SIZE \
+                    and self.cooks[0].rect.y - SPRITE_SIZE < path[i][1] < self.cooks[0].rect.y + SPRITE_SIZE:
+                # return path[i + 1][0], path[i + 1][1]
+                return path[i][0], path[i][1]
+
+            if self.cooks[1].rect.x - SPRITE_SIZE < path[i][1] < self.cooks[1].rect.x + SPRITE_SIZE \
+                    and self.cooks[1].rect.y - SPRITE_SIZE < path[i][1] < self.cooks[1].rect.y + SPRITE_SIZE:
+                # return path[i + 1][0], path[i + 1][1]
+                return path[i][0], path[i][1]
+
             message = PutInPlace(self.assistant.id, int(path[i][0] / SPRITE_SIZE), path[i][0] % SPRITE_SIZE,
                                  int(path[i][1] / SPRITE_SIZE), path[i][1] % SPRITE_SIZE)
             if message is not None:
                 to_send = message.encode()
                 self.client.send(to_send)
                 sleep(0.1)
+        return 0, 0
+
+
+    def findPlace(self, x, y, path):
+        path_old_x = path[len(path) - 1][0]
+        path_old_y = path[len(path) - 1][1]
+        x_after = self.assistant.rect.x
+        y_after = self.assistant.rect.y
+
+        choice = random.randint(0, 4)
+        if choice == 0:
+            x_after = self.assistant.rect.x + SPRITE_SIZE
+            y_after = self.assistant.rect.y
+        elif choice == 1:
+            x_after = self.assistant.rect.x - SPRITE_SIZE
+            y_after = self.assistant.rect.y
+        elif choice == 2:
+            x_after = self.assistant.rect.x
+            y_after = self.assistant.rect.y + SPRITE_SIZE
+        else:
+            x_after = self.assistant.rect.x
+            y_after = self.assistant.rect.y - SPRITE_SIZE
+
+        path, runs = self.assistant.find_path(x_after, y_after)
+        self.moveTo(path, runs)
+
+        path, runs, direction = self.checkPathAllSides(path_old_x, path_old_y)
+        self.moveTo(path, runs)
 
     def checkPathAllSides(self, x, y):
         # from the top
@@ -113,8 +161,15 @@ class AssistantThread(threading.Thread):
 
                         x = x * SPRITE_SIZE
                         y = y * SPRITE_SIZE
+                        result = 1
                         path, runs = self.assistant.find_path(x, y)
-                        self.moveTo(path, runs)
+                        if len(path) > 0:
+                            x_t, y_t = self.moveTo(path, runs)
+                            path_end_x = path[len(path)-1][0] * SPRITE_SIZE
+                            path_end_y = path[len(path)-1][1] * SPRITE_SIZE
+                            if x_t != 0 and y_t != 0:
+                                while self.assistant.rect.x != path_end_x and self.assistant.rect.y != path_end_y:
+                                    self.findPlace(x_t, y_t, path)
 
                     if msg.get_activity_type() == ActivityType.WASH_PLATE:
                         # step 1: check if there's a dirty plate
@@ -122,7 +177,15 @@ class AssistantThread(threading.Thread):
                             if utensil.isDirty and not utensil.currentlyCarried:
                                 # step 2: get to the plate
                                 path, runs, direction = self.checkPathAllSides(utensil.rect.x, utensil.rect.y)
-                                self.moveTo(path, runs)
+                                if len(path) > 0:
+                                    x_t, y_t = self.moveTo(path, runs)
+                                    path_end_x = path[len(path) - 1][0] * SPRITE_SIZE
+                                    path_end_y = path[len(path) - 1][1] * SPRITE_SIZE
+                                    if x_t != 0 and y_t != 0:
+                                        while self.assistant.rect.x != path_end_x and self.assistant.rect.y != path_end_y:
+                                            self.findPlace(x_t, y_t, path)
+                                # if result==1:
+                                #     findPlace()
                                 # step 2.5: face the plate
                                 msg = Face(self.assistant.id, direction)
                                 to_send = msg.encode()
@@ -144,7 +207,14 @@ class AssistantThread(threading.Thread):
                                             path, runs, direction = self.checkPathAllSides(station.rect.x,
                                                                                            station.rect.y)
                                             # step 5: go to said station
-                                            self.moveTo(path, runs)
+                                            if len(path) > 0:
+                                                x_t, y_t = self.moveTo(path, runs)
+                                                path_end_x = path[len(path) - 1][0] * SPRITE_SIZE
+                                                path_end_y = path[len(path) - 1][1] * SPRITE_SIZE
+                                                if x_t != 0 and y_t != 0:
+                                                    while self.assistant.rect.x != path_end_x and self.assistant.rect.y != path_end_y:
+                                                        self.findPlace(x_t, y_t, path)
+                                            # self.moveTo(path, runs)
 
                                             if station.occupant is not self.assistant or station.get_item() is not None:
                                                 path = path[:-3:-1]
@@ -201,7 +271,14 @@ class AssistantThread(threading.Thread):
                                     path_min_dir = direction
 
                         if move_approved:
-                            self.moveTo(path_min, path_run_min)
+                            if len(path_min) > 0:
+                                x_t, y_t = self.moveTo(path_min, path_run_min)
+                                path_end_x = path_min[len(path_min) - 1][0] * SPRITE_SIZE
+                                path_end_y = path_min[len(path_min) - 1][1] * SPRITE_SIZE
+                                if x_t != 0 and y_t != 0:
+                                    while self.assistant.rect.x != path_end_x and self.assistant.rect.y != path_end_y:
+                                        self.findPlace(x_t, y_t, path_min)
+                            # self.moveTo(path_min, path_run_min)
                             # step 2.5: face the plate
                             msg = Face(self.assistant.id, path_min_dir)
                             to_send = msg.encode()
@@ -228,13 +305,31 @@ class AssistantThread(threading.Thread):
                                         path, runs, direction = self.checkPathAllSides(destination_station.rect.x,
                                                                                destination_station.rect.y)
 
+                                        if len(path) > 0:
+                                            x_t, y_t = self.moveTo(path, runs)
+                                            path_end_x = path[len(path) - 1][0] * SPRITE_SIZE
+                                            path_end_y = path[len(path) - 1][1] * SPRITE_SIZE
+                                            if x_t != 0 and y_t != 0:
+                                                while self.assistant.rect.x != path_end_x and self.assistant.rect.y != path_end_y:
+                                                    self.findPlace(x_t, y_t, path)
+                                        # result = self.moveTo(path, runs)
+                                        # while result:
+                                        #     path, runs, direction = self.checkPathAllSides(destination_station.rect.x,
+                                        #                                                    destination_station.rect.y)
+                                        #     result = self.moveTo(path, runs)
 
-
-                                        self.moveTo(path, runs)
                                         sleep(random.randint(1, 5))
                                         if destination_station.occupant is not self.assistant or destination_station.get_item() is not None:
                                             path = path[:-3:-1]
-                                            self.moveTo(path, runs)
+                                            # self.moveTo(path, runs)
+                                            if len(path) > 0:
+                                                x_t, y_t = self.moveTo(path, runs)
+                                                path_end_x = path[len(path) - 1][0] * SPRITE_SIZE
+                                                path_end_y = path[len(path) - 1][1] * SPRITE_SIZE
+                                                if x_t != 0 and y_t != 0:
+                                                    while self.assistant.rect.x != path_end_x and self.assistant.rect.y != path_end_y:
+                                                        self.findPlace(x_t, y_t, path)
+
                                         else:
                                             break
 
@@ -266,7 +361,15 @@ class AssistantThread(threading.Thread):
                                 #                                               SPRITE_SIZE)
                                 #1 step back
                                 path = path[:-3:-1]
-                                self.moveTo(path, runs)
+                                if len(path) > 0:
+                                    x_t, y_t = self.moveTo(path, runs)
+                                    path_end_x = path[len(path) - 1][0] * SPRITE_SIZE
+                                    path_end_y = path[len(path) - 1][1] * SPRITE_SIZE
+                                    if x_t != 0 and y_t != 0:
+                                        while self.assistant.rect.x != path_end_x and self.assistant.rect.y != path_end_y:
+                                            self.findPlace(x_t, y_t, path)
+                                # self.moveTo(path, runs)
+
                                 break
             else:
                 self.semaphore.release()
