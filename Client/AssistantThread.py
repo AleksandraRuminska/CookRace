@@ -231,7 +231,7 @@ class AssistantThread(threading.Thread):
 
 
                                         self.moveTo(path, runs)
-                                        sleep(random.randint(1, 5))
+                                        sleep(random.randint(1, 2))
                                         if destination_station.occupant is not self.assistant or destination_station.get_item() is not None:
                                             path = path[:-3:-1]
                                             self.moveTo(path, runs)

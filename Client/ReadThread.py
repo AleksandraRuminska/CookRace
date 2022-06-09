@@ -103,22 +103,40 @@ class ReadThread(threading.Thread):
                                             # cutting_board.is_finished = True
                                             cutting_board.get_item().slice()
                                     item.semaphore.release()
+                elif in_data[3] == ActivityType.SEASON:
+                    for seasoning in self.stations["seasonings"]:
+                        if seasoning.occupant is self.cooks[in_data[1]]:
+                            item = seasoning.get_item()
+                            if item is not None:
+                                success = item.semaphore.acquire(blocking=False)
+                                if success:
+                                    if seasoning.get_item() is not None and seasoning.get_item().seasonable():
+                                        seasoning.increase_time(in_data[2])
+                                        if seasoning.get_time() < SPRITE_SIZE:
+                                            # pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect(cutting_board.rect.x,
+                                            # cutting_board.rect.y + SPRITE_SIZE / 2, cutting_board.get_time(), 5))
+                                            seasoning.draw_progress(self.screen)
+                                        else:
+                                            # cutting_board.is_finished = True
+                                            seasoning.get_item().season()
+                                    item.semaphore.release()
                 elif in_data[3] == ActivityType.COOK:
                     for stove in self.stations["stoves"]:
                         if stove.occupant is self.cooks[in_data[1]] and stove.get_item() is not None \
                                 and len(stove.get_item().ingredients) > 0:
-                            if type(stove.get_item()) == Pot and stove.get_item().ingredients[0].cookable():
-                                stove.increase_time(in_data[2])
-                                if stove.get_time() < SPRITE_SIZE:
-                                    stove.draw_progress(self.screen)
-                                else:
-                                    stove.is_finished = True
-                            if type(stove.get_item()) == Pan and stove.get_item().ingredients[0].fryable():
-                                stove.increase_time(in_data[2])
-                                if stove.get_time() < SPRITE_SIZE:
-                                    stove.draw_progress(self.screen)
-                                else:
-                                    stove.is_finished = True
+                            for ingredient in stove.get_item().ingredients:
+                                if type(stove.get_item()) == Pot and ingredient.cookable():
+                                    stove.increase_time(in_data[2])
+                                    if stove.get_time() < SPRITE_SIZE * len(stove.get_item().ingredients):
+                                        stove.draw_progress(self.screen)
+                                    else:
+                                        stove.is_finished = True
+                                if type(stove.get_item()) == Pan and ingredient.fryable():
+                                    stove.increase_time(in_data[2])
+                                    if stove.get_time() < SPRITE_SIZE * len(stove.get_item().ingredients):
+                                        stove.draw_progress(self.screen)
+                                    else:
+                                        stove.is_finished = True
 
 
             elif in_data[0] == MessageType.FACE:

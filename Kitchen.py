@@ -3,11 +3,13 @@ import random
 import pygame
 import os
 
+from Ingredients.Bun import Bun
 from Ingredients.Steak import Steak
 from Stations.CuttingBoard import CuttingBoard
 from Floor import Floor
 from Cooks.Helper import Helper
 from Stations.DropOff import DropOff
+from Stations.Seasoning import Seasoning
 from Stations.Sink import Sink
 from Stations.RubbishBin import RubbishBin
 from Stations.Stove import Stove
@@ -50,6 +52,7 @@ tomato = pygame.image.load(os.path.join(path, "resources", "Tomato.png"))
 pot = pygame.image.load(os.path.join(path, "resources", "Pot.png"))
 pan = pygame.image.load(os.path.join(path, "resources", "Pan.png"))
 steak = pygame.image.load(os.path.join(path, "resources", "Steak.png"))
+bun = pygame.image.load(os.path.join(path, "resources", "Bun.png"))
 os.chdir(path1)
 
 
@@ -95,7 +98,7 @@ class Kitchen:
             tile = Plate(plate, col, row_count)
             self.tile_list.append(tile)
         elif tile == 8:
-            tile = Tile(seasoning, col, row_count)
+            tile = Seasoning(seasoning, col, row_count)
             self.tile_list.append(tile)
         elif tile == 9:
             tile = Sink(sink, col, row_count)
@@ -132,6 +135,9 @@ class Kitchen:
             self.tile_list.append(tile)
         elif tile == 20:
             tile = Steak(steak, col, row_count)
+            self.tile_list.append(tile)
+        elif tile == 21:
+            tile = Bun(bun, col, row_count)
             self.tile_list.append(tile)
 
         # Helper

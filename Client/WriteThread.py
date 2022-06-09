@@ -73,6 +73,11 @@ class WriteThread(threading.Thread):
                             #if cutting_board.is_sliced and not cutting_board.is_finished:
                             if cutting_board.occupant is self.cook and cutting_board.get_item() is not None and cutting_board.get_item().sliceable():
                                 msg = DoActivity(move._id, 3, ActivityType.ActivityType.SLICE)
+                    elif move.get_activity_type() == ActivityType.ActivityType.SEASON:
+                        for seasoning in self.stations["seasonings"]:
+                            # if cutting_board.is_sliced and not cutting_board.is_finished:
+                            if seasoning.occupant is self.cook and seasoning.get_item() is not None and seasoning.get_item().seasonable():
+                                msg = DoActivity(move._id, 3, ActivityType.ActivityType.SEASON)
                     elif move.get_activity_type() == ActivityType.ActivityType.COOK:
                         for stove in self.stations["stoves"]:
                             if not stove.is_finished:

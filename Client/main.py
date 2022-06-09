@@ -5,6 +5,7 @@ from threading import *
 import pygame
 
 from Client.AssistantThread import AssistantThread
+from Ingredients.Bun import Bun
 from Ingredients.Steak import Steak
 from Stations.CuttingBoard import CuttingBoard
 from Floor import Floor
@@ -15,6 +16,7 @@ from Messages.DoActivity import DoActivity
 from Messages.PickUp import PickUp
 from Stations.DropOff import DropOff
 from Stations.RubbishBin import RubbishBin
+from Stations.Seasoning import Seasoning
 from Stations.Stove import Stove
 from Utensils.Plate import Plate
 from Utensils.Pan import Pan
@@ -74,7 +76,7 @@ sinks = []
 # Matrix for creation of world conditions for a specific level
 
 world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1],
-              [1, 0, 0, 0, 0, 0, 0, 0, [1, 17], [1, 17], 0, 0, 0, 0, 0, 0, 0, 1],
+              [[1, 21], 0, 0, 0, 0, 0, 0, 0, [1, 17], [1, 17], 0, 0, 0, 0, 0, 0, 0, [1, 21]],
               [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
               [3, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 3],
               [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
@@ -132,6 +134,7 @@ def init_stations():
     sta_dict["bins"] = []
     sta_dict["stoves"] = []
     sta_dict["rest"] = []
+    sta_dict["seasonings"] = []
     return sta_dict
 
 
@@ -139,6 +142,7 @@ def init_ingredients():
     ing_dict = {}
     ing_dict["tomatoes"] = []
     ing_dict["steaks"] = []
+    ing_dict["buns"] = []
     return ing_dict
 
 
@@ -245,6 +249,17 @@ for tile in world.tile_list:
         movable.add(tile)
         movables.append(tile)
         ingredientsGroup.add(tile)
+    elif type(tile) == Bun:
+        # print(str(tile.rect.x) + str(tile.rect.y))
+        ingredients["buns"].append(tile)
+        if tile.rect.x < 450:
+            left_ingredients["buns"].append(tile)
+        else:
+            right_ingredients["buns"].append(tile)
+        all_sprites_group.add(tile)
+        movable.add(tile)
+        movables.append(tile)
+        ingredientsGroup.add(tile)
     elif type(tile) == Steak:
         ingredients["steaks"].append(tile)
         if tile.rect.x < 450:
@@ -262,6 +277,15 @@ for tile in world.tile_list:
             left_stations["boards"].append(tile)
         else:
             right_stations["boards"].append(tile)
+        all_sprites_group.add(tile)
+        sprites_no_cook_floor.add(tile)
+        tiles_stations.append(tile)
+    elif type(tile) == Seasoning:
+        stations["seasonings"].append(tile)
+        if tile.rect.x < 450:
+            left_stations["seasonings"].append(tile)
+        else:
+            right_stations["seasonings"].append(tile)
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
         tiles_stations.append(tile)
@@ -383,6 +407,10 @@ while running:
                     if my_cook is stove.occupant:
                         move_queue.put(
                             DoActivity(0 if cooks[0].controlling else 1, 1, ActivityType.ActivityType.COOK))
+                for season in stations["seasonings"]:
+                    if my_cook is season.occupant:
+                        move_queue.put(
+                            DoActivity(0 if cooks[0].controlling else 1, 1, ActivityType.ActivityType.SEASON))
 
             elif pygame.key.name(event.key) == "j":
                 msg = DoActivity(0, 10, ActivityType.ActivityType.MOVE_R)
@@ -428,6 +456,19 @@ while running:
         if cutting_board.get_item() is None or not cutting_board.get_item().sliceable():
             cutting_board.set_time(0)
 
+    for season in stations["seasonings"]:
+        ingredient_on_board = False
+
+        if not season.occupied or not season.rect2.colliderect(season.occupant.rect):
+            if season.occupied and not season.rect2.colliderect(season.occupant.rect):
+                season.leave()
+            for cook in cooks:
+                if season.rect2.colliderect(cook.rect) and not season.occupied:
+                    season.occupy(cook)
+                    break
+        if season.get_item() is None or not season.get_item().seasonable():
+            season.set_time(0)
+
     for stove in stations["stoves"]:
         utensil_on_stove = False
 
@@ -440,13 +481,13 @@ while running:
                     break
 
         if stove.get_item() is not None and len(stove.get_item().ingredients) > 0:
-            ingredient = stove.get_item().ingredients[0]
-            if type(stove.get_item()) == Pot and stove.get_item().ingredients[0].cookable():
-                if stove.is_finished:
-                    ingredient.cook()
-            elif type(stove.get_item()) == Pan and stove.get_item().ingredients[0].fryable():
-                if stove.is_finished:
-                    ingredient.fry()
+            for ingredient in stove.get_item().ingredients:
+                if type(stove.get_item()) == Pot and ingredient.cookable():
+                    if stove.is_finished:
+                        ingredient.cook()
+                elif type(stove.get_item()) == Pan and ingredient.fryable():
+                    if stove.is_finished:
+                        ingredient.fry()
         else:
             stove.set_time(0)
         stove.is_finished = False

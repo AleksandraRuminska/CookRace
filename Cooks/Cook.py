@@ -126,14 +126,26 @@ class Cook(pygame.sprite.Sprite):
         for tile in sprites_no_cook_floor:
             if self.carry.rect.colliderect(tile):
                 #we can drop something onto a plate.
-                # TODO: add check for if we can put this item on a plate
-                if tile.get_item() is not None and issubclass(type(tile.get_item()), Utensil) and issubclass(type(self.carry), Ingredient) and len(tile.get_item().ingredients) != tile.get_item().maxCapacity and True:
-                    tile.get_item().ingredients.append(self.carry)
-                    self.carry.move(tile.rect.x, tile.rect.y)
-                    self.carry = None
+                if tile.get_item() is not None and issubclass(type(tile.get_item()), Utensil) and issubclass(type(self.carry), Ingredient) and len(tile.get_item().ingredients) != tile.get_item().maxCapacity:
+                    if type(tile.get_item()) is not Plate and (len(tile.get_item().ingredients) == 0 or type(tile.get_item().ingredients[0]) is type(self.carry)):
+                        tile.get_item().ingredients.append(self.carry)
+                        self.carry.move(tile.rect.x, tile.rect.y)
+                        self.carry = None
+                    elif type(tile.get_item()) is Plate and (len(tile.get_item().ingredients) == 0 or tile.get_item().validAddition(self.carry)):
+                        tile.get_item().ingredients.append(self.carry)
+                        self.carry.move(tile.rect.x, tile.rect.y)
+                        self.carry = None
+                        tile.get_item().validateRecipe()
                     return
-                elif tile.get_item() is not None and issubclass(type(tile.get_item()), Utensil) and issubclass(
-                        type(self.carry), Utensil):
+                elif tile.get_item() is not None and type(tile.get_item()) is Plate and issubclass(type(self.carry), Utensil) and tile.get_item().validAddition(self.carry):
+                    while len(tile.get_item().ingredients) < tile.get_item().maxCapacity and len(
+                            self.carry.ingredients) > 0:
+                        ingredient = self.carry.ingredients.pop()
+                        ingredient.move(tile.rect.x, tile.rect.y)
+                        tile.get_item().ingredients.append(ingredient)
+                        tile.get_item().validateRecipe()
+                    self.carry.currentlyCarried = True
+                elif tile.get_item() is not None and type(tile.get_item()) is type(self.carry) and issubclass(self.carry, Utensil):
                     while len(tile.get_item().ingredients) < tile.get_item().maxCapacity and len(
                             self.carry.ingredients) > 0:
                         ingredient = self.carry.ingredients.pop()
@@ -150,7 +162,6 @@ class Cook(pygame.sprite.Sprite):
                             tile.place_on(self.carry)
                         else:
                             self.carry.currentlyCarried = True
-                #TODO : check if something is already on the tile and preventing us from putting down
                 else:
                     if tile.get_item() is None:
                         tile.place_on(self.carry)

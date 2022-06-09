@@ -26,6 +26,9 @@ class MoveableObject(Tile):
     def cookable(self):
         return False
 
+    def seasonable(self):
+        return False
+
     def fryable(self):
         return False
 
