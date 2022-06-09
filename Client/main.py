@@ -6,7 +6,10 @@ import pygame
 
 from Client.AssistantThread import AssistantThread
 from Ingredients.Bun import Bun
+from Ingredients.Lettuce import Lettuce
+from Ingredients.Onion import Onion
 from Ingredients.Steak import Steak
+from Stations.Cupboard import Cupboard
 from Stations.CuttingBoard import CuttingBoard
 from Floor import Floor
 from Cooks.Helper import Helper
@@ -27,7 +30,6 @@ from Ingredients.Tomato import Tomato
 from WriteThread import WriteThread
 
 # SERVER = "25.47.123.189"
-# TODO ADD HAMACHI CONF, CUSTOM CONF
 choice = int(input("Choose conf: \n 1: Private Kacper \n 2: Localhost \n 3: Hamachi Kacper \n 4: Hamachi Pauliina \n"))
 if choice == 1:
     SERVER = "192.168.0.108"
@@ -81,9 +83,9 @@ world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1]
               [3, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 3],
               [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
               [[1, 18], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 18]],
-              [4, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 4],
-              [1, 0, [0, 16], 0, 5, 0, [0, 16], 0, 13, 13, 0, [0, 16], 0, 5, 0, 0, 0, 1],
-              [[1, 18], 0, 0, 0, [1, 17], 0, 0, 0, 13, 13, 0, 0, 0, [1, 17], 0, 0, 0, 1],
+              [4, 0, 0, 0, 1, 0, 0, 0, [13, 17], [13, 17], 0, 0, 0, 1, 0, 0, 0, 4],
+              [1, 0, [0, 16], 0, 5, 0, [0, 16], 0, [13, 21], [13, 21], 0, [0, 16], 0, 5, 0, 0, 0, 1],
+              [[1, 18], 0, 0, 0, [1, 17], 0, 0, 0, [13, 20], [13, 20], 0, 0, 0, [1, 17], 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
               [[1, 7], 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, [1,7]],
               [[1, 19], [0, 16], 0, 0, [1,17], 0, [0, 16], 0, 15, 15, 0, 0, 0, [1, 17], 0, 0, 0, [1, 19]],
@@ -135,6 +137,7 @@ def init_stations():
     sta_dict["stoves"] = []
     sta_dict["rest"] = []
     sta_dict["seasonings"] = []
+    sta_dict["cupboards"] = []
     return sta_dict
 
 
@@ -143,6 +146,8 @@ def init_ingredients():
     ing_dict["tomatoes"] = []
     ing_dict["steaks"] = []
     ing_dict["buns"] = []
+    ing_dict["onions"] = []
+    ing_dict["lettuces"] = []
     return ing_dict
 
 
@@ -249,6 +254,7 @@ for tile in world.tile_list:
         movable.add(tile)
         movables.append(tile)
         ingredientsGroup.add(tile)
+
     elif type(tile) == Bun:
         # print(str(tile.rect.x) + str(tile.rect.y))
         ingredients["buns"].append(tile)
@@ -260,6 +266,29 @@ for tile in world.tile_list:
         movable.add(tile)
         movables.append(tile)
         ingredientsGroup.add(tile)
+
+    elif type(tile) == Onion:
+        ingredients["onions"].append(tile)
+        if tile.rect.x < 450:
+            left_ingredients["onions"].append(tile)
+        else:
+            right_ingredients["onions"].append(tile)
+        all_sprites_group.add(tile)
+        movable.add(tile)
+        movables.append(tile)
+        ingredientsGroup.add(tile)
+
+    elif type(tile) == Lettuce:
+        ingredients["lettuces"].append(tile)
+        if tile.rect.x < 450:
+            left_ingredients["lettuces"].append(tile)
+        else:
+            right_ingredients["lettuces"].append(tile)
+        all_sprites_group.add(tile)
+        movable.add(tile)
+        movables.append(tile)
+        ingredientsGroup.add(tile)
+
     elif type(tile) == Steak:
         ingredients["steaks"].append(tile)
         if tile.rect.x < 450:
@@ -299,6 +328,16 @@ for tile in world.tile_list:
         sprites_no_cook_floor.add(tile)
         tiles_stations.append(tile)
 
+    elif type(tile) == Cupboard:
+        stations["cupboards"].append(tile)
+        if tile.rect.x < 450:
+            left_stations["cupboards"].append(tile)
+        else:
+            right_stations["cupboards"].append(tile)
+        all_sprites_group.add(tile)
+        sprites_no_cook_floor.add(tile)
+        tiles_stations.append(tile)
+
     elif type(tile) == Helper:
         all_sprites_group.add(tile)
         cooks.append(tile)
@@ -315,13 +354,23 @@ for tile in world.tile_list:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
         tiles_stations.append(tile)
+
+
 left_utensils["all"] = left_utensils["plates"] + left_utensils["pots"] + left_utensils["pans"]
 right_utensils["all"] = right_utensils["plates"] + right_utensils["pots"] + right_utensils["pans"]
 utensils["all"] = utensils["plates"] + utensils["pots"] + utensils["pans"]
+
 left_stations["all"] = left_stations["boards"] + left_stations["bins"] + left_stations["drop_offs"] \
-                       + left_stations["sinks"] + left_stations["stoves"] + left_stations["rest"]
-right_stations["all"] = right_stations["boards"] + right_stations["bins"] + right_stations["drop_offs"] + right_stations["sinks"] + right_stations["stoves"] + right_stations["rest"]
-stations["all"] = stations["boards"] + stations["bins"] + stations["drop_offs"] + stations["sinks"] + stations["stoves"] + stations["rest"]
+                       + left_stations["sinks"] + left_stations["stoves"] + left_stations["rest"] \
+                       + left_stations["cupboards"]
+
+right_stations["all"] = right_stations["boards"] + right_stations["bins"] + right_stations["drop_offs"] \
+                        + right_stations["sinks"] + right_stations["stoves"] + right_stations["rest"] \
+                        + right_stations["cupboards"]
+
+stations["all"] = stations["boards"] + stations["bins"] + stations["drop_offs"] + stations["sinks"] \
+                  + stations["stoves"] + stations["cupboards"] + stations["rest"]
+
 semaphore = Semaphore(1)
 semaphore.acquire()
 new_thread = ReadThread(client, cooks, movables, semaphore, screen, stations, sprites_no_cook_floor, move_queue)
@@ -341,6 +390,7 @@ for x in right_stations["bins"]:
     x.cook = cooks[1]
 for x in right_stations["drop_offs"]:
     x.cook = cooks[1]
+
 new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
                                left_stations if cooks[0].controlling else right_stations, command_queue, move_queue)
 new_thread_write.start()
