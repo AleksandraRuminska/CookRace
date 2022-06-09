@@ -3,13 +3,15 @@ import pygame
 from Ingredients.Ingredient import Ingredient
 
 SPRITE_SIZE = 50
+
 path1 = os.path.abspath(os.getcwd())
 path_parent = os.path.dirname(os.getcwd())
 os.chdir(path_parent)
-
 path = os.getcwd()
+
 onion_slices = pygame.image.load(os.path.join(path, "resources", "OnionSliced.png"))
 onion = pygame.image.load(os.path.join(path, "resources", "Onion.png"))
+
 os.chdir(path1)
 
 

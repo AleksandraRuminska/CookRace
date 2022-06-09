@@ -68,7 +68,9 @@ pygame.display.set_caption("CookRace")
 
 running = True
 
+
 all_sprites_group = pygame.sprite.Group()
+
 sprites_no_cook_floor = pygame.sprite.Group()
 movable = pygame.sprite.Group()
 helpers = pygame.sprite.Group()
@@ -84,8 +86,8 @@ world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1]
               [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
               [[1, 18], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 18]],
               [4, 0, 0, 0, 1, 0, 0, 0, [13, 17], [13, 17], 0, 0, 0, 1, 0, 0, 0, 4],
-              [1, 0, [0, 16], 0, 5, 0, [0, 16], 0, [13, 21], [13, 21], 0, [0, 16], 0, 5, 0, 0, 0, 1],
-              [[1, 18], 0, 0, 0, [1, 17], 0, 0, 0, [13, 20], [13, 20], 0, 0, 0, [1, 17], 0, 0, 0, 1],
+              [1, 0, [0, 16], 0, 5, 0, [0, 16], 0, [22, 21], [22, 21], 0, [0, 16], 0, 5, 0, 0, 0, 1],
+              [[1, 18], 0, 0, 0, [1, 17], 0, 0, 0, [23, 20], [23, 20], 0, 0, 0, [1, 17], 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
               [[1, 7], 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, [1,7]],
               [[1, 19], [0, 16], 0, 0, [1,17], 0, [0, 16], 0, 15, 15, 0, 0, 0, [1, 17], 0, 0, 0, [1, 19]],
@@ -176,6 +178,7 @@ right_utensils = init_utensils()
 left_ingredients = init_ingredients()
 right_ingredients = init_ingredients()
 kill_semaphore = Semaphore(1)
+
 
 for tile in world.tile_list:
     if type(tile) == Plate:
@@ -337,6 +340,7 @@ for tile in world.tile_list:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
         tiles_stations.append(tile)
+        tile.cupboard_group = all_sprites_group
 
     elif type(tile) == Helper:
         all_sprites_group.add(tile)
@@ -354,6 +358,7 @@ for tile in world.tile_list:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
         tiles_stations.append(tile)
+
 
 
 left_utensils["all"] = left_utensils["plates"] + left_utensils["pots"] + left_utensils["pans"]

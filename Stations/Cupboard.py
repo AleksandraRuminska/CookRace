@@ -4,13 +4,15 @@ import os
 import pygame
 
 from Ingredients.Bun import Bun
+from Ingredients.Lettuce import Lettuce
+from Ingredients.Onion import Onion
 from Ingredients.Steak import Steak
 from Ingredients.Tomato import Tomato
 from Stations.Station import Station
-from Utensils.Utensil import Utensil
 
 SPRITE_SIZE = 50
 
+path1 = os.path.abspath(os.getcwd())
 path_parent = os.path.dirname(os.getcwd())
 os.chdir(path_parent)
 path = os.getcwd()
@@ -18,6 +20,10 @@ path = os.getcwd()
 steak = pygame.image.load(os.path.join(path, "resources", "Steak.png"))
 bun = pygame.image.load(os.path.join(path, "resources", "Bun.png"))
 tomato = pygame.image.load(os.path.join(path, "resources", "Tomato.png"))
+onion = pygame.image.load(os.path.join(path, "resources", "Onion.png"))
+lettuce = pygame.image.load(os.path.join(path, "resources", "Lettuce.png"))
+
+os.chdir(path1)
 
 
 class Cupboard(Station):
@@ -28,36 +34,41 @@ class Cupboard(Station):
         self.rect2.x -= 3
         self.cupboard_type = cupboard_type
 
-        self.tomato = Tomato(tomato, 1, -50)
-        self.onion = Onion()
-        self.lettuce = Lettuce()
-        self.tomato2 = copy.deepcopy(self.tomato)
-        self.onion2 = copy.deepcopy(self.onion)
-        self.lettuce2 = copy.deepcopy(self.lettuce)
+        self.tomato = None
+        self.onion = None
+        self.lettuce = None
+        self.bun = None
+        self.steak = None
 
-        self.bun = Bun(bun, 1, -50)
-        self.bun2 = copy.deepcopy(bun)
-
-        self.steak = Steak(steak, 1, -50)
-        self.steak2 = copy.deepcopy(steak)
+        self.cupboard_group = pygame.sprite.Group()
 
     def take_off(self):
         if self._current_item is not None:
-
-            # first cupboard with tomato, lettuce, onion
             if self.cupboard_type.VEGETABLE:
                 if type(self._current_item) is Tomato:
-                    self.place_on(self.onion2)
+                    self.onion = Onion(onion, 1, -500)
+                    self.place_on(self.onion)
+                    self.cupboard_group.add(self.onion)
+
                 elif type(self._current_item) is Onion:
-                    self.place_on(self.lettuce2)
+                    self.lettuce = Lettuce(lettuce, 1, -500)
+                    self.place_on(self.lettuce)
+                    self.cupboard_group.add(self.lettuce)
+
                 else:
-                    self.place_on(self.tomato2)
+                    self.tomato = Tomato(tomato, 1, -500)
+                    self.place_on(self.tomato)
+                    self.cupboard_group.add(self.tomato)
 
             elif self.cupboard_type.BREAD:
-                self.place_on(self.bun2)
+                self.bun = Bun(bun, 1, -500)
+                self.place_on(self.bun)
+                self.cupboard_group.add(self.bun)
 
             else:
-                self.place_on(self.steak2)
+                self.steak = Steak(steak, 1, -500)
+                self.place_on(self.steak)
+                self.cupboard_group.add(self.steak)
 
             self._current_item.placedOn = None
             self._current_item = None
