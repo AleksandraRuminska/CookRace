@@ -35,12 +35,14 @@ class Plate(Utensil):
         self.time_rand = 0
         self.food_consumed = False
         self.recipe = None
+        self.isSeasoned = False
 
     def change_image(self):
         if self.isDirty:
             self.image = self.clean_image
         else:
             self.image = self.dirty_image
+            self.isSeasoned = False
 
     def validAddition(self, ingredients):
         return False if self.recipe is not None else True
@@ -59,7 +61,8 @@ class Plate(Utensil):
                         elif ingredient.isBoiled:
                             boiledCounter += 1
                     if slicedCounter == 3:
-                        self.recipe = "Tomato Salad"
+                        pass
+                        #self.recipe = "Tomato Salad"
                     if boiledCounter == 3:
                         self.recipe = "Tomato Soup"
 
@@ -80,10 +83,11 @@ class Plate(Utensil):
         self.updateContents()
 
     def seasonable(self):
-        return True if self.recipe == "Tomato Soup" else False
+        return True if self.recipe == "Tomato Soup" and not self.isSeasoned else False
 
     def season(self):
         self.image = tomatoSoupSeasoned
+        self.isSeasoned = True
 
     def updateContents(self):
         if self.recipe is not None:
