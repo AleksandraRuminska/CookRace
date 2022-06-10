@@ -420,8 +420,8 @@ cooks[1].myIngredients = right_ingredients
 a_semaphore = Semaphore(1)
 rectList = [x.rect for x in sprites_no_cook_floor.sprites()]
 rectList.append(cooks[0].rect if cooks[0].controlling else cooks[1].rect)
-for i in range(len(my_assistants)):
-    rectList.append(my_assistants[i].rect)
+for i in range(len(assistants)):
+    rectList.append(assistants[i].rect)
 index = 0
 for assistant in my_assistants:
     new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore, rectList))
