@@ -68,7 +68,7 @@ class AssistantThread(threading.Thread):
             counter = 0
             # while True:
             index = rect2.collidelist(self.collideables)
-            if index != -1:
+            if index != -1 and self.collideables[index] != self.assistant.rect:
                 self.assistant.image=cloud
             #         break
             #     else:
