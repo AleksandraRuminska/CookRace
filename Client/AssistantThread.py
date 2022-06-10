@@ -67,9 +67,13 @@ class AssistantThread(threading.Thread):
             rect2.y = path[i][1]
             counter = 0
             # while True:
+            previousImage = self.assistant.image
             index = rect2.collidelist(self.collideables)
             if index != -1 and self.collideables[index] != self.assistant.rect:
+                previousImage = self.assistant.image
                 self.assistant.image=cloud
+            else:
+                self.assistant.image = previousImage
             #         break
             #     else:
             #         counter += 1
