@@ -33,7 +33,7 @@ class Steak(Ingredient):
         self.image = self.fried
 
     def seasonable(self):
-        return not self.isCooked
+        return not self.isCooked and not self.isSeasoned
 
     def season(self):
         self.isSeasoned = True

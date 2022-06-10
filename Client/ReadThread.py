@@ -54,7 +54,8 @@ class ReadThread(threading.Thread):
                     self.cooks[in_data[1]].put_down(self.sprites_no_cook_floor, self.move_queue)
                 else:
                     for obj in self.movables:
-                        if obj.collide(self.cooks[in_data[1]].rect):
+                        #if obj.collide(self.cooks[in_data[1]].rect):
+                        if self.cooks[in_data[1]].collide(obj.rect):
                             result = self.cooks[in_data[1]].pick_up(obj)
                             if result:
                                 break

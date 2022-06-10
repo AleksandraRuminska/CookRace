@@ -92,7 +92,9 @@ class Plate(Utensil):
     def updateContents(self):
         if self.recipe is not None:
             for x in self.ingredients:
-                x.image.set_alpha(0)
+                x.rect.x = -100
+                x.rect.y = -100
+                x.visible = False
             if self.recipe == "Burger":
                 self.image = burger
             elif self.recipe == "Tomato Soup":
