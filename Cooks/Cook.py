@@ -3,7 +3,6 @@ import copy
 import pygame
 import os
 
-from Cooks.Helper import Helper
 from Ingredients.Ingredient import Ingredient
 from Messages.Points import Points
 from Stations.DropOff import DropOff
@@ -136,7 +135,7 @@ class Cook(pygame.sprite.Sprite):
         for tile in sprites_no_cook_floor:
             if self.carry.rect.colliderect(tile):
                 # we can drop something onto a plate.
-                if tile.get_item() is not None and type(tile.get_item()) is not Helper and issubclass(type(tile.get_item()), Utensil) and issubclass(
+                if tile.get_item() is not None and not issubclass(tile.get_item(),Cook) and issubclass(type(tile.get_item()), Utensil) and issubclass(
                         type(self.carry), Ingredient) and len(
                         tile.get_item().ingredients) != tile.get_item().maxCapacity:
                     if type(tile.get_item()) is not Plate and (
