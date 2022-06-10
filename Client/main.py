@@ -419,7 +419,8 @@ cooks[1].myStations = right_stations
 cooks[1].myIngredients = right_ingredients
 a_semaphore = Semaphore(1)
 rectList = [x.rect for x in sprites_no_cook_floor.sprites()]
-rectList.append(cooks[0].rect if cooks[0].controlling else cooks[1].rect)
+rectList.append(cooks[0].rect)
+rectList.append(cooks[1].rect)
 for i in range(len(assistants)):
     rectList.append(assistants[i].rect)
 index = 0
