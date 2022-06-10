@@ -141,14 +141,14 @@ class AssistantThread(threading.Thread):
                                 # step 4: wait for an available station
                                 for station in self.assistant.myStations["sinks"]:
                                     while True:
-                                        if station.occupied or station.get_item() is not None:
-                                            sleep(random.randint(1, 2))
+                                        if (station.occupied and station.occupant is not self.assistant) or station.get_item() is not None:
+                                            sleep(random.randint(1, 3))
                                         else:
                                             path, runs, direction = self.checkPathAllSides(station.rect.x,
                                                                                            station.rect.y)
                                             # step 5: go to said station
                                             self.moveTo(path, runs)
-
+                                            sleep(0.3)
                                             if station.occupant is not self.assistant or station.get_item() is not None:
                                                 path = path[:-3:-1]
                                                 self.moveTo(path, runs)
@@ -222,9 +222,9 @@ class AssistantThread(threading.Thread):
                             # step 4: wait for an available station
                             for destination_station in self.assistant.myStations["boards"]:
                                 while True:
-                                    if destination_station.occupied or destination_station.get_item() is not None:
+                                    if (destination_station.occupied and destination_station.occupant is not self.assistant) or destination_station.get_item() is not None:
                                         # print("chef " + str(self.assistant.id) + "waiting for station")
-                                        sleep(random.randint(1, 2))
+                                        sleep(random.randint(1, 3))
                                     else:
                                         # step 5: go to said station
                                         # path, runs = self.assistant.find_path(station.rect2.x, station.rect2.y)
@@ -232,7 +232,7 @@ class AssistantThread(threading.Thread):
                                                                                        destination_station.rect.y)
 
                                         self.moveTo(path, runs)
-                                        sleep(random.randint(1, 2))
+                                        sleep(0.3)
                                         if destination_station.occupant is not self.assistant or destination_station.get_item() is not None:
                                             path = path[:-3:-1]
                                             self.moveTo(path, runs)
@@ -309,9 +309,9 @@ class AssistantThread(threading.Thread):
                             # step 4: wait for an available station
                             for destination_station in self.assistant.myStations["seasonings"]:
                                 while True:
-                                    if destination_station.occupied or destination_station.get_item() is not None:
+                                    if (destination_station.occupied and destination_station.occupant is not self.assistant) or destination_station.get_item() is not None:
                                         # print("chef " + str(self.assistant.id) + "waiting for station")
-                                        sleep(random.randint(1, 2))
+                                        sleep(random.randint(1, 3))
                                     else:
                                         # step 5: go to said station
                                         # path, runs = self.assistant.find_path(station.rect2.x, station.rect2.y)
@@ -319,7 +319,7 @@ class AssistantThread(threading.Thread):
                                                                                        destination_station.rect.y)
 
                                         self.moveTo(path, runs)
-                                        sleep(random.randint(1, 2))
+                                        sleep(0.3)
                                         if destination_station.occupant is not self.assistant or destination_station.get_item() is not None:
                                             path = path[:-3:-1]
                                             self.moveTo(path, runs)
@@ -350,7 +350,6 @@ class AssistantThread(threading.Thread):
                                     ingredient.semaphore.acquire()
                                 ingredient.semaphore.release()
                                 # print("chef " + str(self.assistant.id) + "chopped")
-                                ingredient.semaphore.release()
                                 # path, runs, direction = self.checkPathAllSides(self.assistant.rect.x + SPRITE_SIZE,
                                 #                                               SPRITE_SIZE)
                                 # 1 step back
@@ -385,9 +384,9 @@ class AssistantThread(threading.Thread):
 
                                 for destination_station in self.assistant.myStations["stoves"]:
                                     while True:
-                                        if destination_station.occupied or destination_station.get_item() is not None:
+                                        if (destination_station.occupied and destination_station.occupant is not self.assistant) or destination_station.get_item() is not None:
                                             # print("chef " + str(self.assistant.id) + "waiting for station")
-                                            sleep(random.randint(1, 2))
+                                            sleep(random.randint(1, 3))
                                         else:
                                             # step 5: go to said station
                                             # path, runs = self.assistant.find_path(station.rect2.x, station.rect2.y)
@@ -395,7 +394,7 @@ class AssistantThread(threading.Thread):
                                                                                            destination_station.rect.y)
 
                                             self.moveTo(path, runs)
-                                            sleep(random.randint(1, 2))
+                                            sleep(0.3)
                                             if destination_station.occupant is not self.assistant or destination_station.get_item() is not None:
                                                 path = path[:-3:-1]
                                                 self.moveTo(path, runs)
@@ -561,7 +560,7 @@ class AssistantThread(threading.Thread):
                             msg = Face(self.assistant.id, direction)
                             to_send = msg.encode()
                             self.client.send(to_send)
-                            sleep(0.1)
+                            sleep(0.2)
                             msg = PickUp(self.assistant.id)
                             to_send = msg.encode()
                             self.client.send(to_send)
