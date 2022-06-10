@@ -1,6 +1,7 @@
 import threading
 
 from Cooks.Cook import Cook
+from Ingredients.Onion import Onion
 from Messages.enums.ActivityType import ActivityType
 from Messages.enums.MessageType import MessageType
 from Utensils.Pan import Pan
