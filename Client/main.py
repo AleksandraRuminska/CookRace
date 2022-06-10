@@ -332,6 +332,7 @@ for tile in world.tile_list:
         tiles_stations.append(tile)
 
     elif type(tile) == Cupboard:
+        tile.movablesRef = movables
         stations["cupboards"].append(tile)
         if tile.rect.x < 450:
             left_stations["cupboards"].append(tile)

@@ -9,6 +9,7 @@ from Ingredients.Onion import Onion
 from Ingredients.Steak import Steak
 from Ingredients.Tomato import Tomato
 from Stations.Station import Station
+from Stations.enums.CupboardType import CupboardType
 
 SPRITE_SIZE = 50
 
@@ -33,42 +34,26 @@ class Cupboard(Station):
         self.rect2.width = 56
         self.rect2.x -= 3
         self.cupboard_type = cupboard_type
-
-        self.tomato = None
-        self.onion = None
-        self.lettuce = None
-        self.bun = None
-        self.steak = None
-
+        self.movablesRef = None
         self.cupboard_group = pygame.sprite.Group()
 
     def take_off(self):
         if self._current_item is not None:
-            if self.cupboard_type.VEGETABLE:
+            ingredient = None
+            if self.cupboard_type is CupboardType.VEGETABLE:
                 if type(self._current_item) is Tomato:
-                    self.onion = Onion(onion, 1, -500)
-                    self.place_on(self.onion)
-                    self.cupboard_group.add(self.onion)
-
+                    ingredient = Onion(onion, 1, -500)
                 elif type(self._current_item) is Onion:
-                    self.lettuce = Lettuce(lettuce, 1, -500)
-                    self.place_on(self.lettuce)
-                    self.cupboard_group.add(self.lettuce)
-
+                    ingredient = Lettuce(lettuce, 1, -500)
                 else:
-                    self.tomato = Tomato(tomato, 1, -500)
-                    self.place_on(self.tomato)
-                    self.cupboard_group.add(self.tomato)
-
-            elif self.cupboard_type.BREAD:
-                self.bun = Bun(bun, 1, -500)
-                self.place_on(self.bun)
-                self.cupboard_group.add(self.bun)
-
+                    ingredient = Tomato(tomato, 1, -500)
+            elif self.cupboard_type is CupboardType.BREAD:
+                ingredient = Bun(bun, 1, -500)
             else:
-                self.steak = Steak(steak, 1, -500)
-                self.place_on(self.steak)
-                self.cupboard_group.add(self.steak)
+                ingredient = Steak(steak, 1, -500)
+            self.place_on(ingredient)
+            self.cupboard_group.add(ingredient)
+            self.movablesRef.append(ingredient)
 
-            self._current_item.placedOn = None
-            self._current_item = None
+            #self._current_item.placedOn = None
+            #self._current_item = None
