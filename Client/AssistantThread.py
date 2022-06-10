@@ -1,3 +1,4 @@
+import copy
 import threading
 import random
 from time import sleep
@@ -33,12 +34,14 @@ def splitPath(path):
 
 
 class AssistantThread(threading.Thread):
-    def __init__(self, client, assistants, command_queue, semaphore):
+    def __init__(self, client, assistants, command_queue, semaphore, collideables):
         threading.Thread.__init__(self)
         self.client = client
         self.assistant = assistants
         self.command_queue = command_queue
         self.semaphore = semaphore
+        self.collideables = copy.copy(collideables)
+        self.collideables.remove(self.assistant.rect)
 
     def moveTo(self, path, runs):
         # print("Path: ", path)
@@ -48,6 +51,17 @@ class AssistantThread(threading.Thread):
         # print("LEN: ", len(path))
         for i in range(0, len(path)):
             # print("path x: ", path[i][0], " ,y: ", path[i][1])
+            rect2 = copy.deepcopy(self.assistant.rect)
+            rect2.x = path[i][0]
+            rect2.y = path[i][1]
+            counter = 0
+            while True:
+                index = rect2.collidelist(self.collideables)
+                if index == -1 or counter == 5:
+                    break
+                else:
+                    counter += 1
+                    sleep(1)
             message = PutInPlace(self.assistant.id, int(path[i][0] / SPRITE_SIZE), path[i][0] % SPRITE_SIZE,
                                  int(path[i][1] / SPRITE_SIZE), path[i][1] % SPRITE_SIZE)
             if message is not None:

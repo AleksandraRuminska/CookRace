@@ -130,7 +130,7 @@ class Cook(pygame.sprite.Sprite):
         print("FALSE")
         return False
 
-    def put_down(self, sprites_no_cook_floor, move_queue):
+    def put_down(self, sprites_no_cook_floor):
         self.carry.currentlyCarried = False
         for tile in sprites_no_cook_floor:
             if self.carry.rect.colliderect(tile):
