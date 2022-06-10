@@ -18,6 +18,8 @@ class Tomato(Ingredient):
     def __init__(self, image_name, col, row_count):
         super().__init__(image_name, col, row_count)
 
+        self.isFried = False
+        self.isBoiled = False
         self.sliced = tomato_slices
         self.whole_tomato = image_name
         self.cooked = tomato_soup
@@ -47,9 +49,13 @@ class Tomato(Ingredient):
         self.change_image()
 
     def cook(self):
+        self.isBoiled = True
+        self.isSliced = False
         self.isCooked = True
         self.image = self.cooked
 
     def fry(self):
+        self.isFried = False
+        self.isSliced = False
         self.isCooked = True
         self.image = self.fried

@@ -30,7 +30,7 @@ class Station(Tile):
         self._time += delta
 
     def draw_progress(self, screen):
-        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(self.rect.x, self.rect.y + SPRITE_SIZE / 2, self._time, 5))
+        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(self.rect.x, self.rect.y + SPRITE_SIZE / 2, self._time/max(len(self._current_item.ingredients),1), 5))
         pygame.display.flip()
 
     def can_empty_utensil_here(self, utensil):
