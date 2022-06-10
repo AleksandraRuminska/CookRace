@@ -462,7 +462,7 @@ class AssistantThread(threading.Thread):
                                     sleep(0.2)
 
                                     for utensil in self.assistant.myUtensils["plates"]:
-                                        if not utensil.isDirty and not utensil.currentlyCarried:
+                                        if not utensil.isDirty and not utensil.currentlyCarried and len(utensil.ingredients) == 0:
                                             # step 2: get to the plate
                                             path, runs, direction = self.checkPathAllSides(utensil.rect.x,
                                                                                            utensil.rect.y)
