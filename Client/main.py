@@ -341,7 +341,7 @@ for tile in world.tile_list:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
         tiles_stations.append(tile)
-        tile.cupboard_group = all_sprites_group
+        tile.cupboard_group = ingredientsGroup
 
     elif type(tile) == Helper:
         all_sprites_group.add(tile)
