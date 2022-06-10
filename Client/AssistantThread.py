@@ -1,7 +1,10 @@
 import copy
+import os
 import threading
 import random
 from time import sleep
+
+import pygame
 
 from Ingredients.Bun import Bun
 from Ingredients.Steak import Steak
@@ -16,6 +19,14 @@ from Stations.CuttingBoard import CuttingBoard
 from Stations.Seasoning import Seasoning
 
 SPRITE_SIZE = 50
+
+path1 = os.path.abspath(os.getcwd())
+path_parent = os.path.dirname(os.getcwd())
+os.chdir(path_parent)
+path = os.getcwd()
+
+cloud = pygame.image.load(os.path.join(path, "resources", "Cloud.png"))
+os.chdir(path1)
 
 
 def splitPath(path):
@@ -55,13 +66,14 @@ class AssistantThread(threading.Thread):
             rect2.x = path[i][0]
             rect2.y = path[i][1]
             counter = 0
-            while True:
-                index = rect2.collidelist(self.collideables)
-                if index == -1 or counter == 5:
-                    break
-                else:
-                    counter += 1
-                    sleep(1)
+            # while True:
+            index = rect2.collidelist(self.collideables)
+            if index != -1:
+                self.assistant.image=cloud
+            #         break
+            #     else:
+            #         counter += 1
+            #         sleep(1)
             message = PutInPlace(self.assistant.id, int(path[i][0] / SPRITE_SIZE), path[i][0] % SPRITE_SIZE,
                                  int(path[i][1] / SPRITE_SIZE), path[i][1] % SPRITE_SIZE)
             if message is not None:

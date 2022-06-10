@@ -85,26 +85,26 @@ class Cook(pygame.sprite.Sprite):
             self.faceUp()
 
     def faceDown(self):
-        print("D")
+        #print("D")
         self.direction = "D"
         if self.carry is not None:
             self.carry.move(self.rect.x, self.rect.y + SPRITE_SIZE / 2)
 
     def faceUp(self):
-        print("U")
+        #print("U")
         self.direction = "U"
         if self.carry is not None:
             self.carry.move(self.rect.x, self.rect.y - SPRITE_SIZE / 2)
 
     def faceLeft(self):
-        print("L")
+        #print("L")
         self.direction = "L"
         self.image = self.left
         if self.carry is not None:
             self.carry.move(self.rect.x - SPRITE_SIZE / 2, self.rect.y)
 
     def faceRight(self):
-        print("R")
+        #print("R")
         self.direction = "R"
         self.image = self.right
         if self.carry is not None:
