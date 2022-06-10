@@ -8,10 +8,10 @@ class MoveableObject(Tile):
     def __init__(self, image_name, col, row_count):
         super().__init__(image_name, col, row_count)
         self.rect2 = copy.deepcopy(self.rect)
-        self.rect2.width += 10
-        self.rect2.x -= 5
-        self.rect2.height += 10
-        self.rect2.y -= 5
+        self.rect2.width += 4
+        self.rect2.x -= 2
+        self.rect2.height += 4
+        self.rect2.y -= 2
         self.placedOn = None
         self.currentlyCarried = False
         self.semaphore = Semaphore(1)
@@ -46,9 +46,9 @@ class MoveableObject(Tile):
 
     def collide(self, rect):
         self.rect2 = copy.deepcopy(self.rect)
-        self.rect2.width += 10
-        self.rect2.x -= 5
-        self.rect2.height += 10
-        self.rect2.y -= 5
+        self.rect2.width += 4
+        self.rect2.x -= 2
+        self.rect2.height += 4
+        self.rect2.y -= 2
         return self.rect2.colliderect(rect)
 

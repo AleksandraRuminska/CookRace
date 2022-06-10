@@ -119,6 +119,7 @@ class Cook(pygame.sprite.Sprite):
             elif self.direction == "U":
                 self.faceUp()
             return True
+        print("FALSE")
         return False
 
     def put_down(self, sprites_no_cook_floor, move_queue):
