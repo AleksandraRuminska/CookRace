@@ -85,22 +85,26 @@ class Cook(pygame.sprite.Sprite):
             self.faceUp()
 
     def faceDown(self):
+        #print("D")
         self.direction = "D"
         if self.carry is not None:
             self.carry.move(self.rect.x, self.rect.y + SPRITE_SIZE / 2)
 
     def faceUp(self):
+        #print("U")
         self.direction = "U"
         if self.carry is not None:
             self.carry.move(self.rect.x, self.rect.y - SPRITE_SIZE / 2)
 
     def faceLeft(self):
+        #print("L")
         self.direction = "L"
         self.image = self.left
         if self.carry is not None:
             self.carry.move(self.rect.x - SPRITE_SIZE / 2, self.rect.y)
 
     def faceRight(self):
+        #print("R")
         self.direction = "R"
         self.image = self.right
         if self.carry is not None:
@@ -126,7 +130,7 @@ class Cook(pygame.sprite.Sprite):
         print("FALSE")
         return False
 
-    def put_down(self, sprites_no_cook_floor, move_queue):
+    def put_down(self, sprites_no_cook_floor):
         self.carry.currentlyCarried = False
         for tile in sprites_no_cook_floor:
             if self.carry.rect.colliderect(tile):
@@ -184,7 +188,7 @@ class Cook(pygame.sprite.Sprite):
                     self.carry.placedOn = tile
                 break
         if self.carry.currentlyCarried is False:
-            # print("unblocking item at " + str(self.rect.x) + ", " + str(self.rect.y))
+            print("unblocking item at " + str(self.rect.x) + ", " + str(self.rect.y))
             self.carry.semaphore.release()
             self.carry = None
 

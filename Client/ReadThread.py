@@ -51,8 +51,9 @@ class ReadThread(threading.Thread):
                 # pick up
                 self.cooks[in_data[1]].semaphore.acquire()
                 if self.cooks[in_data[1]].is_carrying():
-                    self.cooks[in_data[1]].put_down(self.sprites_no_cook_floor, self.move_queue)
+                    self.cooks[in_data[1]].put_down(self.sprites_no_cook_floor)
                 else:
+                    print("empty hands")
                     for obj in self.movables:
                         #if obj.collide(self.cooks[in_data[1]].rect):
                         if self.cooks[in_data[1]].collide(obj.rect):

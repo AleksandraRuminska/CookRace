@@ -80,19 +80,19 @@ sinks = []
 # Matrix for creation of world conditions for a specific level
 
 world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1],
-              [[1, 21], 0, 0, 0, 0, 0, 0, 0, [1, 17], [1, 17], 0, 0, 0, 0, 0, 0, 0, [1, 21]],
+              [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
               [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
               [3, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 3],
               [[1, 18], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 18]],
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-              [4, 0, 0, 0, 1, 0, 0, 0, 13, 13, 0, 0, 0, 1, 0, 0, 0, 4],
-              [1, 0, [0, 16], 0, 5, 0, [0, 16], 0, 13, 13, 0, [0, 16], 0, 5, 0, 0, 0, 1],
-              [1, 0, 0, 0, [1, 17], 0, 0, 0, 13, 13, 0, 0, 0, [1, 17], 0, 0, 0, 1],
+              [4, 0, 0, 0, 1, 0, 0, 0, [13, 17], [13, 17], 0, 0, 0, 1, 0, 0, 0, 4],
+              [1, 0, 0, 0, 5, 0, [0, 16], 0, [22, 21], [22, 21], 0, [0, 16], 0, 5, 0, 0, 0, 1],
+              [1, 0, 0, 0, [1, 17], 0, 0, 0, [23, 20], [23, 20], 0, 0, 0, [1, 17], 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, 1],
-              [[1, 19], [0, 16], 0, 0, 1, 0, [0, 16], 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, [1, 19]],
+              [[1, 19], 0, 0, 0, 1, 0, [0, 16], 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, [1, 19]],
               [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, [0, 16], 0, 1],
-              [10, 9, 2, [2, 20], 1, 2, 2, 6, 1, 1, 6, 2, 2, 1, [2, 20], 2, 9, 10]]
+              [10, 9, 2, 2, 1, 2, 2, 6, 1, 1, 6, 2, 2, 1, 2, 2, 9, 10]]
 
 matrix = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -341,15 +341,14 @@ for tile in world.tile_list:
         all_sprites_group.add(tile)
         sprites_no_cook_floor.add(tile)
         tiles_stations.append(tile)
-        tile.cupboard_group = all_sprites_group
+        tile.cupboard_group = ingredientsGroup
 
     elif type(tile) == Helper:
         all_sprites_group.add(tile)
         cooks.append(tile)
         assistants.append(tile)
         helpers.add(tile)
-        # sprites_no_cook_floor.add(tile)
-
+        #sprites_no_cook_floor.add(tile)
     else:
         stations["rest"].append(tile)
         if tile.rect.x < 450:
@@ -381,7 +380,8 @@ semaphore = Semaphore(1)
 semaphore.acquire()
 new_thread = ReadThread(client, cooks, movables, semaphore, screen, stations, sprites_no_cook_floor, move_queue)
 new_thread.start()
-
+sprites_no_cook_floor.add(cooks[0])
+sprites_no_cook_floor.add(cooks[1])
 semaphore.acquire()
 
 all_sprites_group.add(cooks[0])
@@ -398,7 +398,7 @@ for x in right_stations["drop_offs"]:
     x.cook = cooks[1]
 
 new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
-                               left_stations if cooks[0].controlling else right_stations, command_queue, move_queue, assistants)
+                               left_stations if cooks[0].controlling else right_stations, command_queue, move_queue)
 new_thread_write.start()
 
 my_assistants = []
@@ -418,10 +418,14 @@ cooks[1].myUtensils = right_utensils
 cooks[1].myStations = right_stations
 cooks[1].myIngredients = right_ingredients
 a_semaphore = Semaphore(1)
-
+rectList = [x.rect for x in sprites_no_cook_floor.sprites()]
+rectList.append(cooks[0].rect)
+rectList.append(cooks[1].rect)
+for i in range(len(assistants)):
+    rectList.append(assistants[i].rect)
 index = 0
 for assistant in my_assistants:
-    new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore, assistants, cooks))
+    new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore, rectList))
     new_assistant_thread[index].start()
     index += 1
 semaphore.release()

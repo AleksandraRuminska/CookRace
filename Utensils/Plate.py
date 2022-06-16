@@ -42,7 +42,6 @@ class Plate(Utensil):
             self.image = self.clean_image
         else:
             self.image = self.dirty_image
-            self.isSeasoned = False
 
     def validAddition(self, ingredients):
         return False if self.recipe is not None else True

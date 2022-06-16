@@ -142,10 +142,10 @@ class Kitchen:
             tile = Bun(bun, col, row_count)
             self.tile_list.append(tile)
         elif tile == 22:
-            tile = Cupboard(cupboard, col, row_count, CupboardType.VEGETABLE)
+            tile = Cupboard(cupboard, col, row_count, CupboardType.BREAD)
             self.tile_list.append(tile)
         elif tile == 23:
-            tile = Cupboard(cupboard, col, row_count, CupboardType.VEGETABLE)
+            tile = Cupboard(cupboard, col, row_count, CupboardType.MEAT)
             self.tile_list.append(tile)
 
 

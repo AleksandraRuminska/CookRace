@@ -27,10 +27,13 @@ class DropOff(Station):
 
     def place_on(self, item):
         if type(item) is Plate and len(item.ingredients) > 0:
+            item.isSeasoned = False
+            item.recipe = None
             item.move(0, -200, absolute=False)
             length = len(item.ingredients)
             for i in range(length):
                 x = item.ingredients[0]
+                x.visible = True
                 item.ingredients.remove(x)
                 x.semaphore.release()
                 self.kill_semaphore.acquire()
