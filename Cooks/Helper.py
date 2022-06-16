@@ -39,6 +39,7 @@ class Helper(Cook):
     def find_path(self, index_x, index_y):
 
         grid = Grid(matrix=self.grid)
+
         start = grid.node(int(self.rect.x / SPRITE_SIZE), int(self.rect.y / SPRITE_SIZE))
         end = grid.node(int(index_x / SPRITE_SIZE), int(index_y / SPRITE_SIZE))
 
