@@ -7,5 +7,6 @@ class ActivityType(IntEnum):
     SLICE = 2
     COOK = 3
     SEASON = 4
-    MAKE_BURGER = 5
+    MAKE_BURGER_TOMATO = 5
     FRY = 6
+    MAKE_BURGER_BUN = 7
