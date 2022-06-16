@@ -5,6 +5,8 @@ from time import sleep
 import pygame
 
 from Ingredients.Bun import Bun
+from Ingredients.Lettuce import Lettuce
+from Ingredients.Onion import Onion
 from Ingredients.Steak import Steak
 from Ingredients.Tomato import Tomato
 from Utensils.Utensil import Utensil
@@ -20,6 +22,9 @@ dirty_plate = pygame.image.load(os.path.join(path, "resources", "DirtyPlate.png"
 burger = pygame.image.load(os.path.join(path, "resources", "Burger.png"))
 tomatoSoup = pygame.image.load(os.path.join(path, "resources", "TomatoSoupUnseasoned.png"))
 tomatoSoupSeasoned = pygame.image.load(os.path.join(path, "resources", "TomatoSoupSeasoned.png"))
+onionSoup = pygame.image.load(os.path.join(path, "resources", "OnionSoupUnseasoned.png"))
+onionSoupSeasoned = pygame.image.load(os.path.join(path, "resources", "OnionSoupSeasoned.png"))
+salad = pygame.image.load(os.path.join(path, "resources", "FinishedSalad.png"))
 
 os.chdir(path1)
 
@@ -61,7 +66,7 @@ class Plate(Utensil):
                             boiledCounter += 1
                     if slicedCounter == 3:
                         pass
-                        #self.recipe = "Tomato Salad"
+                        # self.recipe = "Tomato Salad"
                     if boiledCounter == 3:
                         self.recipe = "Tomato Soup"
 
@@ -79,13 +84,45 @@ class Plate(Utensil):
                         if steakFlag and tomatoFlag:
                             self.recipe = "Burger"
 
+                elif any(isinstance(x, Lettuce) for x in self.ingredients):
+                    if any(isinstance(x, Onion) for x in self.ingredients):
+                        slicedCounter = 0
+                        for x in self.ingredients:
+                            if x.isSliced:
+                                slicedCounter += 1
+                        if slicedCounter == 3:
+                            self.recipe = "Salad"
+
+            elif any(isinstance(x, Onion) for x in self.ingredients):
+                if type(self.ingredients[0]) is type(self.ingredients[1]) and type(self.ingredients[1]) is type(
+                        self.ingredients[2]):
+                    slicedCounter = 0
+                    boiledCounter = 0
+                    for ingredient in self.ingredients:
+                        if ingredient.isSliced:
+                            slicedCounter += 1
+                        elif ingredient.isBoiled:
+                            boiledCounter += 1
+                    if slicedCounter == 3:
+                        pass
+                    if boiledCounter == 3:
+                        self.recipe = "Onion Soup"
+
         self.updateContents()
 
     def seasonable(self):
-        return True if self.recipe == "Tomato Soup" and not self.isSeasoned else False
+        if self.recipe == "Tomato Soup" or self.recipe == "Onion Soup" and not self.isSeasoned:
+            return True
+        else:
+            return False
+        # return True if self.recipe == "Tomato Soup" and not self.isSeasoned else False
 
     def season(self):
-        self.image = tomatoSoupSeasoned
+        if self.recipe == "Tomato Soup":
+            self.image = tomatoSoupSeasoned
+        elif self.recipe == "Onion Soup":
+            self.image = onionSoupSeasoned
+
         self.isSeasoned = True
 
     def updateContents(self):
@@ -98,6 +135,10 @@ class Plate(Utensil):
                 self.image = burger
             elif self.recipe == "Tomato Soup":
                 self.image = tomatoSoup
+            elif self.recipe == "Onion Soup":
+                self.image = onionSoup
+            elif self.recipe == "Salad":
+                self.image = salad
 
     # def food_consuming(self):
     #     if self.rect.x < 450:
