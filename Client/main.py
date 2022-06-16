@@ -380,8 +380,6 @@ semaphore = Semaphore(1)
 semaphore.acquire()
 new_thread = ReadThread(client, cooks, movables, semaphore, screen, stations, sprites_no_cook_floor, move_queue)
 new_thread.start()
-sprites_no_cook_floor.add(cooks[0])
-sprites_no_cook_floor.add(cooks[1])
 semaphore.acquire()
 
 all_sprites_group.add(cooks[0])
@@ -487,7 +485,9 @@ while running:
                 command_queue.put(msg)
                 msg = DoActivity(0, 1, ActivityType.ActivityType.FRY)
                 command_queue.put(msg)
-                msg = DoActivity(0, 1, ActivityType.ActivityType.MAKE_BURGER)
+                msg = DoActivity(0, 1, ActivityType.ActivityType.MAKE_BURGER_TOMATO)
+                command_queue.put(msg)
+                msg = DoActivity(0, 1, ActivityType.ActivityType.MAKE_BURGER_BUN)
                 command_queue.put(msg)
 
     for sink in stations["sinks"]:

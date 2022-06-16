@@ -205,6 +205,7 @@ class AssistantThread(threading.Thread):
                                     while True:
                                         if station.occupied or station.get_item() is not None:
                                             sleep(random.randint(1, 2))
+
                                         else:
                                             path, runs, direction = self.checkPathAllSides(station.rect.x,
                                                                                            station.rect.y)
@@ -299,6 +300,7 @@ class AssistantThread(threading.Thread):
                             for destination_station in self.assistant.myStations["boards"]:
                                 while True:
                                     if destination_station.occupied or destination_station.get_item() is not None:
+
                                         # print("chef " + str(self.assistant.id) + "waiting for station")
                                         sleep(random.randint(1, 2))
                                     else:
@@ -415,6 +417,7 @@ class AssistantThread(threading.Thread):
                             for destination_station in self.assistant.myStations["seasonings"]:
                                 while True:
                                     if destination_station.occupied or destination_station.get_item() is not None:
+
                                         # print("chef " + str(self.assistant.id) + "waiting for station")
                                         sleep(random.randint(1, 2))
                                     else:
@@ -491,6 +494,7 @@ class AssistantThread(threading.Thread):
                                 for destination_station in self.assistant.myStations["stoves"]:
                                     while True:
                                         if destination_station.occupied or destination_station.get_item() is not None:
+
                                             # print("chef " + str(self.assistant.id) + "waiting for station")
                                             sleep(random.randint(1, 2))
                                         else:
@@ -538,7 +542,8 @@ class AssistantThread(threading.Thread):
                                     sleep(0.2)
 
                                     for utensil in self.assistant.myUtensils["plates"]:
-                                        if not utensil.isDirty and not utensil.currentlyCarried:
+                                        if not utensil.isDirty and not utensil.currentlyCarried and len(
+                                                utensil.ingredients) == 0:
                                             # step 2: get to the plate
                                             path, runs, direction = self.checkPathAllSides(utensil.rect.x,
                                                                                            utensil.rect.y)
@@ -576,7 +581,7 @@ class AssistantThread(threading.Thread):
                                     path = path[:-3:-1]
                                     self.moveTo(path, runs)
                                     break
-                    elif msg.get_activity_type() == ActivityType.MAKE_BURGER:
+                    elif msg.get_activity_type() == ActivityType.MAKE_BURGER_BUN:
                         path_length = 1000
                         path_min = []
                         path_run_min = 0
@@ -610,11 +615,12 @@ class AssistantThread(threading.Thread):
                             flag = False
                             while flag != True:
                                 for utensil in self.assistant.myUtensils["plates"]:
-                                    if not utensil.currentlyCarried and len(utensil.ingredients) == 1 and type(
-                                            utensil.ingredients[0]) is Steak and utensil.ingredients[0].isFried:
+                                    if not utensil.currentlyCarried and len(utensil.ingredients) != 0 and len(
+                                            utensil.ingredients) < 3 and type(
+                                        utensil.ingredients[0]) is Steak and utensil.ingredients[0].isFried:
                                         flag = True
                                         break
-                                sleep(3)
+                                sleep(1)
                             path, runs, direction = self.checkPathAllSides(utensil.rect.x,
                                                                            utensil.rect.y)
 
@@ -628,38 +634,53 @@ class AssistantThread(threading.Thread):
                             to_send = msg.encode()
                             self.client.send(to_send)
                             sleep(0.1)
-                            path_length = 1000
-                            path_min = []
-                            path_run_min = 0
-                            path_min_dir = None
-                            move_approved = False
-                            for station in self.assistant.myStations["all"]:
-                                if type(station.get_item()) == Tomato and station.get_item().isSliced:
-                                    ingredient = station.get_item()
-                                    path, runs, direction = self.checkPathAllSides(station.rect.x, station.rect.y)
-                                    if len(path) < path_length:
-                                        move_approved = True
-                                        path_length = len(path)
-                                        path_min = path
-                                        path_run_min = runs
-                                        path_min_dir = direction
-                            if move_approved:
-                                self.moveTo(path_min, path_run_min)
-                                # step 2.5: face the plate
-                                msg = Face(self.assistant.id, path_min_dir)
-                                to_send = msg.encode()
-                                self.client.send(to_send)
-                                sleep(0.2)
-                                # step 3: pick up the plate
-                                msg = PickUp(self.assistant.id)
-                                to_send = msg.encode()
-                                self.client.send(to_send)
-                                sleep(0.1)
-                                if self.assistant.carry is None:
-                                    # someone yoinked it
-                                    continue
-                            path, runs, direction = self.checkPathAllSides(utensil.rect.x,
-                                                                           utensil.rect.y)
+
+
+                    elif msg.get_activity_type() == ActivityType.MAKE_BURGER_TOMATO:
+                        path_length = 1000
+                        path_min = []
+                        path_run_min = 0
+                        path_min_dir = None
+                        move_approved = False
+                        for station in self.assistant.myStations["all"]:
+                            if type(station.get_item()) == Tomato and station.get_item().isSliced:
+                                ingredient = station.get_item()
+                                path, runs, direction = self.checkPathAllSides(station.rect.x, station.rect.y)
+                                if len(path) < path_length:
+                                    move_approved = True
+                                    path_length = len(path)
+                                    path_min = path
+                                    path_run_min = runs
+                                    path_min_dir = direction
+                        if move_approved:
+                            self.moveTo(path_min, path_run_min)
+                            # step 2.5: face the plate
+                            msg = Face(self.assistant.id, path_min_dir)
+                            to_send = msg.encode()
+                            self.client.send(to_send)
+                            sleep(0.2)
+                            # step 3: pick up the plate
+                            msg = PickUp(self.assistant.id)
+                            to_send = msg.encode()
+                            self.client.send(to_send)
+                            sleep(0.1)
+                            if self.assistant.carry is None:
+                                # someone yoinked it
+                                continue
+                            target = None
+                            flag = False
+                            while flag != True:
+                                for utensil in self.assistant.myUtensils["plates"]:
+                                    if not utensil.currentlyCarried and len(utensil.ingredients) != 0 and len(
+                                            utensil.ingredients) < 3 and type(
+                                        utensil.ingredients[0]) is Steak and utensil.ingredients[0].isFried:
+                                        target = utensil
+                                        flag = True
+                                        break
+                                sleep(1)
+
+                            path, runs, direction = self.checkPathAllSides(target.rect.x,
+                                                                           target.rect.y)
 
                             self.moveTo(path, runs)
                             # step 2.5: face the plate
@@ -673,7 +694,6 @@ class AssistantThread(threading.Thread):
                             sleep(0.1)
                             path = path[:-3:-1]
                             self.moveTo(path, runs)
-
             else:
                 self.semaphore.release()
                 sleep(0.3)
