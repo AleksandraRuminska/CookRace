@@ -59,15 +59,12 @@ class AssistantThread(threading.Thread):
                     # return path[i+1][0], path[i+1][1]
                     return path[i][0], path[i][1]
 
-            if self.cooks[0].rect.x - SPRITE_SIZE < path[i][0] < self.cooks[0].rect.x + SPRITE_SIZE \
-                    and self.cooks[0].rect.y - SPRITE_SIZE < path[i][1] < self.cooks[0].rect.y + SPRITE_SIZE:
-                # return path[i + 1][0], path[i + 1][1]
-                return path[i][0], path[i][1]
-
-            if self.cooks[1].rect.x - SPRITE_SIZE < path[i][1] < self.cooks[1].rect.x + SPRITE_SIZE \
-                    and self.cooks[1].rect.y - SPRITE_SIZE < path[i][1] < self.cooks[1].rect.y + SPRITE_SIZE:
-                # return path[i + 1][0], path[i + 1][1]
-                return path[i][0], path[i][1]
+            for a in range(0, 2):
+                if self.cooks[a].rect.x - SPRITE_SIZE < path[i][0] < self.cooks[a].rect.x + SPRITE_SIZE \
+                        and self.cooks[a].rect.y - SPRITE_SIZE < path[i][1] < self.cooks[a].rect.y + SPRITE_SIZE:
+                    # return path[i + 1][0], path[i + 1][1]
+                    print("COOK ", a)
+                    return path[i][0], path[i][1]
 
 
             message = PutInPlace(self.assistant.id, int(path[i][0] / SPRITE_SIZE), path[i][0] % SPRITE_SIZE,

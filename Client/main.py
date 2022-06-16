@@ -82,7 +82,7 @@ sinks = []
 world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1],
               [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
               [[1, 7], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 7]],
-              [3, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 3],
+              [3, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, [0, 16], 0, 3],
               [[1, 18], 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, [1, 18]],
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, [13, 17], [13, 17], 0, 0, 0, 1, 0, 0, 0, 4],
@@ -90,7 +90,7 @@ world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1]
               [1, 0, 0, 0, [1, 17], 0, 0, 0, [23, 20], [23, 20], 0, 0, 0, [1, 17], 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, 1],
-              [[1, 19], 0, 0, 0, 1, 0, [0, 16], 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, [1, 19]],
+              [[1, 19], 0, 0, 0, 1, 0, [0, 16], [0, 16], 15, 15, 0, 0, 0, 1, 0, 0, 0, [1, 19]],
               [1, 0, 0, 0, 1, 0, 0, 0, 15, 15, 0, 0, 0, 1, 0, [0, 16], 0, 1],
               [10, 9, 2, 2, 1, 2, 2, 6, 1, 1, 6, 2, 2, 1, 2, 2, 9, 10]]
 
@@ -398,7 +398,7 @@ for x in right_stations["drop_offs"]:
     x.cook = cooks[1]
 
 new_thread_write = WriteThread(client, cooks[0] if cooks[0].controlling is True else cooks[1], sprites_no_cook_floor,
-                               left_stations if cooks[0].controlling else right_stations, command_queue, move_queue)
+                               left_stations if cooks[0].controlling else right_stations, command_queue, move_queue, assistants)
 new_thread_write.start()
 
 my_assistants = []
@@ -425,7 +425,8 @@ for i in range(len(assistants)):
     rectList.append(assistants[i].rect)
 index = 0
 for assistant in my_assistants:
-    new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore, rectList))
+    # new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore, rectList, cooks))
+    new_assistant_thread.append(AssistantThread(client, assistant, command_queue, a_semaphore, assistants, cooks))
     new_assistant_thread[index].start()
     index += 1
 semaphore.release()
