@@ -484,7 +484,9 @@ while running:
                 command_queue.put(msg)
                 msg = DoActivity(0, 1, ActivityType.ActivityType.FRY)
                 command_queue.put(msg)
-                msg = DoActivity(0, 1, ActivityType.ActivityType.MAKE_BURGER)
+                msg = DoActivity(0, 1, ActivityType.ActivityType.MAKE_BURGER_TOMATO)
+                command_queue.put(msg)
+                msg = DoActivity(0, 1, ActivityType.ActivityType.MAKE_BURGER_BUN)
                 command_queue.put(msg)
 
     for sink in stations["sinks"]:
