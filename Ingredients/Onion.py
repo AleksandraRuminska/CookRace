@@ -11,7 +11,7 @@ path = os.getcwd()
 
 onion_slices = pygame.image.load(os.path.join(path, "resources", "OnionSliced.png"))
 onion = pygame.image.load(os.path.join(path, "resources", "Onion.png"))
-
+onion_soup = pygame.image.load(os.path.join(path, "resources", "OnionSoup.png"))
 os.chdir(path1)
 
 
@@ -22,6 +22,7 @@ class Onion(Ingredient):
         self.name = "Onion"
         self.sliced = onion_slices
         self.whole_onion = image_name
+        self.cooked = onion_soup
         self.isBoiled = False
         self.isSliced = False
         self.isCooked = False
