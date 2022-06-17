@@ -60,7 +60,7 @@ class AssistantThread(threading.Thread):
         path = splitPath(path)
         message = None
         # print("LEN: ", len(path))
-        previousImage = self.assistant.image
+        previousImage = self.assistant.image if self.assistant.image is not cloud else self.assistant.left
         for i in range(0, len(path)):
             # print("path x: ", path[i][0], " ,y: ", path[i][1])
             rect2 = copy.deepcopy(self.assistant.rect)
@@ -173,6 +173,8 @@ class AssistantThread(threading.Thread):
                                 # step 4: wait for an available station
                                 for station in self.assistant.myStations["sinks"]:
                                     while True:
+                                        if self.assistant.image is cloud:
+                                            self.assistant.image = self.assistant.left
                                         if (
                                                 station.occupied and station.occupant is not self.assistant) or station.get_item() is not None:
                                             sleep(random.randint(1, 3))
@@ -183,7 +185,7 @@ class AssistantThread(threading.Thread):
                                             self.moveTo(path, runs)
                                             sleep(0.3)
                                             if station.occupant is not self.assistant or station.get_item() is not None:
-                                                path = path[:-3:-1]
+                                                path = path[:random.randint(-4,-2):-1]
                                                 self.moveTo(path, runs)
                                                 sleep(random.randint(1, 2))
                                             else:
@@ -203,6 +205,8 @@ class AssistantThread(threading.Thread):
                                     # step 7: wash until clean(for now assume we occupy station at this point)
                                     utensil.semaphore.acquire()
                                     while utensil.isDirty:
+                                        if self.assistant.image is cloud:
+                                            self.assistant.image = self.assistant.left
                                         utensil.semaphore.release()
                                         msg = DoActivity(self.assistant.id, 1, ActivityType.WASH_PLATE)
                                         to_send = msg.encode()
@@ -211,7 +215,7 @@ class AssistantThread(threading.Thread):
                                         utensil.semaphore.acquire()
                                     print("cleean")
                                     utensil.semaphore.release()
-                                    path = path[:-3:-1]
+                                    path = path[:random.randint(-4,-2):-1]
                                     self.moveTo(path, runs)
                                     break
                                 break
@@ -255,6 +259,8 @@ class AssistantThread(threading.Thread):
                             # step 4: wait for an available station
                             for destination_station in self.assistant.myStations["boards"]:
                                 while True:
+                                    if self.assistant.image is cloud:
+                                        self.assistant.image = self.assistant.left
                                     if (
                                             destination_station.occupied and destination_station.occupant is not self.assistant) or destination_station.get_item() is not None:
                                         # print("chef " + str(self.assistant.id) + "waiting for station")
@@ -268,7 +274,7 @@ class AssistantThread(threading.Thread):
                                         self.moveTo(path, runs)
                                         sleep(0.3)
                                         if destination_station.occupant is not self.assistant or destination_station.get_item() is not None:
-                                            path = path[:-3:-1]
+                                            path = path[:random.randint(-4,-2):-1]
                                             self.moveTo(path, runs)
                                         else:
                                             break
@@ -289,6 +295,8 @@ class AssistantThread(threading.Thread):
                                 ingredient.semaphore.acquire()
                                 # print("chef " + str(self.assistant.id) + "choppin")
                                 while ingredient.sliceable():
+                                    if self.assistant.image is cloud:
+                                        self.assistant.image = self.assistant.left
                                     ingredient.semaphore.release()
                                     msg = DoActivity(self.assistant.id, 1, ActivityType.SLICE)
                                     to_send = msg.encode()
@@ -300,7 +308,7 @@ class AssistantThread(threading.Thread):
                                 # path, runs, direction = self.checkPathAllSides(self.assistant.rect.x + SPRITE_SIZE,
                                 #                                               SPRITE_SIZE)
                                 # 1 step back
-                                path = path[:-3:-1]
+                                path = path[:random.randint(-4,-2):-1]
                                 self.moveTo(path, runs)
                                 break
                     elif msg.get_activity_type() == ActivityType.FRY:
@@ -343,6 +351,8 @@ class AssistantThread(threading.Thread):
                             # step 4: wait for an available station
                             for destination_station in self.assistant.myStations["seasonings"]:
                                 while True:
+                                    if self.assistant.image is cloud:
+                                        self.assistant.image = self.assistant.left
                                     if (
                                             destination_station.occupied and destination_station.occupant is not self.assistant) or destination_station.get_item() is not None:
                                         # print("chef " + str(self.assistant.id) + "waiting for station")
@@ -356,7 +366,7 @@ class AssistantThread(threading.Thread):
                                         self.moveTo(path, runs)
                                         sleep(0.3)
                                         if destination_station.occupant is not self.assistant or destination_station.get_item() is not None:
-                                            path = path[:-3:-1]
+                                            path = path[:random.randint(-4,-2):-1]
                                             self.moveTo(path, runs)
                                         else:
                                             break
@@ -377,6 +387,8 @@ class AssistantThread(threading.Thread):
                                 ingredient.semaphore.acquire()
                                 # print("chef " + str(self.assistant.id) + "choppin")
                                 while ingredient.seasonable():
+                                    if self.assistant.image is cloud:
+                                        self.assistant.image = self.assistant.left
                                     ingredient.semaphore.release()
                                     msg = DoActivity(self.assistant.id, 1, ActivityType.SEASON)
                                     to_send = msg.encode()
@@ -419,6 +431,8 @@ class AssistantThread(threading.Thread):
 
                                 for destination_station in self.assistant.myStations["stoves"]:
                                     while True:
+                                        if self.assistant.image is cloud:
+                                            self.assistant.image = self.assistant.left
                                         if (
                                                 destination_station.occupied and destination_station.occupant is not self.assistant) or destination_station.get_item() is not None:
                                             # print("chef " + str(self.assistant.id) + "waiting for station")
@@ -432,7 +446,7 @@ class AssistantThread(threading.Thread):
                                             self.moveTo(path, runs)
                                             sleep(0.3)
                                             if destination_station.occupant is not self.assistant or destination_station.get_item() is not None:
-                                                path = path[:-3:-1]
+                                                path = path[:random.randint(-4,-2):-1]
                                                 self.moveTo(path, runs)
                                             else:
                                                 break
@@ -453,6 +467,8 @@ class AssistantThread(threading.Thread):
                                     ingredient.semaphore.acquire()
                                     # print("chef " + str(self.assistant.id) + "choppin")
                                     while ingredient.ingredients[0].fryable():
+                                        if self.assistant.image is cloud:
+                                            self.assistant.image = self.assistant.left
                                         ingredient.semaphore.release()
                                         msg = DoActivity(self.assistant.id, 1, ActivityType.COOK)
                                         to_send = msg.encode()
@@ -466,7 +482,8 @@ class AssistantThread(threading.Thread):
                                     to_send = msg.encode()
                                     self.client.send(to_send)
                                     sleep(0.2)
-
+                                    path = path[:random.randint(-4,-2):-1]
+                                    self.moveTo(path, runs)
                                     for utensil in self.assistant.myUtensils["plates"]:
                                         if not utensil.isDirty and not utensil.currentlyCarried and len(
                                                 utensil.ingredients) == 0:
@@ -504,7 +521,7 @@ class AssistantThread(threading.Thread):
                                             sleep(0.1)
                                             break
 
-                                    path = path[:-3:-1]
+                                    path = path[:random.randint(-4,-2):-1]
                                     self.moveTo(path, runs)
                                     break
                     elif msg.get_activity_type() == ActivityType.MAKE_BURGER_BUN:
@@ -535,11 +552,15 @@ class AssistantThread(threading.Thread):
                             to_send = msg.encode()
                             self.client.send(to_send)
                             sleep(0.1)
+                            path = path[:random.randint(-4,-2):-1]
+                            self.moveTo(path, runs)
                             if self.assistant.carry is None:
                                 # someone yoinked it
                                 continue
                             flag = False
                             while flag != True:
+                                if self.assistant.image is cloud:
+                                    self.assistant.image = self.assistant.left
                                 for utensil in self.assistant.myUtensils["plates"]:
                                     if not utensil.currentlyCarried and len(utensil.ingredients) != 0 and len(
                                             utensil.ingredients) < 3 and type(
@@ -560,6 +581,9 @@ class AssistantThread(threading.Thread):
                             to_send = msg.encode()
                             self.client.send(to_send)
                             sleep(0.1)
+
+                            path = path[:random.randint(-4,-2):-1]
+                            self.moveTo(path, runs)
 
 
                     elif msg.get_activity_type() == ActivityType.MAKE_BURGER_TOMATO:
@@ -590,12 +614,16 @@ class AssistantThread(threading.Thread):
                             to_send = msg.encode()
                             self.client.send(to_send)
                             sleep(0.1)
+                            path = path[:-3:-1]
+                            self.moveTo(path, runs)
                             if self.assistant.carry is None:
                                 # someone yoinked it
                                 continue
                             target = None
                             flag = False
                             while flag != True:
+                                if self.assistant.image is cloud:
+                                    self.assistant.image = self.assistant.left
                                 for utensil in self.assistant.myUtensils["plates"]:
                                     if not utensil.currentlyCarried and len(utensil.ingredients) != 0 and len(
                                             utensil.ingredients) < 3 and type(
@@ -621,5 +649,7 @@ class AssistantThread(threading.Thread):
                             path = path[:-3:-1]
                             self.moveTo(path, runs)
             else:
+                if self.assistant.image is cloud:
+                    self.assistant.image = self.assistant.left
                 self.semaphore.release()
                 sleep(0.3)
