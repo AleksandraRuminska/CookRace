@@ -564,7 +564,14 @@ while running:
     font = pygame.font.Font('freesansbold.ttf', 24)
 
     print_text(str(cooks[0].points), screen, 2 * SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE / 2)
-    print_text(str(cooks[1].points), screen, SCREEN_WIDTH - 2 * SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE / 2)
+    print_text(str(cooks[1].points), screen, SCREEN_WIDTH/2, SCREEN_HEIGHT - SPRITE_SIZE / 2)
+
+
+    for cook in cooks:
+        if cook.points >= 30:
+            pygame.draw.rect(screen, BLACK, pygame.Rect(0, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT))
+            print_text("Player " + str(cook.id) + " Has Won!!", screen, SCREEN_WIDTH/2, SCREEN_HEIGHT / 2)
+
 
     #time_now = pygame.time.get_ticks() / 1000
     #seconds = (pygame.time.get_ticks() - start_ticks) / 1000
