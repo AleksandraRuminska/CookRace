@@ -87,7 +87,7 @@ world_data = [[1, 12, 12, 12, 2, 11, 11, 11, 1, 1, 11, 11, 11, 2, 12, 12, 12, 1]
               [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, [13, 17], [13, 17], 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, 0, 0, 5, 0, [0, 16], 0, [22, 21], [22, 21], 0, [0, 16], 0, 5, 0, 0, 0, 1],
-              [1, 0, 0, 0, [1, 17], 0, 0, 0, [23, 20], [23, 20], 0, 0, 0, [1, 17], 0, 0, 0, 1],
+              [1, 0, 0, 0, 1, 0, 0, 0, [23, 20], [23, 20], 0, 0, 0, 1, 0, 0, 0, 1],
               [4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 4],
               [1, 0, 0, 0, 8, 0, 0, 0, 15, 15, 0, 0, 0, 8, 0, 0, 0, 1],
               [[1, 19], 0, 0, 0, 1, 0, [0, 16], 0, 15, 15, 0, 0, 0, 1, 0, 0, 0, [1, 19]],
@@ -415,6 +415,7 @@ cooks[0].myIngredients = left_ingredients
 cooks[1].myUtensils = right_utensils
 cooks[1].myStations = right_stations
 cooks[1].myIngredients = right_ingredients
+
 a_semaphore = Semaphore(1)
 rectList = [x.rect for x in sprites_no_cook_floor.sprites()]
 rectList.append(cooks[0].rect)
@@ -588,6 +589,8 @@ while running:
     pygame.display.flip()
     kill_semaphore.release()
     clock.tick(60)
+
+
 pygame.quit()
 
 new_thread.join()
