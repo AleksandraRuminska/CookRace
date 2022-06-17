@@ -588,8 +588,8 @@ while running:
     ingredientsGroup.draw(screen)
 
     for cook in cooks:
-        if cook.points >= 30:
-            pygame.draw.rect(screen, BLACK, pygame.Rect(0, SCREEN_HEIGHT - SPRITE_SIZE, SCREEN_WIDTH, 200))
+        if cook.points >= 3:
+            pygame.draw.rect(screen, BLACK, pygame.Rect(0, (SCREEN_HEIGHT / 2)-25, SCREEN_WIDTH, 50))
             print_text("Player " + str(cook.id) + " Has Won!!", screen, SCREEN_WIDTH/2, SCREEN_HEIGHT - SCREEN_HEIGHT/2)
             break
 
