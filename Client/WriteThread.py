@@ -84,7 +84,7 @@ class WriteThread(threading.Thread):
                                 msg = DoActivity(move._id, 3, ActivityType.ActivityType.COOK)
 
                 elif type(move) is Points:
-                    if move._id == self.cook.id:
+                    if move._id == self.cook.id or move._sign != 1:
                         msg = move
 
                 if msg is None:

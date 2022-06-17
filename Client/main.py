@@ -9,6 +9,7 @@ from Ingredients.Bun import Bun
 from Ingredients.Lettuce import Lettuce
 from Ingredients.Onion import Onion
 from Ingredients.Steak import Steak
+from Messages.Points import Points
 from Stations.Cupboard import Cupboard
 from Stations.CuttingBoard import CuttingBoard
 from Floor import Floor
@@ -441,6 +442,8 @@ start_ticks = pygame.time.get_ticks()
 
 # Game Loop
 executions = 0
+game_over = False
+winner = None
 while running:
     direction = ""
     executions += 1
@@ -489,6 +492,10 @@ while running:
                 command_queue.put(msg)
                 msg = DoActivity(0, 1, ActivityType.ActivityType.MAKE_BURGER_BUN)
                 command_queue.put(msg)
+            elif pygame.key.name(event.key) == "r":
+                if game_over and winner == my_cook.id:
+                    move_queue.put(Points(0,int(cooks[0].points/100), cooks[0].points % 100, 0))
+                    move_queue.put(Points(1, int(cooks[1].points / 100), cooks[1].points % 100, 0))
 
     for sink in stations["sinks"]:
         plate_in_sink = False
@@ -565,7 +572,7 @@ while running:
     font = pygame.font.Font('freesansbold.ttf', 24)
 
     print_text(str(cooks[0].points), screen, 2 * SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE / 2)
-    print_text(str(cooks[1].points), screen, SCREEN_WIDTH/2, SCREEN_HEIGHT - SPRITE_SIZE / 2)
+    print_text(str(cooks[1].points), screen, SCREEN_WIDTH - 2 * SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE / 2)
 
 
     #time_now = pygame.time.get_ticks() / 1000
@@ -588,9 +595,11 @@ while running:
     ingredientsGroup.draw(screen)
 
     for cook in cooks:
-        if cook.points >= 3:
+        if cook.points >= 30:
             pygame.draw.rect(screen, BLACK, pygame.Rect(0, (SCREEN_HEIGHT / 2)-25, SCREEN_WIDTH, 50))
-            print_text("Player " + str(cook.id) + " Has Won!!", screen, SCREEN_WIDTH/2, SCREEN_HEIGHT - SCREEN_HEIGHT/2)
+            print_text("Player " + str(cook.id) + " Has Won!! R to start another race", screen, SCREEN_WIDTH/2, SCREEN_HEIGHT - SCREEN_HEIGHT/2)
+            game_over = True
+            winner = cook.id
             break
 
     pygame.display.flip()
