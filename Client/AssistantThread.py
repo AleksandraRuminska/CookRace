@@ -614,7 +614,7 @@ class AssistantThread(threading.Thread):
                             to_send = msg.encode()
                             self.client.send(to_send)
                             sleep(0.1)
-                            path = path[:-3:-1]
+                            path = path[:random.randint(-4,-2):-1]
                             self.moveTo(path, runs)
                             if self.assistant.carry is None:
                                 # someone yoinked it
@@ -646,9 +646,17 @@ class AssistantThread(threading.Thread):
                             to_send = msg.encode()
                             self.client.send(to_send)
                             sleep(0.1)
-                            path = path[:-3:-1]
+                            path = path[:random.randint(-4, -2):-1]
                             self.moveTo(path, runs)
             else:
+                previousImage = self.assistant.image if self.assistant.image is not cloud else self.assistant.left
+                index = self.assistant.rect.collidelist(self.collideables)
+                if index != -1 and self.collideables[index] != self.assistant.rect:
+                    if self.assistant.image is not cloud:
+                        previousImage = self.assistant.image
+                        self.assistant.image = cloud
+                else:
+                    self.assistant.image = previousImage
                 if self.assistant.image is cloud:
                     self.assistant.image = self.assistant.left
                 self.semaphore.release()
