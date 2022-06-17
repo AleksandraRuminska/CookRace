@@ -162,7 +162,7 @@ class Cook(pygame.sprite.Sprite):
                         tile.get_item().validateRecipe()
                     self.carry.currentlyCarried = True
                 elif tile.get_item() is not None and type(tile.get_item()) is type(self.carry) and issubclass(
-                        self.carry, Utensil):
+                        type(self.carry), Utensil):
                     while len(tile.get_item().ingredients) < tile.get_item().maxCapacity and len(
                             self.carry.ingredients) > 0:
                         ingredient = self.carry.ingredients.pop()
