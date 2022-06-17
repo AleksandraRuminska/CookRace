@@ -66,7 +66,7 @@ class WriteThread(threading.Thread):
                     if move.get_activity_type() == ActivityType.ActivityType.WASH_PLATE:
                         for sink in self.stations["sinks"]:
                             #if sink.is_washed and not sink.is_finished:
-                            if sink.occupant is self.cook and sink.get_item() is not None and sink.get_item().sliceable():
+                            if sink.occupant is self.cook and sink.get_item() is not None and sink.get_item().cleanable():
                                 msg = DoActivity(move._id, 3, ActivityType.ActivityType.WASH_PLATE)
                     elif move.get_activity_type() == ActivityType.ActivityType.SLICE:
                         for cutting_board in self.stations["boards"]:
